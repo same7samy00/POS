@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            /* تحسين التباين للألوان */
             --primary: #2E7D32;
             --primary-dark: #1B5E20;
             --error: #C62828;
@@ -27,13 +26,13 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Tajawal', sans-serif;
+            line-height: 1.6;
         }
         body {
             background-color: var(--bg-color);
             display: flex;
             min-height: 100vh;
             color: var(--dark);
-            line-height: 1.6;
         }
         .sidebar {
             width: 250px;
@@ -113,13 +112,6 @@
             border-radius: 8px;
             font-size: 1rem;
             background: var(--input-bg);
-            border: 2px solid #ddd !important;
-            transition: border 0.3s;
-        }
-        input:focus, select:focus {
-            border-color: var(--primary) !important;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
         }
         .product-grid {
             display: grid;
@@ -333,30 +325,6 @@
             max-width: 500px;
             position: relative;
         }
-        #paymentModal .modal-content {
-            width: 90vw;
-            height: 90vh;
-            max-width: none;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 4rem; /* Improved padding for the full-screen modal */
-        }
-        #paymentModal .payment-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-        }
-        #paymentModal .payment-card {
-            background: var(--bg-color);
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -387,14 +355,19 @@
             color: var(--dark);
             font-weight: 500;
         }
-        .form-group input, .form-group select, .form-group datalist {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 12px 15px;
+            border: 2px solid #ddd !important;
             border-radius: 5px;
             font-size: 1rem;
             transition: all 0.3s;
             background-color: var(--input-bg);
-            border: 2px solid #ddd !important;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary) !important;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
         }
         .form-group .btn-inline {
             width: auto;
@@ -407,31 +380,7 @@
             gap: 10px;
             margin-top: 1.5rem;
         }
-        .payment-summary-display {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-        .payment-summary-display h3 {
-            font-size: 1.2rem;
-            color: var(--primary-dark);
-            margin-bottom: 15px;
-        }
-        .payment-summary-display .summary-line {
-            border-bottom: 1px solid var(--border-color);
-            padding: 8px 0;
-            font-size: 1rem;
-        }
-        .payment-summary-display .total-line {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-top: 15px;
-        }
-
-
+        
         /* تحسينات للاستجابة على الأجهزة الصغيرة */
         @media (max-width: 768px) {
             .pos-container {
@@ -449,12 +398,6 @@
             .search-bar input,
             .search-bar button {
                 width: 100%;
-            }
-            #paymentModal .payment-grid {
-                grid-template-columns: 1fr;
-            }
-            #paymentModal .modal-content {
-                padding: 1rem;
             }
         }
     </style>
@@ -499,7 +442,7 @@
                     <div class="summary-line input-group">
                         <span>الخصم:</span>
                         <input type="number" id="discountInput" value="0" min="0" step="0.01">
-                        <span id="discountType">%</span>
+                        <span>%</span>
                     </div>
                     <div class="summary-line input-group">
                         <span>الضريبة:</span>
@@ -534,39 +477,28 @@
                 <h2>إتمام البيع</h2>
                 <span class="close-btn" onclick="closeModal('paymentModal')">&times;</span>
             </div>
-            <div class="payment-grid">
-                <div class="payment-card">
-                    <h3>بيانات العميل</h3>
-                    <div class="form-group" id="customerSelectionGroup">
-                        <label for="customerSearch">بحث عن عميل أو إضافة جديد:</label>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="customerSearch" list="customerList" placeholder="اكتب اسم العميل...">
-                            <datalist id="customerList">
-                                </datalist>
-                        </div>
-                        <div id="customerDetails" style="margin-top: 10px; font-size: 0.9rem; color: var(--primary-dark);"></div>
-                        <button type="button" class="btn btn-primary" id="addCustomerBtn" style="margin-top: 10px;">
-                            <i class="fas fa-plus"></i> إضافة عميل جديد
-                        </button>
-                    </div>
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label for="paymentMethod">طريقة الدفع:</label>
+                    <select id="paymentMethod">
+                        <option value="cash">نقدي</option>
+                        <option value="credit">آجل</option>
+                    </select>
                 </div>
-
-                <div class="payment-card">
-                    <h3>تفاصيل الدفع</h3>
-                    <div class="form-group">
-                        <label for="paymentMethod">طريقة الدفع:</label>
-                        <select id="paymentMethod">
-                            <option value="cash">نقدي</option>
-                            <option value="credit">آجل</option>
-                        </select>
+                <div class="form-group" id="customerSelectionGroup">
+                    <label for="customerSearch">بحث عن عميل أو إضافة جديد:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="customerSearch" list="customerList" placeholder="اكتب اسم العميل...">
+                        <datalist id="customerList">
+                            </datalist>
                     </div>
-                    <div class="form-group">
-                        <label>المبلغ المطلوب:</label>
-                        <input type="text" id="modalTotal" readonly style="font-weight: bold; color: var(--primary-dark);">
-                    </div>
-                    <button type="submit" class="btn btn-primary" id="confirmPaymentBtn">تأكيد الدفع</button>
+                    <div id="customerDetails" style="margin-top: 10px; font-size: 0.9rem; color: var(--primary-dark);"></div>
                 </div>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button>
+                    <button type="submit" class="btn btn-primary">تأكيد الدفع</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -635,13 +567,11 @@
 
         // Modals
         const paymentModal = document.getElementById('paymentModal');
+        const paymentForm = document.getElementById('paymentForm');
         const paymentMethodSelect = document.getElementById('paymentMethod');
         const customerList = document.getElementById('customerList');
         const customerSearchInput = document.getElementById('customerSearch');
         const customerDetailsDiv = document.getElementById('customerDetails');
-        const addCustomerBtn = document.getElementById('addCustomerBtn');
-        const modalTotalInput = document.getElementById('modalTotal');
-        const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
 
         const refundModal = document.getElementById('refundModal');
         const refundBarcodeInput = document.getElementById('refundBarcodeInput');
@@ -775,7 +705,7 @@
         };
 
         const processPayment = async () => {
-            const totalAmount = parseFloat(modalTotalInput.value);
+            const totalAmount = parseFloat(totalSpan.textContent);
             const paymentMethod = paymentMethodSelect.value;
             const customerName = customerSearchInput.value;
             
@@ -861,11 +791,6 @@
         });
         
         checkoutBtn.addEventListener('click', () => {
-            if (Object.keys(currentReceiptItems).length === 0) {
-                alert('الرجاء إضافة منتجات إلى الفاتورة أولاً.');
-                return;
-            }
-            modalTotalInput.value = totalSpan.textContent;
             openModal('paymentModal');
         });
 
@@ -903,26 +828,11 @@
             changeDueSpan.textContent = `${change.toFixed(2)} EGP`;
         });
         
-        confirmPaymentBtn.addEventListener('click', (e) => {
+        paymentForm.addEventListener('submit', (e) => {
             e.preventDefault();
             processPayment();
         });
         
-        addCustomerBtn.addEventListener('click', () => {
-            const newCustomerName = customerSearchInput.value;
-            if (newCustomerName && !allCustomers.find(c => c.name === newCustomerName)) {
-                db.collection('customers').add({ name: newCustomerName, createdAt: new Date() })
-                    .then(() => {
-                        alert(`تم إضافة العميل ${newCustomerName} بنجاح!`);
-                        fetchCustomers();
-                        customerSearchInput.value = newCustomerName;
-                    })
-                    .catch(error => console.error("Error adding customer: ", error));
-            } else {
-                alert('اسم العميل موجود بالفعل أو فارغ.');
-            }
-        });
-
         // --- Modal & Utility Functions ---
         const openModal = (id) => { document.getElementById(id).classList.add('active'); };
         const closeModal = (id) => { document.getElementById(id).classList.remove('active'); };
