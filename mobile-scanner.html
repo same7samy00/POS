@@ -79,19 +79,18 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script type="text/javascript" src="https://unpkg.com/html5-qrcode"></script>
-    <script type="module">        
+    <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyC5ls-rPdJ65x5BoMGwAOpdcPtD585C2ys",
-            authDomain: "pharmacy-inventory-bf04a.firebaseapp.com",
-            projectId: "pharmacy-inventory-bf04a",
-            storageBucket: "pharmacy-inventory-bf04a.firebasestorage.app",
-            messagingSenderId: "937788650384",
-            appId: "1:937788650384:web:6451225d00e648f3a0b915",
-            measurementId: "G-ZGC9EQ55SL"
+            apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
+            authDomain: "supplies-system.firebaseapp.com",
+            projectId: "supplies-system",
+            storageBucket: "supplies-system.firebasestorage.app",
+            messagingSenderId: "205884975863",
+            appId: "1:205884975863:web:de65d32c2459f9979ac1f2",
+            measurementId: "G-2KSYJRKSCX"
         };
         const app = firebase.initializeApp(firebaseConfig);
         const db = app.firestore();
-        // استخدام وثيقة ثابتة
         const scannerSessionDocRef = db.collection('scannerSessions').doc('fixed');
                 
         const statusContainer = document.getElementById('statusContainer');
@@ -112,7 +111,7 @@
             html5QrCode.stop().then(async () => {
                 readerDiv.style.display = 'none';
                 updateStatusUI('success', `تم المسح بنجاح!`, 'ri-check-line');
-                await scannerSessionDocRef.update({
+                await scannerSessionDocRef.set({
                     status: 'scanned',
                     scannedValue: decodedText,
                     scannedAt: new Date()
@@ -147,8 +146,9 @@
         updateStatusUI('scanning', 'جاري المسح...', 'ri-qr-scan-2-line animate-pulse');
 
         // يراقب الوثيقة الثابتة لتغيير الحالة
-        onSnapshot(scannerSessionDocRef, async (snapshot) => {
+        scannerSessionDocRef.onSnapshot(async (snapshot) => {
             const data = snapshot.data();
+            // Added check for `data` before accessing `data.status`
             if (data && data.status === 'readyForNextScan' && html5QrCode && !html5QrCode.isScanning) {
                 // يبدأ المسح مرة أخرى إذا تم إعادة تعيين الحالة من الكمبيوتر
                 startScanner();
