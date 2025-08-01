@@ -443,6 +443,7 @@
                 <i class="fas fa-info-circle"></i> سيتم البحث تلقائياً بعد المسح بنجاح.
             </p>
             <p id="scanStatus" style="font-weight: bold; margin-top: 1rem; color: var(--primary);"></p>
+            <p> أو افتح هذا الرابط: <br> <a id="mobileScannerLink" href="#" target="_blank">...</a> </p>
         </div>
     </div>
 
@@ -667,13 +668,23 @@
             const sessionRef = db.collection('scanSessions').doc(sessionId);
             await sessionRef.set({ status: 'waiting' });
             
-            const basePath = window.location.pathname.startsWith('/POS/') ? '/POS/' : '/';
-            const scanUrl = `${window.location.origin}${basePath}mobile-scanner.html?sessionId=${sessionId}`;
+            // تحديد مسار المجلد الفرعي بشكل صحيح
+            const pathParts = window.location.pathname.split('/');
+            const subPath = pathParts.length > 2 ? `/${pathParts[1]}/` : '/';
+            const scanUrl = `${window.location.origin}${subPath}mobile-scanner.html?sessionId=${sessionId}`;
             
             QRCode.toDataURL(scanUrl, function (err, url) {
+                if (err) {
+                    console.error('QR Code error:', err);
+                    return;
+                }
                 qrCodeImage.src = url;
             });
-            mobileScannerLink.href = scanUrl;
+
+            if (mobileScannerLink) {
+                 mobileScannerLink.href = scanUrl;
+                 mobileScannerLink.textContent = scanUrl;
+            }
 
             scanSessionListener = sessionRef.onSnapshot(doc => {
                 const sessionData = doc.data();
