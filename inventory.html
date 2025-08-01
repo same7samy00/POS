@@ -679,18 +679,30 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/@zxing/library@latest"></script>
 
-    <script>
-        // التهيئة والإعدادات
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
             apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
             authDomain: "supplies-system.firebaseapp.com",
             projectId: "supplies-system",
-            storageBucket: "supplies-system.appspot.com",
+            storageBucket: "supplies-system.firebasestorage.app",
             messagingSenderId: "205884975863",
             appId: "1:205884975863:web:de65d32c2459f9979ac1f2",
             measurementId: "G-2KSYJRKSCX"
         };
-        firebase.initializeApp(firebaseConfig);
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
+        // التهيئة والإعدادات القديمة التي تعمل
         const auth = firebase.auth();
         const db = firebase.firestore();
         const storage = firebase.storage();
