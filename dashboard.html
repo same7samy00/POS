@@ -421,8 +421,7 @@
         </header>
 
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="البحث بالاسم أو الباركود...">
-            <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> بحث</button>
+            <input type="text" id="searchInput" placeholder="البحث بالاسم أو الباركود..." oninput="performSearch(this.value)">
             <button class="btn btn-secondary" id="scanBtn"><i class="fas fa-barcode"></i> مسح باركود (الجهاز الحالي)</button>
             <button class="btn btn-secondary" id="scanWithPhoneBtn"><i class="fas fa-mobile-alt"></i> مسح بالهاتف</button>
         </div>
@@ -528,8 +527,6 @@
         </div>
     </div>
 
-    <div id="barcodeSvgContainer" style="display: none;"></div>
-
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -537,7 +534,6 @@
     <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuid.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.18.6/umd/index.min.js"></script>
-
 
     <script>
         const firebaseConfig = {
@@ -590,6 +586,7 @@
             }
         });
         
+        // ========== دوال إدارة المنتجات ==========
         const fetchProducts = async (searchTerm = '') => {
             console.log("Fetching products with search term:", searchTerm);
             productsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">جاري تحميل المنتجات...</td></tr>';
@@ -604,7 +601,9 @@
                         products.push(...barcodeQuery.docs);
                     } else {
                         const nameQuery = await query.get();
-                        products.push(...nameQuery.docs.filter(doc => doc.data().name.toLowerCase().includes(searchTerm.toLowerCase())));
+                        products.push(...nameQuery.docs.filter(doc => 
+                            doc.data().name.toLowerCase().includes(searchTerm.toLowerCase())
+                        ));
                     }
                 } else {
                     const snapshot = await query.get();
@@ -661,10 +660,11 @@
             });
         };
 
+        // ========== دوال الباركود المعدلة ==========
         const generateBarcode = () => {
             // إنشاء باركود EAN13 صالح
             const randomPart = Math.floor(10000000000 + Math.random() * 90000000000).toString().substr(0, 11);
-            const barcode = '7' + randomPart; // نبدأ بـ 7 ليكون صالحًا لـ EAN13
+            const barcode = '7' + randomPart;
             
             // احسب رقم التحقق
             let checksum = 0;
@@ -681,7 +681,6 @@
                 return false;
             }
             
-            // التحقق من الرقم القياسي (الأول)
             const firstDigit = barcode.charAt(0);
             if (!['0', '1', '6', '7', '8', '9'].includes(firstDigit)) {
                 return false;
@@ -691,12 +690,13 @@
         };
 
         const printBarcode = (barcode, productName) => {
-            const barcodeSvgContainer = document.createElement('div');
-            barcodeSvgContainer.id = 'tempBarcode';
-            document.body.appendChild(barcodeSvgContainer);
+            // إنشاء عنصر SVG جديد في الذاكرة
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("id", "dynamicBarcode");
             
             try {
-                JsBarcode("#tempBarcode", barcode, {
+                // إنشاء الباركود مباشرة على العنصر SVG
+                JsBarcode(svg, barcode, {
                     format: isValidEAN13(barcode) ? "EAN13" : "CODE128",
                     displayValue: true,
                     fontSize: 18,
@@ -705,32 +705,49 @@
                     margin: 10
                 });
                 
-                const svgContent = barcodeSvgContainer.innerHTML;
-                const printWindow = window.open('', '', 'height=400,width=600');
-                printWindow.document.write('<html><head><title>طباعة باركود</title>');
-                printWindow.document.write('<style>');
-                printWindow.document.write('@media print { @page { size: 80mm 50mm; margin: 0; } body { margin: 0; padding: 5mm; } h1, svg { max-width: 100%; margin: 0 auto; } }');
-                printWindow.document.write('body{text-align:center;font-family:"Tajawal",sans-serif;} svg{max-width:100%; margin: 20px auto;}');
-                printWindow.document.write('</style>');
-                printWindow.document.write('</head><body>');
-                printWindow.document.write(`<h2 style="font-size: 14px; margin-bottom: 5px;">${productName}</h2>`);
-                printWindow.document.write(svgContent);
-                printWindow.document.write('</body></html>');
+                // تحويل SVG إلى سلسلة نصية
+                const serializer = new XMLSerializer();
+                const svgContent = serializer.serializeToString(svg);
+                
+                // إنشاء نافذة الطباعة
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>طباعة باركود</title>
+                        <style>
+                            @media print {
+                                @page { size: 80mm 50mm; margin: 0; }
+                                body { margin: 0; padding: 5mm; }
+                                h2, svg { max-width: 100%; margin: 0 auto; }
+                            }
+                            body { text-align: center; font-family: "Tajawal", sans-serif; }
+                            svg { max-width: 100%; margin: 10px auto; display: block; }
+                            h2 { font-size: 14px; margin-bottom: 5px; }
+                        </style>
+                    </head>
+                    <body>
+                        <h2>${productName}</h2>
+                        ${svgContent}
+                    </body>
+                    </html>
+                `);
                 printWindow.document.close();
                 
+                // تأخير الطباعة لضمان تحميل المحتوى
                 setTimeout(() => {
                     printWindow.print();
                     printWindow.close();
-                    barcodeSvgContainer.remove();
                 }, 500);
 
             } catch (error) {
                 console.error("Error generating barcode:", error);
                 alert("حدث خطأ أثناء توليد الباركود. الرجاء التأكد من بيانات الباركود.");
-                barcodeSvgContainer.remove();
             }
         };
 
+        // ========== دوال الواجهة ==========
         const openModal = (id) => {
             document.getElementById(id).classList.add('active');
         };
@@ -770,6 +787,7 @@
             }
         };
 
+        // ========== معالجات الأحداث ==========
         addProductBtn.addEventListener('click', () => {
             modalTitle.textContent = 'إضافة منتج جديد';
             openModal('productModal');
@@ -802,11 +820,8 @@
             fetchProducts(searchTerm);
         };
 
-        searchBtn.addEventListener('click', () => performSearch(searchInput.value));
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                performSearch(searchInput.value);
-            }
+        searchInput.addEventListener('input', (e) => {
+            performSearch(e.target.value);
         });
 
         scanBtn.addEventListener('click', async () => {
@@ -856,9 +871,7 @@
             }
         });
         
-        // ===========================================
-        // وظيفة المسح بالهاتف (الجهاز المنفصل)
-        // ===========================================
+        // وظيفة المسح بالهاتف
         scannerSessionDocRef.onSnapshot(doc => {
             const data = doc.data();
             if (data && data.status === 'scanned') {
@@ -886,9 +899,6 @@
             e.preventDefault();
             try {
                 await auth.signOut();
-                localStorage.removeItem('currentUser');
-                localStorage.removeItem('userSessionId');
-                localStorage.removeItem('phoneLinked');
                 window.location.href = 'login.html';
             } catch (error) {
                 console.error('Logout Error:', error);
