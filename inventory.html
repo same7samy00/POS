@@ -552,6 +552,8 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const scannerSessionDocRef = db.collection('scannerSessions').doc('fixed');
+
 
         const productsTableBody = document.getElementById('productsTableBody');
         const searchInput = document.getElementById('searchInput');
@@ -583,12 +585,6 @@
         let codeReader = null;
         let phoneSessionListener = null;
 
-        let userSessionId = localStorage.getItem('userSessionId');
-        if (!userSessionId) {
-            userSessionId = uuid.v4();
-            localStorage.setItem('userSessionId', userSessionId);
-        }
-
         auth.onAuthStateChanged(user => {
             if (!user) {
                 window.location.href = 'login.html';
@@ -596,7 +592,10 @@
                 fetchProducts();
             }
         });
-
+        
+        // ===========================================
+        // وظيفة جلب وعرض المنتجات من قاعدة البيانات
+        // ===========================================
         const fetchProducts = async (searchTerm = '') => {
             console.log("Fetching products with search term:", searchTerm);
             productsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">جاري تحميل المنتجات...</td></tr>';
@@ -825,46 +824,29 @@
         // ===========================================
         // وظيفة المسح بالهاتف (الجهاز المنفصل)
         // ===========================================
-        scanWithPhoneBtn.addEventListener('click', async () => {
-            // التحقق مما إذا كان الجهاز مرتبطًا بالفعل
-            if (!localStorage.getItem('phoneLinked')) {
-                openModal('connectPhoneModal');
-                const sessionId = userSessionId;
-                
-                const linkingUrl = `https://same7samy00.github.io/POS/mobile-scanner.html?sessionId=${sessionId}`;
-                
-                QRCode.toDataURL(linkingUrl, function (err, url) {
-                    if (!err) {
-                        qrCodeImage.src = url;
-                    }
-                });
-                
-                // الاستماع لجلسة المستخدم
-                phoneSessionListener = db.collection('scannerSessions').doc(sessionId).onSnapshot(doc => {
-                    const sessionData = doc.data();
-                    if (sessionData && sessionData.status === 'phoneReady') {
-                        localStorage.setItem('phoneLinked', 'true');
-                        closeModal('connectPhoneModal');
-                        phoneSessionListener();
-                        alert('تم ربط الهاتف بنجاح! الآن يمكنك الضغط على "مسح بالهاتف" لتفعيل المسح.');
-                    }
-                });
-            } else {
-                scanWithPhoneBtn.classList.add('btn-waiting');
-                const phoneRef = db.collection('scannerSessions').doc(userSessionId);
-                await phoneRef.set({ status: 'scanRequested', purpose: 'search', lastSeen: new Date() });
+        scannerSessionDocRef.onSnapshot(doc => {
+            const data = doc.data();
+            if (data && data.status === 'scanned') {
+                searchInput.value = data.scannedValue;
+                performSearch(data.scannedValue);
+                // إعادة تعيين الحالة لتكون جاهزة للمسح التالي
+                scannerSessionDocRef.set({ status: 'readyForNextScan' });
+            }
+        });
 
-                phoneSessionListener = phoneRef.onSnapshot(doc => {
-                    const sessionData = doc.data();
-                    if (sessionData && sessionData.status === 'scanned') {
-                        searchInput.value = sessionData.scannedValue;
-                        performSearch(sessionData.scannedValue);
-                        scanWithPhoneBtn.classList.remove('btn-waiting');
-                        phoneSessionListener();
-                        // Reset the status on Firebase for the next scan
-                        phoneRef.set({ status: 'readyForNextScan', lastSeen: new Date() });
-                    }
-                });
+        // عند الضغط على زر "مسح بالهاتف"، نرسل أمر بدء المسح
+        scanWithPhoneBtn.addEventListener('click', async () => {
+            scanWithPhoneBtn.classList.add('btn-waiting');
+            try {
+                 await scannerSessionDocRef.set({ status: 'scanRequested', purpose: 'search', lastSeen: new Date() });
+            } catch (error) {
+                console.error("Failed to send scan request:", error);
+                alert("فشل إرسال طلب المسح. تأكد من أن الهاتف متصل بالإنترنت.");
+            } finally {
+                // إزالة تأثير الوميض بعد فترة قصيرة
+                setTimeout(() => {
+                    scanWithPhoneBtn.classList.remove('btn-waiting');
+                }, 1500);
             }
         });
 
