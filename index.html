@@ -1,319 +1,237 @@
 <!DOCTYPE html>
-<html dir="rtl">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم - نظام إدارة المحل</title>
-    <link rel="icon" href="data:,">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>نظام إدارة المحل - تسجيل الدخول</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4CAF50;
-            --primary-dark: #388E3C;
-            --error: #f44336;
-            --light: #f5f5f5;
-            --dark: #212121;
-            --secondary-dark: #555;
-            --bg-color: #eef1f5;
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --danger-color: #f72585;
+            --success-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
         }
-
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Tajawal', sans-serif;
         }
-
+        
         body {
-            background-color: var(--bg-color);
+            background-color: #f5f7fa;
             display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
-            color: var(--dark);
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
-
-        .sidebar {
-            width: 250px;
-            background: #fff;
-            padding: 1rem;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .sidebar .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 2rem;
-        }
-
-        .sidebar .nav-list {
-            list-style: none;
-            width: 100%;
-        }
-
-        .sidebar .nav-list a {
-            display: flex;
-            align-items: center;
-            padding: 0.8rem 1rem;
-            color: var(--secondary-dark);
-            text-decoration: none;
-            border-radius: 5px;
-            margin-bottom: 0.5rem;
-            transition: background 0.3s, color 0.3s;
-        }
-
-        .sidebar .nav-list a.active,
-        .sidebar .nav-list a:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .sidebar .nav-list a .fas {
-            margin-left: 10px;
-            font-size: 1.1rem;
-        }
-
-        .main-content {
-            flex-grow: 1;
+        
+        .login-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
             padding: 2rem;
-            overflow-y: auto;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            background: #fff;
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        header h1 {
-            font-size: 1.8rem;
-            color: var(--primary-dark);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-        }
-
-        .user-info .fas {
-            font-size: 1.5rem;
-            color: var(--secondary-dark);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .stat-card {
-            background: #fff;
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: transform 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-card .icon {
-            font-size: 2.5rem;
-            color: var(--primary);
-        }
-
-        .stat-card .info {
-            text-align: left;
-        }
-
-        .stat-card .info h3 {
-            font-size: 1rem;
-            color: var(--secondary-dark);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-card .info p {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--dark);
-        }
-
-        .charts-container {
-            margin-top: 2rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .chart-card {
-            background: #fff;
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .chart-card h3 {
-            font-size: 1.2rem;
-            color: var(--primary-dark);
-            margin-bottom: 1rem;
             text-align: center;
+            transition: all 0.3s ease;
         }
-
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
+        
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1.5rem;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+        }
+        
+        h1 {
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: right;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            color: var(--danger-color);
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            text-align: right;
+            display: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .footer-links {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .footer-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+        
+        .offline-message {
+            background-color: #ffecb3;
+            color: #ff6f00;
+            padding: 0.5rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1.5rem;
+                width: 95%;
             }
-            .sidebar {
-                width: 100%;
-                height: auto;
-                padding: 1rem 0;
+            
+            .logo {
+                width: 80px;
+                height: 80px;
+                font-size: 1.5rem;
             }
-            .sidebar .nav-list {
-                display: flex;
-                justify-content: space-around;
-                flex-wrap: wrap;
-            }
-            .sidebar .nav-list a {
-                padding: 0.5rem 0.8rem;
-                justify-content: center;
-            }
-            .sidebar .nav-list a span {
-                display: none;
-            }
-            .main-content {
-                padding: 1rem;
-            }
-            header {
-                flex-direction: column;
-                text-align: center;
-            }
-            .user-info {
-                margin-top: 1rem;
+            
+            h1 {
+                font-size: 1.3rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="logo" id="shopName">
-            نظام إدارة المحل
+    <div class="login-container">
+        <div class="logo">ن</div>
+        <h1>تسجيل الدخول إلى النظام</h1>
+        
+        <div class="offline-message" id="offlineAlert">
+            أنت تعمل في وضع عدم الاتصال. سيتم مزامنة البيانات عند عودة الاتصال.
         </div>
-        <ul class="nav-list">
-            <li>
-                <a href="#" class="active">
-                    <i class="fas fa-chart-line"></i>
-                    <span>لوحة التحكم</span>
-                </a>
-            </li>
-            <li>
-                <a href="inventory.html">
-                    <i class="fas fa-boxes"></i>
-                    <span>إدارة المخزون</span>
-                </a>
-            </li>
-            <li>
-                <a href="pos.html">
-                    <i class="fas fa-cash-register"></i>
-                    <span>نقطة البيع</span>
-                </a>
-            </li>
-            <li>
-                <a href="customers.html">
-                    <i class="fas fa-users"></i>
-                    <span>إدارة العملاء</span>
-                </a>
-            </li>
-            <li>
-                <a href="reports.html">
-                    <i class="fas fa-chart-pie"></i>
-                    <span>التقارير</span>
-                </a>
-            </li>
-            <li>
-                <a href="settings.html">
-                    <i class="fas fa-cogs"></i>
-                    <span>الإعدادات</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>تسجيل الخروج</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-
-    <div class="main-content">
-        <header>
-            <h1>نظرة عامة على الأداء</h1>
-            <div class="user-info">
-                <i class="fas fa-user-circle"></i>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">البريد الإلكتروني</label>
+                <input type="email" id="email" required placeholder="أدخل بريدك الإلكتروني">
+                <div class="error-message" id="emailError">البريد الإلكتروني غير صحيح</div>
             </div>
-        </header>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="info">
-                    <h3>إجمالي المبيعات اليوم</h3>
-                    <p id="totalSales">0.00 <small>EGP</small></p>
-                </div>
-                <i class="fas fa-hand-holding-usd icon"></i>
+            
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
+                <input type="password" id="password" required placeholder="أدخل كلمة المرور">
+                <div class="error-message" id="passwordError">كلمة المرور يجب أن تكون 6 أحرف على الأقل</div>
             </div>
-            <div class="stat-card">
-                <div class="info">
-                    <h3>عدد المنتجات</h3>
-                    <p id="totalProducts">0</p>
-                </div>
-                <i class="fas fa-box-open icon"></i>
-            </div>
-            <div class="stat-card">
-                <div class="info">
-                    <h3>المنتجات على وشك الانتهاء</h3>
-                    <p id="expiringProducts">0</p>
-                </div>
-                <i class="fas fa-calendar-times icon"></i>
-            </div>
-            <div class="stat-card">
-                <div class="info">
-                    <h3>إجمالي الأرباح</h3>
-                    <p id="totalProfit">0.00 <small>EGP</small></p>
-                </div>
-                <i class="fas fa-money-bill-wave icon"></i>
-            </div>
-        </div>
-
-        <div class="charts-container">
-            <div class="chart-card">
-                <h3>أكثر المنتجات مبيعًا</h3>
-                <canvas id="topSellingProductsChart"></canvas>
-            </div>
-            <div class="chart-card">
-                <h3>مبيعات الأيام السبعة الأخيرة</h3>
-                <canvas id="last7DaysSalesChart"></canvas>
-            </div>
+            
+            <button type="submit" class="btn" id="loginBtn">
+                <span id="btnText">تسجيل الدخول</span>
+            </button>
+        </form>
+        
+        <div class="footer-links">
+            <a href="#" id="forgotPassword">نسيت كلمة المرور؟</a>
+            <span> | </span>
+            <a href="#" id="createAccount">إنشاء حساب جديد</a>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            sendPasswordResetEmail,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc,
+            enableIndexedDbPersistence 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    <script>
-        // التهيئة والإعدادات (نفس الإعدادات من صفحة تسجيل الدخول)
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
             authDomain: "supplies-system.firebaseapp.com",
@@ -323,188 +241,176 @@
             appId: "1:205884975863:web:de65d32c2459f9979ac1f2",
             measurementId: "G-2KSYJRKSCX"
         };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
 
-        // عناصر واجهة المستخدم
-        const shopNameElement = document.getElementById('shopName');
-        const totalSalesElement = document.getElementById('totalSales');
-        const totalProductsElement = document.getElementById('totalProducts');
-        const expiringProductsElement = document.getElementById('expiringProducts');
-        const totalProfitElement = document.getElementById('totalProfit');
-        const logoutBtn = document.getElementById('logoutBtn');
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // التحقق من حالة المستخدم
-        auth.onAuthStateChanged(user => {
-            if (!user) {
-                // إذا لم يكن هناك مستخدم، التوجيه لصفحة تسجيل الدخول
-                window.location.href = 'login.html';
+        // Enable offline persistence
+        enableIndexedDbPersistence(db)
+            .catch((err) => {
+                if (err.code === 'failed-precondition') {
+                    console.log("Offline persistence can only be enabled in one tab at a time.");
+                } else if (err.code === 'unimplemented') {
+                    console.log("The current browser does not support offline persistence.");
+                }
+            });
+
+        // Check online/offline status
+        function updateOnlineStatus() {
+            const offlineAlert = document.getElementById('offlineAlert');
+            if (navigator.onLine) {
+                offlineAlert.style.display = 'none';
             } else {
-                // المستخدم موجود، جلب وعرض البيانات
-                fetchDashboardData();
+                offlineAlert.style.display = 'block';
             }
-        });
+        }
 
-        // جلب بيانات لوحة التحكم
-        async function fetchDashboardData() {
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
+
+        // DOM elements
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const loginBtn = document.getElementById('loginBtn');
+        const btnText = document.getElementById('btnText');
+        const forgotPasswordLink = document.getElementById('forgotPassword');
+        const createAccountLink = document.getElementById('createAccount');
+
+        // Form validation
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        function validatePassword(password) {
+            return password.length >= 6;
+        }
+
+        // Login function
+        async function login(email, password) {
             try {
-                // مثال: جلب عدد المنتجات
-                const productsSnapshot = await db.collection('products').get();
-                totalProductsElement.textContent = productsSnapshot.size;
-
-                // مثال: جلب المنتجات على وشك الانتهاء (في غضون 30 يومًا)
-                const now = new Date();
-                const thirtyDaysLater = new Date();
-                thirtyDaysLater.setDate(now.getDate() + 30);
-                const expiringSnapshot = await db.collection('products')
-                    .where('expiryDate', '<=', thirtyDaysLater.toISOString())
-                    .get();
-                expiringProductsElement.textContent = expiringSnapshot.size;
-
-                // مثال: جلب بيانات المبيعات والأرباح
-                const salesSnapshot = await db.collection('sales').get();
-                let totalSales = 0;
-                let totalProfit = 0;
-                let dailySales = {};
-                let productSales = {};
-
-                salesSnapshot.forEach(doc => {
-                    const sale = doc.data();
-                    const saleDate = new Date(sale.timestamp.seconds * 1000);
-                    const formattedDate = saleDate.toISOString().split('T')[0];
-                    
-                    // حساب إجمالي المبيعات والأرباح
-                    totalSales += sale.totalAmount;
-                    totalProfit += sale.profit || 0; // افتراض وجود حقل profit
-                    
-                    // حساب المبيعات اليومية لآخر 7 أيام
-                    const sevenDaysAgo = new Date();
-                    sevenDaysAgo.setDate(now.getDate() - 7);
-                    if (saleDate > sevenDaysAgo) {
-                        dailySales[formattedDate] = (dailySales[formattedDate] || 0) + sale.totalAmount;
+                loginBtn.disabled = true;
+                btnText.innerHTML = '<span class="loading"></span> جاري تسجيل الدخول...';
+                
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Check user role in Firestore
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    if (userData.role === 'admin' || userData.role === 'employee') {
+                        // Redirect to dashboard
+                        window.location.href = "dashboard.html";
+                    } else {
+                        throw new Error("ليس لديك صلاحية الدخول للنظام");
                     }
-                    
-                    // حساب المنتجات الأكثر مبيعًا
-                    sale.items.forEach(item => {
-                        productSales[item.name] = (productSales[item.name] || 0) + item.quantity;
-                    });
-                });
-
-                totalSalesElement.textContent = totalSales.toFixed(2);
-                totalProfitElement.textContent = totalProfit.toFixed(2);
-
-                // تهيئة الرسوم البيانية
-                initializeCharts(dailySales, productSales);
-
-                // جلب اسم المحل من الإعدادات (مثال)
-                const settingsDoc = await db.collection('settings').doc('shopInfo').get();
-                if (settingsDoc.exists) {
-                    shopNameElement.textContent = settingsDoc.data().name || 'نظام إدارة المحل';
+                } else {
+                    throw new Error("بيانات المستخدم غير موجودة");
                 }
-
             } catch (error) {
-                console.error("Error fetching dashboard data:", error);
-                // يمكن هنا عرض رسالة خطأ للمستخدم
+                loginBtn.disabled = false;
+                btnText.textContent = 'تسجيل الدخول';
+                
+                let errorMessage = "حدث خطأ أثناء تسجيل الدخول";
+                if (error.code === 'auth/invalid-email') {
+                    errorMessage = "البريد الإلكتروني غير صحيح";
+                    emailError.textContent = errorMessage;
+                    emailError.style.display = 'block';
+                } else if (error.code === 'auth/user-not-found') {
+                    errorMessage = "لا يوجد حساب بهذا البريد الإلكتروني";
+                    emailError.textContent = errorMessage;
+                    emailError.style.display = 'block';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = "كلمة المرور غير صحيحة";
+                    passwordError.textContent = errorMessage;
+                    passwordError.style.display = 'block';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = "تم تجاوز عدد المحاولات المسموح بها، حاول مرة أخرى لاحقاً";
+                    passwordError.textContent = errorMessage;
+                    passwordError.style.display = 'block';
+                } else {
+                    errorMessage = error.message || "حدث خطأ غير متوقع";
+                    alert(errorMessage);
+                }
             }
         }
 
-        // تهيئة الرسوم البيانية
-        function initializeCharts(dailySales, productSales) {
-            // رسم بياني لأكثر المنتجات مبيعًا
-            const topProductsCtx = document.getElementById('topSellingProductsChart').getContext('2d');
-            const topProductsData = Object.entries(productSales).sort(([, a], [, b]) => b - a).slice(0, 5);
-            new Chart(topProductsCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: topProductsData.map(item => item[0]),
-                    datasets: [{
-                        data: topProductsData.map(item => item[1]),
-                        backgroundColor: ['#4CAF50', '#388E3C', '#81C784', '#A5D6A7', '#C8E6C9']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: {
-                                    family: 'Tajawal'
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // رسم بياني لمبيعات الأيام السبعة الأخيرة
-            const last7DaysCtx = document.getElementById('last7DaysSalesChart').getContext('2d');
-            const last7DaysLabels = [];
-            const last7DaysData = [];
-            const today = new Date();
-
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date(today);
-                d.setDate(today.getDate() - i);
-                const formattedDate = d.toISOString().split('T')[0];
-                last7DaysLabels.push(formattedDate);
-                last7DaysData.push(dailySales[formattedDate] || 0);
+        // Forgot password function
+        async function resetPassword(email) {
+            if (!validateEmail(email)) {
+                emailError.textContent = "الرجاء إدخال بريد إلكتروني صحيح";
+                emailError.style.display = 'block';
+                return;
             }
 
-            new Chart(last7DaysCtx, {
-                type: 'line',
-                data: {
-                    labels: last7DaysLabels,
-                    datasets: [{
-                        label: 'إجمالي المبيعات (EGP)',
-                        data: last7DaysData,
-                        borderColor: '#4CAF50',
-                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                        fill: true,
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                font: {
-                                    family: 'Tajawal'
-                                }
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                font: {
-                                    family: 'Tajawal'
-                                }
-                            }
-                        }
-                    }
+            try {
+                await sendPasswordResetEmail(auth, email);
+                alert("تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني");
+            } catch (error) {
+                let errorMessage = "حدث خطأ أثناء إرسال رابط إعادة التعيين";
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = "لا يوجد حساب مسجل بهذا البريد الإلكتروني";
                 }
-            });
+                alert(errorMessage);
+            }
         }
-        
-        // وظيفة تسجيل الخروج
-        logoutBtn.addEventListener('click', async (e) => {
+
+        // Event listeners
+        loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            try {
-                await auth.signOut();
-                localStorage.removeItem('currentUser');
-                window.location.href = 'login.html';
-            } catch (error) {
-                console.error('Logout Error:', error);
+            
+            // Reset error messages
+            emailError.style.display = 'none';
+            passwordError.style.display = 'none';
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            let isValid = true;
+            
+            if (!validateEmail(email)) {
+                emailError.style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!validatePassword(password)) {
+                passwordError.style.display = 'block';
+                isValid = false;
+            }
+            
+            if (isValid) {
+                login(email, password);
             }
         });
 
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const email = prompt("الرجاء إدخال بريدك الإلكتروني لإرسال رابط إعادة تعيين كلمة المرور:");
+            if (email) {
+                resetPassword(email);
+            }
+        });
+
+        createAccountLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert("يجب على المدير إنشاء الحسابات للموظفين من لوحة التحكم");
+        });
+
+        // Check auth state
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in, redirect to dashboard
+                window.location.href = "dashboard.html";
+            }
+        });
     </script>
 </body>
 </html>
