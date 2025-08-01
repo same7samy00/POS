@@ -8,12 +8,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* General Styles - Unified with Inventory Page */
         :root {
-            --primary: #2E7D32;
-            --primary-dark: #1B5E20;
-            --error: #C62828;
-            --warning: #EF6C00;
-            --light: #f8f9fa;
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --error: #f44336;
+            --warning: #ff9800;
+            --light: #f5f5f5;
             --dark: #212121;
             --secondary-dark: #555;
             --bg-color: #eef1f5;
@@ -21,6 +22,7 @@
             --border-color: #ddd;
             --input-bg: #f9f9f9;
         }
+
         * {
             margin: 0;
             padding: 0;
@@ -28,12 +30,14 @@
             font-family: 'Tajawal', sans-serif;
             line-height: 1.6;
         }
+
         body {
             background-color: var(--bg-color);
             display: flex;
             min-height: 100vh;
             color: var(--dark);
         }
+
         .sidebar {
             width: 250px;
             background: #fff;
@@ -43,16 +47,19 @@
             flex-direction: column;
             align-items: center;
         }
+
         .sidebar .logo {
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary);
             margin-bottom: 2rem;
         }
+
         .sidebar .nav-list {
             list-style: none;
             width: 100%;
         }
+
         .sidebar .nav-list a {
             display: flex;
             align-items: center;
@@ -63,16 +70,18 @@
             margin-bottom: 0.5rem;
             transition: background 0.3s, color 0.3s;
         }
+
         .sidebar .nav-list a.active,
         .sidebar .nav-list a:hover {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background: var(--primary);
             color: white;
         }
+
         .sidebar .nav-list a .fas {
             margin-left: 10px;
             font-size: 1.1rem;
         }
+
         .main-content {
             flex-grow: 1;
             display: flex;
@@ -80,17 +89,21 @@
             padding: 2rem;
             overflow-y: auto;
         }
+
+        /* POS Specific Styles */
         .pos-container {
             display: flex;
             gap: 20px;
             flex-grow: 1;
         }
+
         .pos-left-panel {
             flex: 2;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
+
         .pos-right-panel {
             flex: 1;
             background-color: var(--card-bg);
@@ -101,6 +114,7 @@
             flex-direction: column;
             position: relative;
         }
+        
         .search-bar {
             display: flex;
             gap: 10px;
@@ -112,37 +126,54 @@
             border-radius: 8px;
             font-size: 1rem;
             background: var(--input-bg);
+            border: 2px solid #ddd !important;
+            transition: border 0.3s;
         }
+        
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 15px;
             overflow-y: auto;
             flex-grow: 1;
         }
+        
+        /* Product Card - Redesigned */
         .product-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: #f8f9fa;
             border: 1px solid rgba(0,0,0,0.1);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 15px;
             text-align: center;
             cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            aspect-ratio: 1 / 1; /* Make it square */
         }
         .product-card:hover {
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             transform: translateY(-3px);
+            background: #e9ecef;
         }
         .product-card h4 {
             margin-top: 10px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: var(--dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
         }
         .product-card span {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--primary-dark);
             font-weight: bold;
         }
+
+        /* Receipt Panel Styles */
         .receipt-header {
             text-align: center;
             border-bottom: 1px dashed var(--border-color);
@@ -158,86 +189,105 @@
             padding: 0 10px;
         }
         .receipt-item {
-            display: grid;
-            grid-template-columns: 3fr 1fr 1fr;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
-            padding: 12px 15px;
+            padding: 12px 0;
             border-bottom: 1px solid #eee;
-            border-radius: 8px;
             transition: background 0.3s;
-        }
-        .receipt-item:hover {
-            background-color: rgba(76, 175, 80, 0.05);
         }
         .receipt-item:last-child {
             border-bottom: none;
         }
+        .receipt-item:hover {
+            background-color: rgba(76, 175, 80, 0.05);
+        }
         .receipt-item .item-info {
             display: flex;
             flex-direction: column;
+            flex-grow: 1;
             text-align: right;
+            margin-left: 10px;
         }
         .receipt-item .item-name {
             font-weight: bold;
             font-size: 0.9rem;
-            color: var(--dark);
         }
         .receipt-item .item-details {
             font-size: 0.8rem;
             color: #777;
-            margin-top: 5px;
-        }
-        .receipt-item .item-price {
-            text-align: left;
-            font-weight: bold;
-            color: var(--primary-dark);
-            font-size: 0.9rem;
         }
         .item-quantity-control {
             display: flex;
             align-items: center;
             gap: 5px;
-            direction: ltr;
         }
         .item-quantity-control button {
-            background: var(--primary);
-            color: white;
-            border: none;
+            background: none;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
             width: 25px;
             height: 25px;
             font-size: 1rem;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            color: var(--primary);
         }
         .item-quantity-control button:hover {
-            background: var(--primary-dark);
+            background: var(--primary);
+            color: white;
         }
-        .receipt-item .remove-btn {
-            background: none;
-            border: none;
-            color: var(--error);
-            cursor: pointer;
-            font-size: 1.2rem;
-            padding: 5px;
+        .item-quantity-control span {
+            font-weight: bold;
+            font-size: 0.9rem;
+            width: 30px;
+            text-align: center;
         }
+        .receipt-item .item-price {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: var(--primary-dark);
+            width: 80px;
+            text-align: left;
+        }
+        
         .receipt-summary {
             border-top: 1px dashed var(--border-color);
             padding-top: 15px;
             margin-top: auto;
         }
-        .summary-line {
+        
+        /* Professional Input Fields */
+        .summary-line.input-group {
+            display: grid;
+            grid-template-columns: 1fr 100px;
+            align-items: center;
+            gap: 10px;
             padding: 10px 0;
             border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        }
+        .summary-line.input-group label {
+            font-size: 1rem;
+            color: var(--secondary-dark);
+            font-weight: 500;
+        }
+        .summary-line.input-group input {
+            padding: 8px;
+            border: 2px solid #ddd !important;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1rem;
+            background-color: var(--input-bg);
+            transition: all 0.3s;
+        }
+        .summary-line.input-group input:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+        .summary-line.input-group span {
             font-size: 1rem;
         }
-        .summary-line:last-of-type {
-            border-bottom: none;
-        }
+
         .summary-total {
             font-weight: 700;
             color: var(--primary);
@@ -282,21 +332,6 @@
         .btn-secondary:hover {
             background: #bbb;
         }
-        .input-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            justify-content: space-between;
-        }
-        .input-group label {
-            flex-grow: 1;
-        }
-        .input-group input {
-            width: 100px;
-            padding: 8px;
-            border-radius: 5px;
-            text-align: center;
-        }
 
         /* Modal Styles */
         .modal {
@@ -336,10 +371,11 @@
         .modal-header h2 {
             margin: 0;
         }
+        /* Close Button Position */
         .close-btn {
             position: absolute;
             top: 10px;
-            right: 10px;
+            left: 10px; /* Moved to the top left for RTL */
             color: #aaa;
             font-size: 2rem;
             font-weight: bold;
@@ -355,19 +391,13 @@
             color: var(--dark);
             font-weight: 500;
         }
-        .form-group input, .form-group select {
+        .form-group input, .form-group select, .form-group datalist {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #ddd !important;
             border-radius: 5px;
             font-size: 1rem;
             transition: all 0.3s;
             background-color: var(--input-bg);
-        }
-        .form-group input:focus, .form-group select:focus {
-            border-color: var(--primary) !important;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
         }
         .form-group .btn-inline {
             width: auto;
@@ -380,8 +410,45 @@
             gap: 10px;
             margin-top: 1.5rem;
         }
+
+        /* In-app Notification Styles */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 90%;
+            max-width: 400px;
+        }
+        .toast {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.5s ease;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast.error {
+            background-color: var(--error);
+        }
+        .toast .fas {
+            font-size: 1.5rem;
+        }
         
-        /* تحسينات للاستجابة على الأجهزة الصغيرة */
+        /* Responsive Styles */
         @media (max-width: 768px) {
             .pos-container {
                 flex-direction: column-reverse;
@@ -453,9 +520,10 @@
                         <span>الإجمالي بعد الخصم والضريبة:</span>
                         <span id="totalBeforePaid">0.00 EGP</span>
                     </div>
-                    <div class="summary-line">
+                    <div class="summary-line input-group">
                         <span>المبلغ المستلم:</span>
                         <input type="number" id="amountReceived" value="0" min="0" step="0.01">
+                        <span>EGP</span>
                     </div>
                     <div class="summary-line summary-total">
                         <span>المبلغ المتبقي:</span>
@@ -464,12 +532,13 @@
                 </div>
                 <div class="pos-actions">
                     <button class="btn btn-primary" id="checkoutBtn"><i class="fas fa-cash-register"></i> إتمام البيع</button>
-                    <button class="btn btn-secondary" id="refundBtn"><i class="fas fa-undo"></i> مرتجعات</button>
                     <button class="btn btn-secondary" id="clearBtn"><i class="fas fa-trash-alt"></i> مسح الفاتورة</button>
                 </div>
             </div>
         </div>
     </div>
+    
+    <div class="toast-container" id="toastContainer"></div>
 
     <div id="paymentModal" class="modal">
         <div class="modal-content">
@@ -486,37 +555,22 @@
                     </select>
                 </div>
                 <div class="form-group" id="customerSelectionGroup">
-                    <label for="customerSearch">بحث عن عميل أو إضافة جديد:</label>
+                    <label for="customerSearch">بحث عن عميل:</label>
                     <div style="display: flex; gap: 10px;">
                         <input type="text" id="customerSearch" list="customerList" placeholder="اكتب اسم العميل...">
-                        <datalist id="customerList">
-                            </datalist>
+                        <datalist id="customerList"></datalist>
                     </div>
                     <div id="customerDetails" style="margin-top: 10px; font-size: 0.9rem; color: var(--primary-dark);"></div>
+                </div>
+                 <div class="form-group" id="newCustomerGroup" style="display: none;">
+                    <label for="newCustomerName">اسم العميل الجديد:</label>
+                    <input type="text" id="newCustomerName">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button>
                     <button type="submit" class="btn btn-primary">تأكيد الدفع</button>
                 </div>
             </form>
-        </div>
-    </div>
-
-    <div id="refundModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>المرتجعات</h2>
-                <span class="close-btn" onclick="closeModal('refundModal')">&times;</span>
-            </div>
-            <p>أدخل باركود المنتج لإرجاعه.</p>
-            <div class="form-group">
-                <label for="refundBarcodeInput">باركود المنتج:</label>
-                <input type="text" id="refundBarcodeInput" placeholder="امسح الباركود أو أدخله يدوياً">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('refundModal')">إغلاق</button>
-                <button type="button" class="btn btn-primary" id="processRefundBtn">تنفيذ الإرجاع</button>
-            </div>
         </div>
     </div>
 
@@ -560,7 +614,6 @@
         const changeDueSpan = document.getElementById('changeDue');
         const checkoutBtn = document.getElementById('checkoutBtn');
         const clearBtn = document.getElementById('clearBtn');
-        const refundBtn = document.getElementById('refundBtn');
 
         // Scanner Buttons
         const scanWithPhoneBtn = document.getElementById('scanWithPhoneBtn');
@@ -572,10 +625,9 @@
         const customerList = document.getElementById('customerList');
         const customerSearchInput = document.getElementById('customerSearch');
         const customerDetailsDiv = document.getElementById('customerDetails');
-
-        const refundModal = document.getElementById('refundModal');
-        const refundBarcodeInput = document.getElementById('refundBarcodeInput');
-        const processRefundBtn = document.getElementById('processRefundBtn');
+        const newCustomerGroup = document.getElementById('newCustomerGroup');
+        const newCustomerNameInput = document.getElementById('newCustomerName');
+        const toastContainer = document.getElementById('toastContainer');
 
         // POS State
         let allProducts = [];
@@ -702,26 +754,28 @@
             discountInput.value = '0';
             taxInput.value = '0';
             customerSearchInput.value = '';
+            customerDetailsDiv.textContent = '';
         };
 
         const processPayment = async () => {
-            const totalAmount = parseFloat(totalSpan.textContent);
+            const totalAmount = parseFloat(totalBeforePaidSpan.textContent);
             const paymentMethod = paymentMethodSelect.value;
-            const customerName = customerSearchInput.value;
+            let customerName = customerSearchInput.value;
             
             if (Object.keys(currentReceiptItems).length === 0) {
-                alert('الرجاء إضافة منتجات إلى الفاتورة أولاً.');
+                showToast('الرجاء إضافة منتجات إلى الفاتورة أولاً.', 'error');
                 return;
             }
 
             let customerId = null;
             const existingCustomer = allCustomers.find(c => c.name === customerName);
+            
             if (existingCustomer) {
                 customerId = existingCustomer.id;
             } else if (customerName) {
                 const newCustomer = await db.collection('customers').add({ name: customerName, createdAt: new Date() });
                 customerId = newCustomer.id;
-                allCustomers.push({ id: newCustomer.id, name: newCustomerName });
+                allCustomers.push({ id: newCustomer.id, name: customerName });
                 renderCustomersDatalist();
             }
 
@@ -742,38 +796,28 @@
             };
             
             await db.collection('sales').add(sale);
-            alert('تم إتمام عملية البيع بنجاح!');
+            showToast('تم إتمام عملية البيع بنجاح!');
             clearReceipt();
             closeModal('paymentModal');
         };
-
-        const processRefund = async (barcode) => {
-            const product = allProducts.find(p => p.barcode === barcode);
-            if (!product) {
-                alert('لم يتم العثور على منتج بهذا الباركود.');
-                return;
-            }
+        
+        const showToast = (message, type = 'success') => {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const iconClass = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            toast.innerHTML = `<i class="${iconClass}"></i> <span>${message}</span>`;
+            toastContainer.appendChild(toast);
             
-            if (confirm(`هل أنت متأكد من إرجاع منتج "${product.name}"؟`)) {
-                const productRef = db.collection('products').doc(product.id);
-                try {
-                    await db.runTransaction(async (transaction) => {
-                        const doc = await transaction.get(productRef);
-                        if (!doc.exists) {
-                            throw "Document does not exist!";
-                        }
-                        const newQuantity = doc.data().quantity + 1;
-                        transaction.update(productRef, { quantity: newQuantity });
-                    });
-                    alert(`تم إرجاع منتج "${product.name}" بنجاح. تم تحديث المخزون.`);
-                    closeModal('refundModal');
-                    refundBarcodeInput.value = '';
-                    fetchProducts();
-                } catch (e) {
-                    console.error("Transaction failed: ", e);
-                    alert("فشل إرجاع المنتج. الرجاء المحاولة مرة أخرى.");
-                }
-            }
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => {
+                    toast.remove();
+                });
+            }, 3000);
         };
 
         // --- Event Listeners ---
@@ -787,28 +831,20 @@
         
         scanWithPhoneBtn.addEventListener('click', async () => {
              await scannerSessionDocRef.set({ status: 'scanRequested', purpose: 'pos', lastSeen: new Date() });
-             alert('يرجى استخدام الهاتف لمسح الباركود');
+             showToast('يرجى استخدام الهاتف لمسح الباركود', 'warning');
         });
         
         checkoutBtn.addEventListener('click', () => {
+            if (Object.keys(currentReceiptItems).length === 0) {
+                showToast('الرجاء إضافة منتجات إلى الفاتورة أولاً.', 'error');
+                return;
+            }
             openModal('paymentModal');
         });
 
-        refundBtn.addEventListener('click', () => {
-            openModal('refundModal');
-        });
-        
-        processRefundBtn.addEventListener('click', () => {
-            const barcode = refundBarcodeInput.value;
-            if (barcode) {
-                processRefund(barcode);
-            } else {
-                alert('الرجاء إدخال باركود.');
-            }
-        });
-        
         clearBtn.addEventListener('click', () => {
             clearReceipt();
+            showToast('تم مسح الفاتورة.');
         });
 
         discountInput.addEventListener('input', () => {
@@ -845,9 +881,9 @@
                 const product = allProducts.find(p => p.barcode === scannedBarcode);
                 if (product) {
                     addProductToReceipt(product);
-                    alert(`تم إضافة المنتج: ${product.name}`);
+                    showToast(`تم إضافة المنتج: ${product.name}`);
                 } else {
-                    alert(`لم يتم العثور على منتج بالباركود: ${scannedBarcode}`);
+                    showToast(`لم يتم العثور على منتج بالباركود: ${scannedBarcode}`, 'error');
                 }
                 scannerSessionDocRef.set({ status: 'readyForNextScan' });
             }
