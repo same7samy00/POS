@@ -359,7 +359,7 @@
             <p id="scannerError" style="color: var(--error); margin-top: 1rem;"></p>
         </div>
     </div>
-    
+
     <div id="paymentModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -395,15 +395,29 @@
             </form>
         </div>
     </div>
+    
+    <div id="connectPhoneModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ربط الهاتف بالكمبيوتر</h2>
+                <span class="close-btn" onclick="closeModal('connectPhoneModal')">&times;</span>
+            </div>
+            <p>امسح الكود التالي بهاتفك لربطه بالكمبيوتر:</p>
+            <img id="qrCodeImage" src="" alt="QR Code">
+            <p style="margin-top: 1rem; font-size: 0.9rem;">
+                <i class="fas fa-info-circle"></i> هذا الربط يتم لمرة واحدة فقط. بعد المسح، يمكنك الضغط على زر "مسح بالهاتف" مباشرة من الكمبيوتر ليقوم بفتح الكاميرا في صفحة الهاتف تلقائياً.
+            </p>
+        </div>
+    </div>
 
-    <div id="barcodeSvgContainer" style="display: none;"></div>
+    <div id="printReceiptContainer" style="display: none;"></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuid.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.18.6/umd/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
 
 
     <script>
@@ -447,6 +461,17 @@
         const changeDueSpan = document.getElementById('changeDue');
         const paymentTotalSpan = document.getElementById('paymentTotal');
         
+        const scannerModal = document.getElementById('scannerModal');
+        const scannerVideo = document.getElementById('scannerVideo');
+        const scannerStatus = document.getElementById('scannerStatus');
+        const scannerError = document.getElementById('scannerError');
+
+        const connectPhoneModal = document.getElementById('connectPhoneModal');
+        const qrCodeImage = document.getElementById('qrCodeImage');
+        
+        let codeReader = null;
+        let phoneSessionListener = null;
+
         let currentInvoice = {
             items: [],
             subTotal: 0,
@@ -454,7 +479,7 @@
             finalTotal: 0,
             customer: null
         };
-
+        
         // ===========================================
         // Modal & Core UI Functions
         // ===========================================
@@ -464,6 +489,10 @@
 
         const closeModal = (id) => {
             document.getElementById(id).classList.remove('active');
+            if (codeReader) {
+                codeReader.reset();
+                codeReader = null;
+            }
         };
 
         // ===========================================
@@ -503,7 +532,8 @@
                     purchasePrice: productToAdd.purchasePrice,
                     unit: productToAdd.unit,
                     barcode: productToAdd.barcode,
-                    quantity: 1
+                    quantity: 1,
+                    maxQuantity: productToAdd.quantity
                 });
             }
             renderInvoice();
@@ -517,7 +547,7 @@
                 row.innerHTML = `
                     <td>${item.name}</td>
                     <td>
-                        <input type="number" value="${item.quantity}" min="1" max="${item.maxQuantity || 1000}" onchange="updateQuantity(${index}, this.value)" style="width: 60px; text-align: center;">
+                        <input type="number" value="${item.quantity}" min="1" max="${item.maxQuantity}" onchange="updateQuantity(${index}, this.value)" style="width: 60px; text-align: center;">
                     </td>
                     <td>${item.price.toFixed(2)}</td>
                     <td>${itemTotal.toFixed(2)}</td>
@@ -529,7 +559,18 @@
         };
 
         const updateQuantity = (index, newQuantity) => {
-            currentInvoice.items[index].quantity = parseInt(newQuantity);
+            const item = currentInvoice.items[index];
+            const quantity = parseInt(newQuantity);
+            if (quantity > item.maxQuantity) {
+                alert(`الكمية القصوى المتاحة هي: ${item.maxQuantity}`);
+                document.querySelector(`#invoiceTableBody tr:nth-child(${index + 1}) input`).value = item.maxQuantity;
+                item.quantity = item.maxQuantity;
+            } else if (quantity < 1) {
+                document.querySelector(`#invoiceTableBody tr:nth-child(${index + 1}) input`).value = 1;
+                item.quantity = 1;
+            } else {
+                item.quantity = quantity;
+            }
             calculateTotals();
         };
 
@@ -539,16 +580,18 @@
         };
 
         const clearInvoice = () => {
-            currentInvoice.items = [];
-            currentInvoice.customer = null;
+            currentInvoice = { items: [], subTotal: 0, discount: 0, finalTotal: 0, customer: null };
             renderInvoice();
             alert('تم إلغاء الفاتورة.');
         };
 
         const calculateTotals = () => {
             let subTotal = currentInvoice.items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
-            let finalTotal = subTotal - currentInvoice.discount;
+            let discount = parseFloat(discountAmountInput.value) || 0;
+            let finalTotal = subTotal - discount;
+            
             currentInvoice.subTotal = subTotal;
+            currentInvoice.discount = discount;
             currentInvoice.finalTotal = finalTotal > 0 ? finalTotal : 0;
             
             subTotalSpan.textContent = currentInvoice.subTotal.toFixed(2);
@@ -556,7 +599,41 @@
             finalTotalSpan.textContent = currentInvoice.finalTotal.toFixed(2);
             paymentTotalSpan.textContent = currentInvoice.finalTotal.toFixed(2);
         };
+        
+        const printReceipt = (salesData) => {
+            const printWindow = window.open('', '', 'height=600,width=400');
+            printWindow.document.write('<html><head><title>فاتورة</title>');
+            printWindow.document.write('<style>');
+            printWindow.document.write('@media print { @page { size: 80mm; margin: 0; } body { margin: 0; padding: 10mm; } }');
+            printWindow.document.write(`body { font-family: 'Tajawal', sans-serif; font-size: 12px; text-align: right; }`);
+            printWindow.document.write('h1, h2, h3 { text-align: center; }');
+            printWindow.document.write('table { width: 100%; border-collapse: collapse; margin-top: 10px; }');
+            printWindow.document.write('th, td { border-bottom: 1px dashed #000; padding: 5px 0; }');
+            printWindow.document.write('th { text-align: right; }');
+            printWindow.document.write('.total-row td { font-weight: bold; }');
+            printWindow.document.write('</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write('<h1>اسم محلك هنا</h1>');
+            printWindow.document.write('<p>رقم الفاتورة: ' + salesData.invoiceNumber + '</p>');
+            printWindow.document.write('<p>التاريخ: ' + salesData.timestamp.toLocaleString('ar-EG') + '</p>');
+            printWindow.document.write('<table><thead><tr><th>المنتج</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>');
+            salesData.items.forEach(item => {
+                printWindow.document.write(`<tr><td>${item.name}</td><td>${item.quantity}</td><td>${item.price.toFixed(2)}</td><td>${(item.quantity * item.price).toFixed(2)}</td></tr>`);
+            });
+            printWindow.document.write('</tbody></table>');
+            printWindow.document.write('<h3>الإجمالي الفرعي: ' + salesData.subTotal.toFixed(2) + ' EGP</h3>');
+            printWindow.document.write('<h3>الخصم: ' + salesData.discount.toFixed(2) + ' EGP</h3>');
+            printWindow.document.write('<h2>الإجمالي النهائي: ' + salesData.finalTotal.toFixed(2) + ' EGP</h2>');
+            printWindow.document.write('<p style="text-align: center; margin-top: 20px;">شكراً لزيارتكم</p>');
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
 
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        };
+        
         // ===========================================
         // Checkout & Payment Logic
         // ===========================================
@@ -582,6 +659,7 @@
 
             try {
                 const salesData = {
+                    invoiceNumber: uuid.v4(),
                     items: currentInvoice.items.map(item => ({
                         barcode: item.barcode,
                         name: item.name,
@@ -597,7 +675,6 @@
                     clerk: auth.currentUser.email
                 };
 
-                // Update product quantities
                 const batch = db.batch();
                 for (const item of currentInvoice.items) {
                     const productRef = productsCollection.doc(item.id);
@@ -610,6 +687,7 @@
                 await batch.commit();
 
                 alert('تمت عملية البيع بنجاح!');
+                printReceipt(salesData);
                 clearInvoice();
                 closeModal('paymentModal');
 
@@ -641,13 +719,21 @@
         });
         
         searchBarcodeBtn.addEventListener('click', async () => {
-            // Placeholder for opening scanner modal
+             // Logic to open scanner modal and add product to cart
+             openModal('scannerModal');
+             // Rest of the scanner logic here
         });
         
-        scanWithPhoneBtn.addEventListener('click', async () => {
-            // Placeholder for remote scanner logic
-        });
-
+        const addProductByBarcode = async (barcode) => {
+             const productSnapshot = await productsCollection.where('barcode', '==', barcode).limit(1).get();
+             if (!productSnapshot.empty) {
+                const product = { id: productSnapshot.docs[0].id, ...productSnapshot.docs[0].data() };
+                addToCart(product);
+             } else {
+                alert('لم يتم العثور على منتج بهذا الباركود.');
+             }
+        }
+        
         checkoutBtn.addEventListener('click', openPaymentModal);
         paymentForm.addEventListener('submit', processPayment);
         discountAmountInput.addEventListener('input', calculateTotals);
@@ -670,18 +756,12 @@
         });
 
         // ===========================================
-        // Additional functions (copied from inventory.html)
+        // Scanner Functions (Local & Remote)
         // ===========================================
-        // [Copy-pasting the scanner and print functions from the last inventory.html response]
-        const scannerModal = document.getElementById('scannerModal');
-        const scannerVideo = document.getElementById('scannerVideo');
-        const scannerStatus = document.getElementById('scannerStatus');
-        const scannerError = document.getElementById('scannerError');
+        const scannerSessionDocRef = db.collection('scannerSessions').doc('fixed');
         let codeReader = null;
         let phoneSessionListener = null;
-        const connectPhoneModal = document.getElementById('connectPhoneModal');
-        const qrCodeImage = document.getElementById('qrCodeImage');
-
+        
         searchBarcodeBtn.addEventListener('click', async () => {
             openModal('scannerModal');
             scannerStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تهيئة الكاميرا...';
@@ -728,21 +808,10 @@
             }
         });
         
-        async function addProductByBarcode(barcode) {
-             const productSnapshot = await productsCollection.where('barcode', '==', barcode).limit(1).get();
-             if (!productSnapshot.empty) {
-                const product = { id: productSnapshot.docs[0].id, ...productSnapshot.docs[0].data() };
-                addToCart(product);
-             } else {
-                alert('لم يتم العثور على منتج بهذا الباركود.');
-             }
-        }
-        
-        const scannerSessionDocRef = db.collection('scannerSessions').doc('fixed');
         scanWithPhoneBtn.addEventListener('click', async () => {
             scanWithPhoneBtn.classList.add('btn-waiting');
             try {
-                await scannerSessionDocRef.set({ status: 'scanRequested', purpose: 'search', lastSeen: new Date() });
+                await scannerSessionDocRef.set({ status: 'scanRequested', purpose: 'add', lastSeen: new Date() });
             } catch (error) {
                 console.error("Failed to send scan request:", error);
                 alert("فشل إرسال طلب المسح. تأكد من أن الهاتف متصل بالإنترنت.");
