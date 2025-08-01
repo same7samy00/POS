@@ -157,13 +157,34 @@
             padding: 10px 0;
             border-bottom: 1px solid var(--light);
         }
-        .receipt-item span {
-            font-size: 0.9rem;
+        .receipt-item .item-info {
+            display: flex;
+            flex-direction: column;
+            text-align: right;
+            flex-grow: 1;
         }
         .receipt-item .item-name {
-            flex-grow: 1;
-            text-align: right;
-            margin-left: 10px;
+            font-weight: bold;
+        }
+        .receipt-item .item-details {
+            font-size: 0.8rem;
+            color: #777;
+        }
+        .receipt-item .item-actions {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .receipt-item .item-actions input {
+            width: 50px;
+            text-align: center;
+        }
+        .receipt-item .remove-btn {
+            background: none;
+            border: none;
+            color: var(--error);
+            cursor: pointer;
+            font-size: 1.1rem;
         }
         .receipt-summary {
             border-top: 2px dashed var(--border-color);
@@ -211,6 +232,24 @@
             background: #bbb;
         }
 
+        /* Modern Discount & Tax fields */
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: space-between;
+        }
+        .input-group label {
+            flex-grow: 1;
+        }
+        .input-group input {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            text-align: center;
+        }
+
         /* Modal Styles */
         .modal {
             display: none;
@@ -221,7 +260,7 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.8);
             justify-content: center;
             align-items: center;
         }
@@ -229,7 +268,7 @@
             display: flex;
         }
         .modal-content {
-            background-color: #fff;
+            background-color: var(--card-bg);
             margin: auto;
             padding: 2rem;
             border-radius: 10px;
@@ -237,6 +276,12 @@
             width: 90%;
             max-width: 500px;
             position: relative;
+        }
+        #paymentModal .modal-content {
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            border-radius: 0;
         }
         .modal-header {
             display: flex;
@@ -275,6 +320,11 @@
             border-radius: 5px;
             font-size: 1rem;
             transition: all 0.3s;
+        }
+        .form-group .btn-inline {
+            width: auto;
+            padding: 10px 15px;
+            margin-right: 10px;
         }
         .modal-footer {
             display: flex;
@@ -351,17 +401,31 @@
                         <span>الإجمالي الفرعي:</span>
                         <span id="subtotal">0.00 EGP</span>
                     </div>
-                    <div class="summary-line">
-                        <span>الخصم (%):</span>
-                        <input type="number" id="discount" value="0" min="0" max="100" style="width: 60px; text-align: center;">
+                    <div class="summary-line input-group">
+                        <span>الخصم:</span>
+                        <input type="number" id="discountInput" value="0" min="0" step="0.01">
+                        <span id="discountType">%</span>
+                    </div>
+                    <div class="summary-line input-group">
+                        <span>الضريبة:</span>
+                        <input type="number" id="taxInput" value="0" min="0" step="0.01">
+                        <span>%</span>
                     </div>
                     <div class="summary-line">
-                        <span>الضريبة:</span>
-                        <span id="tax">0.00 EGP</span>
+                        <span>الإجمالي بعد الخصم والضريبة:</span>
+                        <span id="totalBeforePaid">0.00 EGP</span>
                     </div>
                     <div class="summary-line summary-total">
-                        <span>الإجمالي الكلي:</span>
+                        <span>المبلغ النهائي:</span>
                         <span id="total">0.00 EGP</span>
+                    </div>
+                    <div class="summary-line">
+                        <span>المبلغ المستلم:</span>
+                        <input type="number" id="amountReceived" value="0" min="0" step="0.01">
+                    </div>
+                    <div class="summary-line summary-total">
+                        <span>المبلغ المتبقي:</span>
+                        <span id="changeDue">0.00 EGP</span>
                     </div>
                 </div>
                 <div class="pos-actions">
@@ -376,7 +440,7 @@
     <div id="paymentModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>إتمام البيع</h2>
+                <h2>إتمام البيع - اختيار العميل وطريقة الدفع</h2>
                 <span class="close-btn" onclick="closeModal('paymentModal')">&times;</span>
             </div>
             <form id="paymentForm">
@@ -387,19 +451,17 @@
                         <option value="credit">آجل</option>
                     </select>
                 </div>
-                <div class="form-group" id="customerSelectGroup">
-                    <label for="customerSelect">اختر العميل (للآجل):</label>
-                    <select id="customerSelect" disabled>
-                        <option value="">اختر عميل...</option>
-                        </select>
-                </div>
-                <div class="form-group">
-                    <label for="amountPaid">المبلغ المستلم:</label>
-                    <input type="number" id="amountPaid" min="0" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="changeDue">المبلغ المتبقي / التغير:</label>
-                    <input type="text" id="changeDue" readonly>
+                <div class="form-group" id="customerSelectionGroup">
+                    <label for="customerSearch">بحث عن عميل أو إضافة جديد:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="customerSearch" list="customerList" placeholder="اكتب اسم العميل...">
+                        <datalist id="customerList">
+                            </datalist>
+                        <button type="button" class="btn btn-secondary btn-inline" id="addCustomerBtn">
+                            <i class="fas fa-plus"></i> إضافة جديد
+                        </button>
+                    </div>
+                    <div id="customerDetails" style="margin-top: 10px; font-size: 0.9rem; color: var(--primary-dark);"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button>
@@ -415,9 +477,14 @@
                 <h2>المرتجعات</h2>
                 <span class="close-btn" onclick="closeModal('refundModal')">&times;</span>
             </div>
-            <p>هذه الميزة تحت التطوير.</p>
+            <p>أدخل باركود المنتج لإرجاعه.</p>
+            <div class="form-group">
+                <label for="refundBarcodeInput">باركود المنتج:</label>
+                <input type="text" id="refundBarcodeInput" placeholder="امسح الباركود أو أدخله يدوياً">
+            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('refundModal')">إغلاق</button>
+                <button type="button" class="btn btn-primary" id="processRefundBtn">تنفيذ الإرجاع</button>
             </div>
         </div>
     </div>
@@ -440,7 +507,6 @@
         const db = firebase.firestore();
         const scannerSessionDocRef = db.collection('scannerSessions').doc('fixed');
 
-        // Check auth status
         auth.onAuthStateChanged(user => {
             if (!user) {
                 window.location.href = 'login.html';
@@ -455,9 +521,12 @@
         const searchInput = document.getElementById('searchInput');
         const receiptItemsList = document.getElementById('receiptItems');
         const subtotalSpan = document.getElementById('subtotal');
-        const discountInput = document.getElementById('discount');
-        const taxSpan = document.getElementById('tax');
+        const discountInput = document.getElementById('discountInput');
+        const taxInput = document.getElementById('taxInput');
         const totalSpan = document.getElementById('total');
+        const totalBeforePaidSpan = document.getElementById('totalBeforePaid');
+        const amountReceivedInput = document.getElementById('amountReceived');
+        const changeDueSpan = document.getElementById('changeDue');
         const checkoutBtn = document.getElementById('checkoutBtn');
         const clearBtn = document.getElementById('clearBtn');
         const refundBtn = document.getElementById('refundBtn');
@@ -470,17 +539,19 @@
         const paymentModal = document.getElementById('paymentModal');
         const paymentForm = document.getElementById('paymentForm');
         const paymentMethodSelect = document.getElementById('paymentMethod');
-        const customerSelectGroup = document.getElementById('customerSelectGroup');
-        const customerSelect = document.getElementById('customerSelect');
-        const amountPaidInput = document.getElementById('amountPaid');
-        const changeDueInput = document.getElementById('changeDue');
+        const customerList = document.getElementById('customerList');
+        const customerSearchInput = document.getElementById('customerSearch');
+        const customerDetailsDiv = document.getElementById('customerDetails');
+        const addCustomerBtn = document.getElementById('addCustomerBtn');
+
         const refundModal = document.getElementById('refundModal');
+        const refundBarcodeInput = document.getElementById('refundBarcodeInput');
+        const processRefundBtn = document.getElementById('processRefundBtn');
 
         // POS State
         let allProducts = [];
         let allCustomers = [];
         let currentReceiptItems = {};
-        const TAX_RATE = 0.14; // 14% tax
 
         // --- Core Functions ---
         const fetchProducts = async () => {
@@ -492,7 +563,16 @@
         const fetchCustomers = async () => {
             const snapshot = await db.collection('customers').get();
             allCustomers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderCustomersSelect();
+            renderCustomersDatalist();
+        };
+
+        const renderCustomersDatalist = () => {
+            customerList.innerHTML = '';
+            allCustomers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer.name;
+                customerList.appendChild(option);
+            });
         };
 
         const renderProductsGrid = (products) => {
@@ -522,6 +602,11 @@
             updateReceipt();
         };
 
+        const removeProductFromReceipt = (productId) => {
+            delete currentReceiptItems[productId];
+            updateReceipt();
+        };
+        
         const updateReceipt = () => {
             receiptItemsList.innerHTML = '';
             let subtotal = 0;
@@ -532,10 +617,16 @@
                 
                 const receiptItem = document.createElement('li');
                 receiptItem.className = 'receipt-item';
+                receiptItem.dataset.id = id;
                 receiptItem.innerHTML = `
-                    <div class="item-name">${item.name}</div>
-                    <span>${item.quantity} x ${item.price.toFixed(2)}</span>
-                    <span>${itemTotal.toFixed(2)} EGP</span>
+                    <div class="item-info">
+                        <span class="item-name">${item.name}</span>
+                        <span class="item-details">السعر: ${item.price.toFixed(2)} | الكمية: ${item.quantity}</span>
+                    </div>
+                    <div class="item-actions">
+                        <span>${itemTotal.toFixed(2)} EGP</span>
+                        <button class="remove-btn" onclick="removeProductFromReceipt('${id}')"><i class="fas fa-trash-alt"></i></button>
+                    </div>
                 `;
                 receiptItemsList.appendChild(receiptItem);
             }
@@ -544,37 +635,60 @@
 
         const calculateTotals = (subtotal) => {
             const discountPercentage = parseFloat(discountInput.value) || 0;
+            const taxPercentage = parseFloat(taxInput.value) || 0;
+
             const discountAmount = subtotal * (discountPercentage / 100);
             const subtotalAfterDiscount = subtotal - discountAmount;
-            const taxAmount = subtotalAfterDiscount * TAX_RATE;
+            const taxAmount = subtotalAfterDiscount * (taxPercentage / 100);
             const total = subtotalAfterDiscount + taxAmount;
             
             subtotalSpan.textContent = `${subtotal.toFixed(2)} EGP`;
-            taxSpan.textContent = `${taxAmount.toFixed(2)} EGP`;
+            totalBeforePaidSpan.textContent = `${total.toFixed(2)} EGP`;
             totalSpan.textContent = `${total.toFixed(2)} EGP`;
-            amountPaidInput.value = total.toFixed(2);
+            
+            // Recalculate change due
+            const amountReceived = parseFloat(amountReceivedInput.value) || 0;
+            const change = amountReceived - total;
+            changeDueSpan.textContent = `${change.toFixed(2)} EGP`;
         };
-
+        
         const clearReceipt = () => {
             currentReceiptItems = {};
             updateReceipt();
+            amountReceivedInput.value = '0';
         };
 
         const processPayment = async () => {
             const totalAmount = parseFloat(totalSpan.textContent);
             const paymentMethod = paymentMethodSelect.value;
-            const customerId = customerSelect.value || null;
-
+            const customerName = customerSearchInput.value;
+            
             if (Object.keys(currentReceiptItems).length === 0) {
                 alert('الرجاء إضافة منتجات إلى الفاتورة أولاً.');
                 return;
             }
 
+            let customerId = null;
+            const existingCustomer = allCustomers.find(c => c.name === customerName);
+            if (existingCustomer) {
+                customerId = existingCustomer.id;
+            } else if (customerName) {
+                const newCustomer = await db.collection('customers').add({ name: customerName, createdAt: new Date() });
+                customerId = newCustomer.id;
+                allCustomers.push({ id: newCustomer.id, name: customerName });
+                renderCustomersDatalist();
+            }
+
             const sale = {
-                items: currentReceiptItems,
+                items: Object.values(currentReceiptItems).map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price
+                })),
                 subtotal: parseFloat(subtotalSpan.textContent),
                 discount: parseFloat(discountInput.value),
-                tax: parseFloat(taxSpan.textContent),
+                tax: parseFloat(taxInput.value),
                 total: totalAmount,
                 paymentMethod: paymentMethod,
                 customerId: customerId,
@@ -586,27 +700,38 @@
             clearReceipt();
             closeModal('paymentModal');
         };
-        
-        const renderCustomersSelect = () => {
-            customerSelect.innerHTML = '<option value="">اختر عميل...</option>';
-            allCustomers.forEach(customer => {
-                const option = document.createElement('option');
-                option.value = customer.id;
-                option.textContent = customer.name;
-                customerSelect.appendChild(option);
-            });
+
+        const processRefund = async (barcode) => {
+            const product = allProducts.find(p => p.barcode === barcode);
+            if (!product) {
+                alert('لم يتم العثور على منتج بهذا الباركود.');
+                return;
+            }
+            
+            if (confirm(`هل أنت متأكد من إرجاع المنتج: ${product.name}؟`)) {
+                const productRef = db.collection('products').doc(product.id);
+                await db.runTransaction(async (transaction) => {
+                    const doc = await transaction.get(productRef);
+                    const newQuantity = doc.data().quantity + 1;
+                    transaction.update(productRef, { quantity: newQuantity });
+                });
+                alert(`تم إرجاع منتج ${product.name} بنجاح.`);
+                closeModal('refundModal');
+                refundBarcodeInput.value = '';
+                fetchProducts();
+            }
         };
 
         // --- Event Listeners ---
         searchInput.addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
             const filteredProducts = allProducts.filter(p => 
-                p.name.toLowerCase().includes(searchTerm) || p.barcode.includes(searchTerm)
+                p.name.toLowerCase().includes(searchTerm) || (p.barcode && p.barcode.includes(searchTerm))
             );
             renderProductsGrid(filteredProducts);
         });
 
-        scanBtn.addEventListener('click', async () => {
+        scanBtn.addEventListener('click', () => {
             alert('مسح الباركود من الجهاز الحالي غير مدعوم في هذه النسخة. الرجاء استخدام مسح بالهاتف.');
         });
         
@@ -623,6 +748,15 @@
             openModal('refundModal');
         });
         
+        processRefundBtn.addEventListener('click', () => {
+            const barcode = refundBarcodeInput.value;
+            if (barcode) {
+                processRefund(barcode);
+            } else {
+                alert('الرجاء إدخال باركود.');
+            }
+        });
+        
         clearBtn.addEventListener('click', () => {
             clearReceipt();
         });
@@ -631,27 +765,39 @@
             const currentSubtotal = Object.values(currentReceiptItems).reduce((acc, item) => acc + (item.quantity * item.price), 0);
             calculateTotals(currentSubtotal);
         });
-        
-        paymentMethodSelect.addEventListener('change', (e) => {
-            if (e.target.value === 'credit') {
-                customerSelect.disabled = false;
-            } else {
-                customerSelect.disabled = true;
-            }
-        });
 
+        taxInput.addEventListener('input', () => {
+            const currentSubtotal = Object.values(currentReceiptItems).reduce((acc, item) => acc + (item.quantity * item.price), 0);
+            calculateTotals(currentSubtotal);
+        });
+        
+        amountReceivedInput.addEventListener('input', () => {
+            const totalAmount = parseFloat(totalBeforePaidSpan.textContent);
+            const amountReceived = parseFloat(amountReceivedInput.value) || 0;
+            const change = amountReceived - totalAmount;
+            changeDueSpan.textContent = `${change.toFixed(2)} EGP`;
+        });
+        
         paymentForm.addEventListener('submit', (e) => {
             e.preventDefault();
             processPayment();
         });
-
-        amountPaidInput.addEventListener('input', () => {
-            const totalAmount = parseFloat(totalSpan.textContent);
-            const amountPaid = parseFloat(amountPaidInput.value) || 0;
-            const change = amountPaid - totalAmount;
-            changeDueInput.value = change.toFixed(2) + ' EGP';
-        });
         
+        addCustomerBtn.addEventListener('click', () => {
+            const newCustomerName = customerSearchInput.value;
+            if (newCustomerName && !allCustomers.find(c => c.name === newCustomerName)) {
+                db.collection('customers').add({ name: newCustomerName, createdAt: new Date() })
+                    .then(() => {
+                        alert(`تم إضافة العميل ${newCustomerName} بنجاح!`);
+                        fetchCustomers();
+                        customerSearchInput.value = newCustomerName;
+                    })
+                    .catch(error => console.error("Error adding customer: ", error));
+            } else {
+                alert('اسم العميل موجود بالفعل أو فارغ.');
+            }
+        });
+
         // --- Modal & Utility Functions ---
         const openModal = (id) => { document.getElementById(id).classList.add('active'); };
         const closeModal = (id) => { document.getElementById(id).classList.remove('active'); };
@@ -659,7 +805,7 @@
         // Real-time listener for phone scanner
         scannerSessionDocRef.onSnapshot(doc => {
             const data = doc.data();
-            if (data && data.status === 'scanned') {
+            if (data && data.status === 'scanned' && data.purpose === 'pos') {
                 const scannedBarcode = data.scannedValue;
                 const product = allProducts.find(p => p.barcode === scannedBarcode);
                 if (product) {
@@ -681,7 +827,6 @@
                 console.error('Logout Error:', error);
             }
         });
-
     </script>
 </body>
 </html>
