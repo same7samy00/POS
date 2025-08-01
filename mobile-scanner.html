@@ -91,9 +91,8 @@
         };
         const app = firebase.initializeApp(firebaseConfig);
         const db = app.firestore();
-        const urlParams = new URLSearchParams(window.location.search);
-        const sessionId = urlParams.get('sessionId');
-        const scannerSessionDocRef = db.collection('scannerSessions').doc(sessionId);
+        // استخدام وثيقة ثابتة
+        const scannerSessionDocRef = db.collection('scannerSessions').doc('fixed');
                 
         const statusContainer = document.getElementById('statusContainer');
         const statusIcon = document.getElementById('statusIcon');
@@ -143,46 +142,23 @@
             }
         }
         
-        if (!sessionId) {
-            updateStatusUI('error', 'لا يوجد معرّف جلسة. ارجع إلى الكمبيوتر للربط.', 'ri-error-warning-line');
-        } else {
-            onSnapshot(scannerSessionDocRef, async (snapshot) => {
-                if (!snapshot.exists()) {
-                    await scannerSessionDocRef.set({ status: 'phoneReady', lastSeen: new Date() });
-                    updateStatusUI('ready', 'الماسح جاهز وفي انتظار الطلب من الكمبيوتر', 'ri-check-double-line');
-                    return;
-                }
+        // يبدأ المسح فوراً عند تحميل الصفحة
+        startScanner();
+        updateStatusUI('scanning', 'جاري المسح...', 'ri-qr-scan-2-line animate-pulse');
 
-                const data = snapshot.data();
-                switch(data.status) {
-                    case 'scanRequested':
-                        const purposeText = data.purpose === 'search' ? 'للبحث' : 'لإضافة منتج';
-                        updateStatusUI('scanning', `جاري المسح ${purposeText}...`, 'ri-qr-scan-2-line animate-pulse');
-                        await scannerSessionDocRef.update({ status: 'scanning' });
-                        startScanner();
-                        break;
-                    case 'readyForNextScan':
-                    case 'phoneReady':
-                        readerDiv.style.display = 'none';
-                        updateStatusUI('ready', 'الماسح جاهز وفي انتظار الطلب من الكمبيوتر', 'ri-check-double-line');
-                        if(html5QrCode && html5QrCode.isScanning) {
-                            html5QrCode.stop();
-                        }
-                        break;
-                    case 'scanning':
-                        break;
-                    case 'scanned':
-                        updateStatusUI('success', 'تم إرسال الكود بنجاح!', 'ri-check-line');
-                        break;
-                    default:
-                         readerDiv.style.display = 'none';
-                         updateStatusUI('ready', 'في انتظار طلبات المسح...', 'ri-time-line');
-                }
-            }, (error) => {
-                console.error("Firestore listener error:", error);
-                updateStatusUI('error', 'فشل الاتصال بالنظام', 'ri-signal-wifi-error-line');
-            });
-        }
+        // يراقب الوثيقة الثابتة لتغيير الحالة
+        onSnapshot(scannerSessionDocRef, async (snapshot) => {
+            const data = snapshot.data();
+            if (data && data.status === 'readyForNextScan' && html5QrCode && !html5QrCode.isScanning) {
+                // يبدأ المسح مرة أخرى إذا تم إعادة تعيين الحالة من الكمبيوتر
+                startScanner();
+                updateStatusUI('scanning', 'جاري المسح...', 'ri-qr-scan-2-line animate-pulse');
+            }
+        }, (error) => {
+            console.error("Firestore listener error:", error);
+            updateStatusUI('error', 'فشل الاتصال بالنظام', 'ri-signal-wifi-error-line');
+        });
+
     </script>
 </body>
 </html>
