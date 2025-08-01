@@ -142,7 +142,7 @@
 
         async function handleScanResult(barcode) {
             codeReader.reset();
-            statusElement.innerHTML = `<i class="fas fa-check-circle"></i> تم المسح بنجاح! الباركود: ${barcode}`;
+            statusElement.innerHTML = `<i class="fas fa-check-circle"></i> تم المسح بنجاح! جاري إرسال النتيجة...`;
             
             try {
                 await db.collection('scanSessions').doc(sessionId).update({
