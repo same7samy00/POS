@@ -175,36 +175,37 @@
             background-color: #d32f2f;
         }
 
-        .btn-sm {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.9rem;
+        .btn-warning {
+            background-color: var(--warning);
         }
 
-        .table-container {
+        .btn-warning:hover {
+            background-color: #e68a00;
+        }
+
+        .products-table {
+            width: 100%;
             background: #fff;
-            padding: 1.5rem;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
+            overflow: hidden;
             border-collapse: collapse;
-            text-align: right;
         }
 
-        table thead {
-            background-color: #f8f9fa;
-        }
-
-        table th, table td {
+        .products-table th,
+        .products-table td {
             padding: 1rem;
+            text-align: right;
             border-bottom: 1px solid #eee;
-            white-space: nowrap;
         }
-        
-        table tr:hover {
+
+        .products-table th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 500;
+        }
+
+        .products-table tr:hover {
             background-color: rgba(76, 175, 80, 0.05);
         }
 
@@ -497,7 +498,7 @@
                 </a>
             </li>
             <li>
-                <a href="index.html" id="logoutBtn">
+                <a href="#" id="logoutBtn">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>تسجيل الخروج</span>
                 </a>
@@ -522,13 +523,19 @@
                 <button class="btn" id="addProductBtn">
                     <i class="fas fa-plus"></i> إضافة منتج
                 </button>
+                <button class="btn btn-secondary" id="importBtn">
+                    <i class="fas fa-file-import"></i> استيراد
+                </button>
+                <button class="btn btn-secondary" id="exportBtn">
+                    <i class="fas fa-file-export"></i> تصدير
+                </button>
                 <button class="btn btn-warning" id="scanBarcodeBtn">
                     <i class="fas fa-barcode"></i> مسح باركود
                 </button>
             </div>
         </div>
 
-        <div class="table-container">
+        <div class="table-responsive">
             <table class="products-table">
                 <thead>
                     <tr>
@@ -551,6 +558,13 @@
             </table>
         </div>
 
+        <div class="pagination">
+            <button id="prevPageBtn"><i class="fas fa-chevron-right"></i></button>
+            <button class="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button id="nextPageBtn"><i class="fas fa-chevron-left"></i></button>
+        </div>
     </div>
 
     <div class="modal" id="productModal">
@@ -606,7 +620,7 @@
                         <label for="productUnit">وحدة القياس</label>
                         <select id="productUnit">
                             <option value="piece">قطعة</option>
-                            <option value="kg">كجم</option>
+                            <option value="kg">كيلوغرام</option>
                             <option value="liter">لتر</option>
                             <option value="box">علبة</option>
                             <option value="pack">كرتونة</option>
@@ -657,8 +671,6 @@
             </div>
         </div>
     </div>
-    
-    <div id="barcodeSvgContainer" style="display: none;"></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -666,19 +678,17 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/@zxing/library@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-
 
     <script>
         // التهيئة والإعدادات
         const firebaseConfig = {
-            apiKey: "AIzaSyC5ls-rPdJ65x5BoMGwAOpdcPtD585C2ys",
-            authDomain: "pharmacy-inventory-bf04a.firebaseapp.com",
-            projectId: "pharmacy-inventory-bf04a",
-            storageBucket: "pharmacy-inventory-bf04a.firebasestorage.app",
-            messagingSenderId: "937788650384",
-            appId: "1:937788650384:web:6451225d00e648f3a0b915",
-            measurementId: "G-ZGC9EQ55SL"
+            apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
+            authDomain: "supplies-system.firebaseapp.com",
+            projectId: "supplies-system",
+            storageBucket: "supplies-system.appspot.com",
+            messagingSenderId: "205884975863",
+            appId: "1:205884975863:web:de65d32c2459f9979ac1f2",
+            measurementId: "G-2KSYJRKSCX"
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -720,7 +730,7 @@
         // التحقق من حالة المستخدم
         auth.onAuthStateChanged(user => {
             if (!user) {
-                window.location.href = 'index.html';
+                window.location.href = 'login.html';
             } else {
                 currentUser = user;
                 loadProducts();
@@ -909,7 +919,7 @@
             const productImage = document.getElementById('productImage').files[0];
             
             // التحقق من صحة البيانات
-            if (!productName || isNaN(productPrice) || isNaN(productQuantity)) {
+            if (!productName || isNaN(productPrice) {
                 alert('الرجاء إدخال البيانات المطلوبة بشكل صحيح');
                 return;
             }
