@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* CSS code from previous response is here */
         :root {
             --primary: #4CAF50;
             --primary-dark: #388E3C;
@@ -155,7 +156,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script>
-        // Your web app's Firebase configuration
+        // Use the Firebase config you provided earlier
         const firebaseConfig = {
             apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
             authDomain: "supplies-system.firebaseapp.com",
@@ -166,7 +167,6 @@
             measurementId: "G-2KSYJRKSCX"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
@@ -175,10 +175,10 @@
         const passwordInput = document.getElementById('password');
         const errorMessage = document.getElementById('errorMessage');
 
-        // Check if user is already logged in
+        // New logic to handle authentication status on the login page
         auth.onAuthStateChanged(user => {
             if (user) {
-                // User is signed in, redirect to inventory page
+                // User is already signed in, redirect them away from the login page
                 window.location.href = 'inventory.html';
             }
         });
@@ -190,7 +190,6 @@
 
             auth.signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
-                    // Signed in successfully
                     const user = userCredential.user;
                     console.log("User signed in:", user);
                     window.location.href = 'inventory.html';
