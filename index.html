@@ -7,13 +7,17 @@
     <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         :root {
             --primary: #4CAF50;
             --primary-dark: #388E3C;
             --error: #f44336;
+            --warning: #FF9800;
             --light: #f5f5f5;
             --dark: #212121;
+            --secondary-dark: #555;
+            --bg-color: #eef1f5;
         }
 
         * {
@@ -24,34 +28,28 @@
         }
 
         body {
-            background-color: var(--light);
+            background-color: var(--bg-color);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
         }
-
+        
         .login-container {
-            background: white;
-            width: 90%;
-            max-width: 400px;
-            padding: 2rem;
+            background: #fff;
+            padding: 3rem;
             border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 450px;
             text-align: center;
         }
 
-        .login-icon {
-            font-size: 3rem;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-        }
-
-        h1 {
-            color: var(--dark);
-            margin-bottom: 1.5rem;
-            font-size: 1.8rem;
+        .login-container h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--primary-dark);
         }
 
         .form-group {
@@ -59,159 +57,128 @@
             text-align: right;
         }
 
-        label {
+        .form-group label {
             display: block;
             margin-bottom: 0.5rem;
-            color: var(--dark);
             font-weight: 500;
         }
 
-        input {
+        .form-group input {
             width: 100%;
-            padding: 12px 15px;
+            padding: 0.75rem 1rem;
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 1rem;
-            transition: all 0.3s;
-        }
-
-        input:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+            text-align: right;
         }
 
         .btn {
             width: 100%;
-            padding: 12px;
-            background: var(--primary);
-            color: white;
+            padding: 0.75rem;
             border: none;
             border-radius: 5px;
-            font-size: 1rem;
-            font-weight: 500;
+            background-color: var(--primary);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 0.5rem;
+            transition: background-color 0.3s ease;
         }
 
         .btn:hover {
-            background: var(--primary-dark);
+            background-color: var(--primary-dark);
         }
 
         .error-message {
             color: var(--error);
-            margin-top: 1rem;
-            display: none;
-            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            display: none; /* يتم إظهاره عند وجود خطأ */
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-icon">
-            <i class="fas fa-store-alt"></i>
-        </div>
-        <h1>تسجيل الدخول إلى النظام</h1>
-        
+        <h2>تسجيل الدخول</h2>
+        <div class="error-message" id="errorMessage"></div>
         <form id="loginForm">
             <div class="form-group">
-                <label for="email"><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
-                <input type="email" id="email" required placeholder="example@domain.com">
+                <label for="email">البريد الإلكتروني</label>
+                <input type="email" id="email" required>
             </div>
-            
             <div class="form-group">
-                <label for="password"><i class="fas fa-lock"></i> كلمة المرور</label>
-                <input type="password" id="password" required placeholder="أدخل كلمة المرور">
+                <label for="password">كلمة المرور</label>
+                <input type="password" id="password" required>
             </div>
-            
-            <div class="error-message" id="errorMessage"></div>
-            
-            <button type="submit" class="btn" id="loginBtn">
-                <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
-            </button>
+            <button type="submit" class="btn" id="loginBtn">تسجيل الدخول</button>
         </form>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
     <script>
-        // التهيئة والإعدادات (باستخدام نفس إعدادات ملفاتك)
+        // تهيئة Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyC5ls-rPdJ65x5BoMGwAOpdcPtD585C2ys",
-            authDomain: "pharmacy-inventory-bf04a.firebaseapp.com",
-            projectId: "pharmacy-inventory-bf04a",
-            storageBucket: "pharmacy-inventory-bf04a.firebasestorage.app",
-            messagingSenderId: "937788650384",
-            appId: "1:937788650384:web:6451225d00e648f3a0b915",
-            measurementId: "G-ZGC9EQ55SL"
+            apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
+            authDomain: "supplies-system.firebaseapp.com",
+            projectId: "supplies-system",
+            storageBucket: "supplies-system.appspot.com",
+            messagingSenderId: "205884975863",
+            appId: "1:205884975863:web:de65d32c2459f9979ac1f2",
+            measurementId: "G-2KSYJRKSCX"
         };
-
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // عناصر واجهة المستخدم
+        // عناصر الصفحة
         const loginForm = document.getElementById('loginForm');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
-        const errorElement = document.getElementById('errorMessage');
+        const errorMessageDiv = document.getElementById('errorMessage');
         const loginBtn = document.getElementById('loginBtn');
 
-        // تحويل أكواد الخطأ إلى رسائل واضحة
-        function getAuthErrorMessage(errorCode) {
-            const messages = {
-                'auth/invalid-email': 'صيغة البريد الإلكتروني غير صحيحة',
-                'auth/user-disabled': 'هذا الحساب معطل',
-                'auth/user-not-found': 'لا يوجد حساب مرتبط بهذا البريد',
-                'auth/wrong-password': 'كلمة المرور غير صحيحة',
-                'auth/too-many-requests': 'محاولات دخول كثيرة، حاول لاحقاً',
-                'auth/network-request-failed': 'خطأ في الاتصال بالشبكة'
-            };
-            return messages[errorCode] || 'حدث خطأ غير متوقع أثناء تسجيل الدخول';
-        }
-
-        // تسجيل الدخول
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-            
-            if (!email || !password) {
-                errorElement.textContent = 'جميع الحقول مطلوبة';
-                errorElement.style.display = 'block';
-                return;
-            }
-
-            loginBtn.disabled = true;
-            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تسجيل الدخول...';
-            errorElement.style.display = 'none';
-
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                
-                // التوجيه إلى الصفحة الرئيسية
+        // التحقق من حالة المستخدم عند تحميل الصفحة
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // إذا كان المستخدم مسجل دخوله بالفعل، يتم توجيهه إلى صفحة المخزون
                 window.location.href = 'inventory.html';
-                
-            } catch (error) {
-                errorElement.textContent = getAuthErrorMessage(error.code);
-                errorElement.style.display = 'block';
-                console.error('Login error:', error);
-                
-            } finally {
-                loginBtn.disabled = false;
-                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> تسجيل الدخول';
             }
         });
 
-        // التحقق التلقائي من حالة المستخدم
-        auth.onAuthStateChanged((user) => {
-            if (user && window.location.pathname.endsWith('index.html')) {
-                window.location.href = 'inventory.html';
-            }
+        // التعامل مع عملية تسجيل الدخول
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'جاري التحقق...';
+            errorMessageDiv.style.display = 'none';
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // تسجيل الدخول بنجاح
+                    window.location.href = 'inventory.html';
+                })
+                .catch((error) => {
+                    // فشل تسجيل الدخول
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'تسجيل الدخول';
+                    let message = '';
+                    switch (error.code) {
+                        case 'auth/user-not-found':
+                        case 'auth/wrong-password':
+                            message = 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+                            break;
+                        case 'auth/invalid-email':
+                            message = 'صيغة البريد الإلكتروني غير صالحة.';
+                            break;
+                        default:
+                            message = 'حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.';
+                            break;
+                    }
+                    errorMessageDiv.textContent = message;
+                    errorMessageDiv.style.display = 'block';
+                });
         });
     </script>
 </body>
