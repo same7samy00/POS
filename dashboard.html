@@ -421,8 +421,7 @@
         </header>
 
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="البحث بالاسم أو الباركود...">
-            <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> بحث</button>
+            <input type="text" id="searchInput" placeholder="البحث بالاسم أو الباركود..." oninput="performSearch(this.value)">
             <button class="btn btn-secondary" id="scanBtn"><i class="fas fa-barcode"></i> مسح باركود (الجهاز الحالي)</button>
             <button class="btn btn-secondary" id="scanWithPhoneBtn"><i class="fas fa-mobile-alt"></i> مسح بالهاتف</button>
         </div>
@@ -557,7 +556,6 @@
 
         const productsTableBody = document.getElementById('productsTableBody');
         const searchInput = document.getElementById('searchInput');
-        const searchBtn = document.getElementById('searchBtn');
         const addProductBtn = document.getElementById('addProductBtn');
         const productModal = document.getElementById('productModal');
         const productForm = document.getElementById('productForm');
@@ -610,7 +608,9 @@
                         products.push(...barcodeQuery.docs);
                     } else {
                         const nameQuery = await query.get();
-                        products.push(...nameQuery.docs.filter(doc => doc.data().name.includes(searchTerm)));
+                        products.push(...nameQuery.docs.filter(doc => 
+                            doc.data().name.toLowerCase().includes(searchTerm.toLowerCase())
+                        ));
                     }
                 } else {
                     const snapshot = await query.get();
@@ -674,14 +674,17 @@
 
         const printBarcode = (barcode, productName) => {
             const barcodeSvgContainer = document.getElementById('barcodeSvgContainer');
-            JsBarcode(barcodeSvgContainer, barcode, {
+            barcodeSvgContainer.innerHTML = `<svg id="barcode"></svg>`;
+            
+            JsBarcode("#barcode", barcode, {
                 format: "EAN13",
                 displayValue: true,
                 fontSize: 18,
                 width: 2,
                 height: 50
             });
-            const svgContent = barcodeSvgContainer.innerHTML;
+            
+            const svgContent = document.getElementById('barcode').outerHTML;
 
             const printWindow = window.open('', '', 'height=400,width=600');
             printWindow.document.write('<html><head><title>طباعة باركود</title>');
@@ -763,16 +766,7 @@
 
         const performSearch = (searchTerm) => {
             fetchProducts(searchTerm);
-            searchBtn.classList.add('btn-success-pulse');
-            setTimeout(() => searchBtn.classList.remove('btn-success-pulse'), 1000);
         };
-
-        searchBtn.addEventListener('click', () => performSearch(searchInput.value));
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                performSearch(searchInput.value);
-            }
-        });
 
         scanBtn.addEventListener('click', async () => {
             openModal('scannerModal');
