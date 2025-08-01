@@ -8,12 +8,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* تحسينات للخطوط والتدرجات اللونية */
+        body {
+            font-family: 'Tajawal', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: var(--bg-color);
+            display: flex;
+            min-height: 100vh;
+        }
+        
         :root {
-            --primary: #4CAF50;
-            --primary-dark: #388E3C;
-            --error: #f44336;
-            --warning: #ff9800;
-            --light: #f5f5f5;
+            /* تحسين التباين للألوان */
+            --primary: #2E7D32;
+            --primary-dark: #1B5E20;
+            --error: #C62828;
+            --warning: #EF6C00;
+            --light: #f8f9fa;
             --dark: #212121;
             --secondary-dark: #555;
             --bg-color: #eef1f5;
@@ -27,12 +38,7 @@
             box-sizing: border-box;
             font-family: 'Tajawal', sans-serif;
         }
-        body {
-            background-color: var(--bg-color);
-            display: flex;
-            min-height: 100vh;
-            color: var(--dark);
-        }
+
         .sidebar {
             width: 250px;
             background: #fff;
@@ -62,9 +68,11 @@
             margin-bottom: 0.5rem;
             transition: background 0.3s, color 0.3s;
         }
+        /* تحسينات للعناصر النشطة */
         .sidebar .nav-list a.active,
         .sidebar .nav-list a:hover {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             color: white;
         }
         .sidebar .nav-list a .fas {
@@ -107,11 +115,19 @@
         .search-bar input {
             flex-grow: 1;
             padding: 12px 15px;
-            border: 1px solid var(--border-color);
             border-radius: 8px;
             font-size: 1rem;
             background: var(--input-bg);
+            /* تحسينات للإدخال */
+            border: 2px solid #ddd !important;
+            transition: border 0.3s;
         }
+        input:focus, select:focus {
+            border-color: var(--primary) !important;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -119,8 +135,11 @@
             overflow-y: auto;
             flex-grow: 1;
         }
+        /* تحسينات للبطاقات */
         .product-card {
-            background-color: var(--light);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             border-radius: 8px;
             padding: 15px;
             text-align: center;
@@ -128,8 +147,8 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
         .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
         }
         .product-card h4 {
             margin-top: 10px;
@@ -155,13 +174,19 @@
             margin-bottom: 15px;
             padding: 0 10px;
         }
+        /* تحسينات لوحة الفاتورة */
         .receipt-item {
             display: grid;
             grid-template-columns: 3fr 1fr 1fr;
             align-items: center;
             gap: 10px;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--light);
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        .receipt-item:hover {
+            background-color: rgba(76, 175, 80, 0.05);
         }
         .receipt-item:last-child {
             border-bottom: none;
@@ -173,11 +198,11 @@
         }
         .receipt-item .item-name {
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.9rem; /* تصغير الخط */
             color: var(--dark);
         }
         .receipt-item .item-details {
-            font-size: 0.9rem;
+            font-size: 0.8rem; /* تصغير الخط */
             color: #777;
             margin-top: 5px;
         }
@@ -185,32 +210,34 @@
             text-align: left;
             font-weight: bold;
             color: var(--primary-dark);
+            font-size: 0.9rem; /* تصغير الخط */
         }
         .item-quantity-control {
             display: flex;
             align-items: center;
             gap: 5px;
-            direction: ltr; /* To make buttons and input display left-to-right */
+            direction: ltr;
         }
         .item-quantity-control button {
             background: var(--primary);
             color: white;
             border: none;
             border-radius: 4px;
-            width: 30px;
-            height: 30px;
-            font-size: 1.2rem;
+            width: 25px;
+            height: 25px;
+            font-size: 1rem;
             cursor: pointer;
             transition: background 0.2s;
         }
         .item-quantity-control button:hover {
             background: var(--primary-dark);
         }
-        .item-quantity-control input {
-            width: 50px;
-            text-align: center;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
+        .receipt-item .remove-btn {
+            background: none;
+            border: none;
+            color: var(--error);
+            cursor: pointer;
+            font-size: 1.2rem;
             padding: 5px;
         }
         .receipt-summary {
@@ -218,17 +245,24 @@
             padding-top: 15px;
             margin-top: auto;
         }
+        /* تحسينات لوحة الفاتورة */
         .summary-line {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 1rem;
-            margin-bottom: 10px;
+        }
+        .summary-line:last-of-type {
+            border-bottom: none;
         }
         .summary-total {
-            font-size: 1.5rem;
             font-weight: 700;
-            color: var(--primary-dark);
+            color: var(--primary);
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px dashed #ddd;
         }
         .pos-actions {
             display: flex;
@@ -236,6 +270,7 @@
             gap: 10px;
             margin-top: 15px;
         }
+        /* تحسينات للأزرار */
         .btn {
             padding: 15px;
             border-radius: 8px;
@@ -244,6 +279,14 @@
             font-size: 1rem;
             font-weight: 700;
             transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .btn:active {
+            transform: translateY(0);
         }
         .btn-primary {
             background: var(--primary);
@@ -271,7 +314,6 @@
         .input-group input {
             width: 100px;
             padding: 8px;
-            border: 1px solid var(--border-color);
             border-radius: 5px;
             text-align: center;
         }
@@ -345,7 +387,6 @@
         .form-group input, .form-group select, .form-group datalist {
             width: 100%;
             padding: 12px 15px;
-            border: 1px solid var(--border-color);
             border-radius: 5px;
             font-size: 1rem;
             transition: all 0.3s;
@@ -363,32 +404,23 @@
             margin-top: 1.5rem;
         }
 
+        /* تحسينات للاستجابة على الأجهزة الصغيرة */
         @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-            }
-            .sidebar {
-                width: 100%;
-                height: auto;
-                padding: 1rem 0;
-            }
-            .sidebar .nav-list {
-                display: flex;
-                justify-content: space-around;
-                flex-wrap: wrap;
-            }
-            .sidebar .nav-list a {
-                padding: 0.5rem 0.8rem;
-                justify-content: center;
-            }
-            .sidebar .nav-list a span {
-                display: none;
-            }
-            .main-content {
-                padding: 1rem;
-            }
             .pos-container {
+                flex-direction: column-reverse;
+            }
+            .pos-right-panel {
+                margin-bottom: 20px;
+            }
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            .search-bar {
                 flex-direction: column;
+            }
+            .search-bar input,
+            .search-bar button {
+                width: 100%;
             }
         }
     </style>
