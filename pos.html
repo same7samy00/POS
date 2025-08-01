@@ -154,7 +154,6 @@
             color: var(--primary-dark);
             font-weight: bold;
         }
-
         .receipt-header {
             text-align: center;
             border-bottom: 1px dashed var(--border-color);
@@ -621,7 +620,6 @@
             }
         });
 
-        // POS Elements
         const productGrid = document.getElementById('productGrid');
         const searchInput = document.getElementById('searchInput');
         const receiptItemsList = document.getElementById('receiptItems');
@@ -635,10 +633,8 @@
         const checkoutBtn = document.getElementById('checkoutBtn');
         const clearBtn = document.getElementById('clearBtn');
         
-        // Scanner Buttons
         const scanWithPhoneBtn = document.getElementById('scanWithPhoneBtn');
 
-        // Modals
         const paymentModal = document.getElementById('paymentModal');
         const paymentForm = document.getElementById('paymentForm');
         const paymentMethodSelect = document.getElementById('paymentMethod');
@@ -647,12 +643,10 @@
         const customerDetailsDiv = document.getElementById('customerDetails');
         const toastContainer = document.getElementById('toastContainer');
         
-        // POS State
         let allProducts = [];
         let allCustomers = [];
         let currentReceiptItems = {};
 
-        // --- Core Functions ---
         const fetchProducts = async () => {
             const snapshot = await db.collection('products').get();
             allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -917,7 +911,6 @@
             }, 3000);
         };
 
-        // --- Event Listeners ---
         searchInput.addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
             const filteredProducts = allProducts.filter(p => 
@@ -972,11 +965,9 @@
             processPayment();
         });
         
-        // --- Modal & Utility Functions ---
         const openModal = (id) => { document.getElementById(id).classList.add('active'); };
         const closeModal = (id) => { document.getElementById(id).classList.remove('active'); };
 
-        // Real-time listener for phone scanner
         scannerSessionDocRef.onSnapshot(doc => {
             const data = doc.data();
             if (data && data.status === 'scanned' && data.purpose === 'pos') {
