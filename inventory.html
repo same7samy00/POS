@@ -238,10 +238,8 @@
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             width: 95%;
-            height: 95vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            height: auto;
+            max-width: 600px;
         }
 
         .modal-header {
@@ -292,10 +290,18 @@
             margin-top: 1.5rem;
         }
 
+        #scannerModal .modal-content,
         #qrCodeModal .modal-content {
             text-align: center;
-            max-width: 400px;
             height: auto;
+            max-width: 500px;
+        }
+        
+        #scannerModal video {
+            width: 100%;
+            height: auto;
+            border: 2px solid var(--primary);
+            border-radius: 5px;
         }
         
         #qrCodeModal img {
@@ -336,6 +342,12 @@
                 margin-top: 1rem;
                 justify-content: center;
             }
+            .search-bar {
+                flex-direction: column;
+            }
+            .search-bar .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -368,6 +380,7 @@
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="البحث بالاسم أو الباركود...">
             <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> بحث</button>
+            <button class="btn btn-secondary" id="scanBtn"><i class="fas fa-barcode"></i> مسح باركود</button>
             <button class="btn btn-secondary" id="scanWithPhoneBtn"><i class="fas fa-qrcode"></i> مسح بالهاتف</button>
         </div>
 
@@ -378,7 +391,8 @@
                         <th>الباركود</th>
                         <th>الاسم</th>
                         <th>الكمية</th>
-                        <th>السعر (EGP)</th>
+                        <th>سعر الشراء (EGP)</th>
+                        <th>سعر البيع (EGP)</th>
                         <th>الصلاحية</th>
                         <th>تنبيه</th>
                         <th>الإجراءات</th>
@@ -412,7 +426,11 @@
                     <input type="number" id="productQuantity" required min="0">
                 </div>
                 <div class="form-group">
-                    <label for="productPrice"><i class="fas fa-money-bill-alt"></i> سعر البيع</label>
+                    <label for="productPurchasePrice"><i class="fas fa-money-bill-alt"></i> سعر الشراء (EGP)</label>
+                    <input type="number" id="productPurchasePrice" required min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="productPrice"><i class="fas fa-money-bill-alt"></i> سعر البيع (EGP)</label>
                     <input type="number" id="productPrice" required min="0" step="0.01">
                 </div>
                 <div class="form-group">
@@ -420,14 +438,36 @@
                     <input type="date" id="productExpiry">
                 </div>
                 <div class="form-group">
-                    <label for="productUnit"><i class="fas fa-box"></i> وحدات البيع (فاصلة بين كل وحدة)</label>
-                    <input type="text" id="productUnit" placeholder="مثال: قطعة, علبة, كرتونة">
+                    <label for="productUnit"><i class="fas fa-box"></i> وحدات البيع</label>
+                    <select id="productUnit">
+                        <option value="قطعة">قطعة</option>
+                        <option value="علبة">علبة</option>
+                        <option value="كرتونة">كرتونة</option>
+                        <option value="كيلو">كيلو</option>
+                        <option value="لتر">لتر</option>
+                        <option value="جالون">جالون</option>
+                        <option value="وحدة">وحدة (أخرى)</option>
+                    </select>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('productModal')">إلغاء</button>
                     <button type="submit" class="btn btn-primary" id="saveProductBtn">حفظ المنتج</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div id="scannerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ماسح الباركود</h2>
+                <span class="close-btn" onclick="closeModal('scannerModal')">&times;</span>
+            </div>
+            <p id="scannerStatus">
+                <i class="fas fa-spinner fa-spin"></i> جاري تهيئة الكاميرا...
+            </p>
+            <video id="scannerVideo" style="width: 100%; height: auto;"></video>
+            <p id="scannerError" style="color: var(--error); margin-top: 1rem;"></p>
         </div>
     </div>
 
@@ -442,7 +482,7 @@
             <p style="margin-top: 1rem; font-size: 0.9rem;">
                 <i class="fas fa-info-circle"></i> سيتم البحث تلقائياً بعد المسح بنجاح.
             </p>
-            <p id="scanStatus" style="font-weight: bold; margin-top: 1rem; color: var(--primary);"></p>
+            <p id="scanStatusQR" style="font-weight: bold; margin-top: 1rem; color: var(--primary);"></p>
             <p> أو افتح هذا الرابط: <br> <a id="mobileScannerLink" href="#" target="_blank">...</a> </p>
         </div>
     </div>
@@ -453,6 +493,7 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuid.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.18.6/umd/index.min.js"></script>
 
 
     <script>
@@ -480,16 +521,25 @@
         const productBarcodeInput = document.getElementById('productBarcode');
         const productQuantityInput = document.getElementById('productQuantity');
         const productPriceInput = document.getElementById('productPrice');
+        const productPurchasePriceInput = document.getElementById('productPurchasePrice');
         const productExpiryInput = document.getElementById('productExpiry');
         const productUnitInput = document.getElementById('productUnit');
         const modalTitle = document.getElementById('modalTitle');
         const logoutBtn = document.getElementById('logoutBtn');
         
+        const scanBtn = document.getElementById('scanBtn');
+        const scannerModal = document.getElementById('scannerModal');
+        const scannerVideo = document.getElementById('scannerVideo');
+        const scannerStatus = document.getElementById('scannerStatus');
+        const scannerError = document.getElementById('scannerError');
+
         const scanWithPhoneBtn = document.getElementById('scanWithPhoneBtn');
         const qrCodeModal = document.getElementById('qrCodeModal');
         const qrCodeImage = document.getElementById('qrCodeImage');
-        const scanStatus = document.getElementById('scanStatus');
+        const scanStatusQR = document.getElementById('scanStatusQR');
         const mobileScannerLink = document.getElementById('mobileScannerLink');
+        
+        let codeReader = null;
         let scanSessionListener = null;
 
         auth.onAuthStateChanged(user => {
@@ -501,7 +551,7 @@
         });
 
         const fetchProducts = async (searchTerm = '') => {
-            productsTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">جاري تحميل المنتجات...</td></tr>';
+            productsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">جاري تحميل المنتجات...</td></tr>';
             
             let query = db.collection('products');
             let products = [];
@@ -525,7 +575,7 @@
         const renderProductsTable = (products) => {
             productsTableBody.innerHTML = '';
             if (products.length === 0) {
-                productsTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">لا توجد منتجات مطابقة.</td></tr>';
+                productsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">لا توجد منتجات مطابقة.</td></tr>';
                 return;
             }
             
@@ -550,7 +600,8 @@
                     <tr>
                         <td>${product.barcode}</td>
                         <td>${product.name}</td>
-                        <td>${product.quantity}</td>
+                        <td>${product.quantity} ${product.unit || ''}</td>
+                        <td>${product.purchasePrice.toFixed(2)}</td>
                         <td>${product.price.toFixed(2)}</td>
                         <td>${product.expiryDate || 'لا يوجد'}</td>
                         <td>${alertBadges.join(' ')}</td>
@@ -597,6 +648,11 @@
             document.getElementById(id).classList.remove('active');
             productForm.reset();
             productIdInput.value = '';
+            
+            if (codeReader) {
+                codeReader.reset();
+                codeReader = null;
+            }
             if (scanSessionListener) {
                 scanSessionListener();
                 scanSessionListener = null;
@@ -613,8 +669,9 @@
             productBarcodeInput.value = product.barcode;
             productQuantityInput.value = product.quantity;
             productPriceInput.value = product.price;
+            productPurchasePriceInput.value = product.purchasePrice;
             productExpiryInput.value = product.expiryDate;
-            productUnitInput.value = product.units ? product.units.join(', ') : '';
+            productUnitInput.value = product.unit;
 
             openModal('productModal');
         };
@@ -638,9 +695,10 @@
                 name: productNameInput.value,
                 barcode: productBarcodeInput.value || 'BAR' + Date.now(),
                 quantity: parseInt(productQuantityInput.value),
+                purchasePrice: parseFloat(productPurchasePriceInput.value),
                 price: parseFloat(productPriceInput.value),
                 expiryDate: productExpiryInput.value || null,
-                units: productUnitInput.value.split(',').map(unit => unit.trim()).filter(unit => unit)
+                unit: productUnitInput.value
             };
             
             if (productId) {
@@ -660,15 +718,61 @@
             }
         });
 
+        scanBtn.addEventListener('click', async () => {
+            openModal('scannerModal');
+            scannerStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تهيئة الكاميرا...';
+            scannerError.textContent = '';
+
+            if (!codeReader) {
+                codeReader = new ZXing.BrowserMultiFormatReader();
+            }
+
+            try {
+                const videoInputDevices = await codeReader.getVideoInputDevices();
+                if (videoInputDevices.length === 0) {
+                    scannerError.textContent = 'لم يتم العثور على كاميرا في هذا الجهاز.';
+                    scannerStatus.textContent = '';
+                    return;
+                }
+
+                let selectedDeviceId = null;
+                const rearCamera = videoInputDevices.find(device => device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('environment'));
+                
+                if (rearCamera) {
+                    selectedDeviceId = rearCamera.deviceId;
+                } else {
+                    selectedDeviceId = videoInputDevices[0].deviceId;
+                }
+
+                scannerStatus.innerHTML = '<i class="fas fa-camera"></i> جاهز للمسح...';
+                
+                codeReader.decodeFromVideoDevice(selectedDeviceId, scannerVideo, (result, err) => {
+                    if (result) {
+                        searchInput.value = result.text;
+                        fetchProducts(result.text);
+                        closeModal('scannerModal');
+                    }
+                    if (err && !(err instanceof ZXing.NotFoundException)) {
+                        console.error(err);
+                        scannerError.textContent = 'حدث خطأ أثناء المسح. حاول مرة أخرى.';
+                    }
+                });
+
+            } catch (err) {
+                console.error(err);
+                scannerError.textContent = 'فشل الوصول إلى الكاميرا. تأكد من إعطاء الصلاحيات.';
+                scannerStatus.textContent = '';
+            }
+        });
+
         scanWithPhoneBtn.addEventListener('click', async () => {
             openModal('qrCodeModal');
-            scanStatus.textContent = 'في انتظار المسح...';
+            scanStatusQR.textContent = 'في انتظار المسح...';
             
             const sessionId = uuid.v4();
             const sessionRef = db.collection('scanSessions').doc(sessionId);
             await sessionRef.set({ status: 'waiting' });
             
-            // تحديد مسار المجلد الفرعي بشكل صحيح
             const pathParts = window.location.pathname.split('/');
             const subPath = pathParts.length > 2 ? `/${pathParts[1]}/` : '/';
             const scanUrl = `${window.location.origin}${subPath}mobile-scanner.html?sessionId=${sessionId}`;
@@ -680,7 +784,6 @@
                 }
                 qrCodeImage.src = url;
             });
-
             if (mobileScannerLink) {
                  mobileScannerLink.href = scanUrl;
                  mobileScannerLink.textContent = scanUrl;
@@ -689,7 +792,7 @@
             scanSessionListener = sessionRef.onSnapshot(doc => {
                 const sessionData = doc.data();
                 if (sessionData && sessionData.barcode) {
-                    scanStatus.textContent = `تم المسح بنجاح! الباركود: ${sessionData.barcode}`;
+                    scanStatusQR.textContent = `تم المسح بنجاح! الباركود: ${sessionData.barcode}`;
                     searchInput.value = sessionData.barcode;
                     fetchProducts(sessionData.barcode);
                     setTimeout(() => closeModal('qrCodeModal'), 1500);
