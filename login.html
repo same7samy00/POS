@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول - نظام إدارة المحل</title>
+    <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -122,8 +123,8 @@
     </style>
 </head>
 <body>
-    <div class="connection-status" id="connectionStatus">
-        <i class="fas fa-wifi-slash"></i> غير متصل
+    <div class="connection-status offline" id="connectionStatus">
+        <i class="fas fa-wifi-slash"></i> جاري التحقق من الاتصال...
     </div>
 
     <div class="login-container">
@@ -134,20 +135,18 @@
         
         <form id="loginForm">
             <div class="form-group">
-                <label for="username"><i class="fas fa-user"></i> اسم المستخدم</label>
-                <input type="text" id="username" required>
+                <label for="email"><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
+                <input type="email" id="email" required placeholder="example@domain.com">
             </div>
             
             <div class="form-group">
                 <label for="password"><i class="fas fa-lock"></i> كلمة المرور</label>
-                <input type="password" id="password" required>
+                <input type="password" id="password" required placeholder="أدخل كلمة المرور">
             </div>
             
-            <div class="error-message" id="errorMessage">
-                <i class="fas fa-exclamation-circle"></i> اسم المستخدم أو كلمة المرور غير صحيحين
-            </div>
+            <div class="error-message" id="errorMessage"></div>
             
-            <button type="submit" class="btn">
+            <button type="submit" class="btn" id="loginBtn">
                 <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
             </button>
         </form>
@@ -159,7 +158,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <script>
-        // Firebase Configuration
+        // التهيئة والإعدادات
         const firebaseConfig = {
             apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
             authDomain: "supplies-system.firebaseapp.com",
@@ -175,57 +174,81 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // إدارة حالة الاتصال
+        // عناصر واجهة المستخدم
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const errorElement = document.getElementById('errorMessage');
+        const loginBtn = document.getElementById('loginBtn');
+        const connectionStatus = document.getElementById('connectionStatus');
+
+        // حالات الاتصال
         function updateConnectionStatus() {
-            const statusElement = document.getElementById('connectionStatus');
             if (navigator.onLine) {
-                statusElement.innerHTML = '<i class="fas fa-wifi"></i> متصل';
-                statusElement.classList.remove('offline');
-                statusElement.classList.add('online');
+                connectionStatus.innerHTML = '<i class="fas fa-wifi"></i> متصل بالإنترنت';
+                connectionStatus.className = 'connection-status online';
             } else {
-                statusElement.innerHTML = '<i class="fas fa-wifi-slash"></i> غير متصل';
-                statusElement.classList.remove('online');
-                statusElement.classList.add('offline');
+                connectionStatus.innerHTML = '<i class="fas fa-wifi-slash"></i> غير متصل بالإنترنت';
+                connectionStatus.className = 'connection-status offline';
             }
         }
 
+        // تحويل أكواد الخطأ إلى رسائل واضحة
+        function getAuthErrorMessage(errorCode) {
+            const messages = {
+                'auth/invalid-email': 'صيغة البريد الإلكتروني غير صحيحة',
+                'auth/user-disabled': 'هذا الحساب معطل',
+                'auth/user-not-found': 'لا يوجد حساب مرتبط بهذا البريد',
+                'auth/wrong-password': 'كلمة المرور غير صحيحة',
+                'auth/too-many-requests': 'محاولات دخول كثيرة، حاول لاحقاً',
+                'auth/network-request-failed': 'خطأ في الاتصال بالشبكة'
+            };
+            return messages[errorCode] || 'حدث خطأ غير متوقع أثناء تسجيل الدخول';
+        }
+
         // تسجيل الدخول
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorElement = document.getElementById('errorMessage');
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
             
+            // التحقق الأساسي من المدخلات
+            if (!email || !password) {
+                errorElement.textContent = 'جميع الحقول مطلوبة';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            // تعطيل الزر أثناء المحاولة
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تسجيل الدخول...';
+            errorElement.style.display = 'none';
+
             try {
-                const email = `${username}@store.com`;
-                await firebase.auth().signInWithEmailAndPassword(email, password);
+                // محاولة تسجيل الدخول
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 
-                // حفظ بيانات المستخدم محلياً للعمل Offline
+                // تخزين بيانات الجلسة
                 localStorage.setItem('currentUser', JSON.stringify({
-                    username: username,
+                    uid: userCredential.user.uid,
+                    email: userCredential.user.email,
                     lastLogin: new Date().toISOString()
                 }));
                 
+                // التوجيه إلى الصفحة الرئيسية
                 window.location.href = 'index.html';
+                
             } catch (error) {
+                // معالجة الأخطاء
+                errorElement.textContent = getAuthErrorMessage(error.code);
                 errorElement.style.display = 'block';
                 console.error('Login error:', error);
                 
-                // تخزين محاولة الدخول للعمل Offline
-                if (!navigator.onLine) {
-                    const pendingAuth = {
-                        type: 'login',
-                        username: username,
-                        timestamp: new Date().getTime()
-                    };
-                    const pendingOperations = JSON.parse(localStorage.getItem('pendingAuth') || '[]');
-                    pendingOperations.push(pendingAuth);
-                    localStorage.setItem('pendingAuth', JSON.stringify(pendingOperations));
-                    
-                    alert('تم حفظ بيانات الدخول محلياً، سيتم المزامنة عند عودة الاتصال');
-                    window.location.href = 'index.html';
-                }
+            } finally {
+                // إعادة تمكين الزر
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> تسجيل الدخول';
             }
         });
 
@@ -233,6 +256,13 @@
         updateConnectionStatus();
         window.addEventListener('online', updateConnectionStatus);
         window.addEventListener('offline', updateConnectionStatus);
+
+        // التحقق التلقائي من حالة المستخدم
+        auth.onAuthStateChanged((user) => {
+            if (user && window.location.pathname.endsWith('login.html')) {
+                window.location.href = 'index.html';
+            }
+        });
     </script>
 </body>
 </html>
