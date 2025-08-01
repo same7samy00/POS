@@ -1,181 +1,187 @@
 <!DOCTYPE html>
-<html dir="rtl">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ماسح الباركود - نظام إدارة المحل</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ماسح QR - شيخ العرب</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         :root {
-            --primary: #4CAF50;
-            --primary-dark: #388E3C;
-            --dark: #212121;
+            --bg-light: #F0F4F8;
+            --text-dark: #2C3E50;
+            --accent-blue: #03A9F4;
+            --success-green: #4CAF50;
+            --error-red: #FF5252;
         }
-        
-        * {
-            box-sizing: border-box;
-            font-family: 'Tajawal', sans-serif;
-            margin: 0;
-            padding: 0;
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
-
+        .animate-pulse {
+            animation: pulse 1.5s infinite;
+        }
         body {
-            background-color: var(--dark);
-            color: white;
+            font-family: 'Cairo', sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            direction: rtl;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             height: 100vh;
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        #scanner-container {
-            position: relative;
-            width: 90%;
-            max-width: 400px;
-            height: 300px;
-            background-color: black;
-            border: 2px solid var(--primary);
-            border-radius: 10px;
+            box-sizing: border-box;
             overflow: hidden;
-            margin-bottom: 1rem;
         }
-
-        #scanner-container video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        #reader {
+            width: 90vw;
+            max-width: 400px;
+            aspect-ratio: 1/1;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            overflow: hidden;
+            margin-bottom: 20px;
         }
-
-        #status {
-            font-size: 1.1rem;
-            color: var(--primary);
-            font-weight: 700;
+        .status-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 12px;
         }
-
-        #error-message {
-            color: #f44336;
-            margin-top: 1rem;
+        .status-icon {
+            font-size: 3em;
+            line-height: 1;
         }
+        .status-message {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        .status-ready .status-icon { color: var(--success-green); }
+        .status-scanning .status-icon { color: var(--accent-blue); }
+        .status-error .status-icon { color: var(--error-red); }
     </style>
 </head>
 <body>
-    <h1>ماسح الباركود</h1>
-    <div id="scanner-container">
-        <video id="video"></video>
+    <div id="reader"></div>
+    <div class="status-container" id="statusContainer">
+        <i id="statusIcon" class="ri-loader-4-line status-icon"></i>
+        <p id="statusMessage">جاري الاتصال بالنظام...</p>
     </div>
-    <div id="status">
-        <i class="fas fa-spinner fa-spin"></i> جاري تهيئة الكاميرا...
-    </div>
-    <div id="error-message"></div>
-
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.18.6/umd/index.min.js"></script>
-
-    <script>
+    <script type="text/javascript" src="https://unpkg.com/html5-qrcode"></script>
+    <script type="module">        
         const firebaseConfig = {
-            apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
-            authDomain: "supplies-system.firebaseapp.com",
-            projectId: "supplies-system",
-            storageBucket: "supplies-system.appspot.com",
-            messagingSenderId: "205884975863",
-            appId: "1:205884975863:web:de65d32c2459f9979ac1f2",
-            measurementId: "G-2KSYJRKSCX"
+            apiKey: "AIzaSyC5ls-rPdJ65x5BoMGwAOpdcPtD585C2ys",
+            authDomain: "pharmacy-inventory-bf04a.firebaseapp.com",
+            projectId: "pharmacy-inventory-bf04a",
+            storageBucket: "pharmacy-inventory-bf04a.firebasestorage.app",
+            messagingSenderId: "937788650384",
+            appId: "1:937788650384:web:6451225d00e648f3a0b915",
+            measurementId: "G-ZGC9EQ55SL"
         };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        const videoElement = document.getElementById('video');
-        const statusElement = document.getElementById('status');
-        const errorMessageElement = document.getElementById('error-message');
-
-        const codeReader = new ZXing.BrowserMultiFormatReader();
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = app.firestore();
         const urlParams = new URLSearchParams(window.location.search);
         const sessionId = urlParams.get('sessionId');
+        const scannerSessionDocRef = db.collection('scannerSessions').doc(sessionId);
+                
+        const statusContainer = document.getElementById('statusContainer');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusMessage = document.getElementById('statusMessage');
+        const readerDiv = document.getElementById('reader');
+        readerDiv.style.display = 'none';
 
-        if (!sessionId) {
-            errorMessageElement.textContent = 'خطأ: لم يتم العثور على معرّف الجلسة.';
-            statusElement.textContent = 'الرجاء مسح رمز QR من صفحة الكمبيوتر للربط.';
-        } else {
-            db.collection('phoneSessions').doc(sessionId).set({ linked: true, timestamp: new Date() })
-            .then(() => {
-                statusElement.textContent = 'تم ربط الهاتف بنجاح. في انتظار الأوامر من الكمبيوتر.';
-                listenForCommands();
-            })
-            .catch(err => {
-                errorMessageElement.textContent = 'خطأ في الربط: ' + err.message;
-            });
+        let html5QrCode;
+
+        function updateStatusUI(status, message, iconClass) {
+            statusContainer.className = `status-container status-${status}`;
+            statusIcon.className = `status-icon ${iconClass}`;
+            statusMessage.textContent = message;
         }
 
-        function listenForCommands() {
-            db.collection('phoneSessions').doc(sessionId).onSnapshot(doc => {
-                const data = doc.data();
-                if (data && data.command === 'scan') {
-                    startScanning();
-                }
+        function onScanSuccess(decodedText, decodedResult) {
+            html5QrCode.stop().then(async () => {
+                readerDiv.style.display = 'none';
+                updateStatusUI('success', `تم المسح بنجاح!`, 'ri-check-line');
+                await scannerSessionDocRef.update({
+                    status: 'scanned',
+                    scannedValue: decodedText,
+                    scannedAt: new Date()
+                });
+            }).catch(err => {
+                console.error("Failed to stop scanner", err);
             });
+        }
+                
+        function onScanFailure(error) { /* Ignore */ }
+
+        async function startScanner() {
+            readerDiv.style.display = 'block';
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
+            try {
+                await html5QrCode.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    onScanSuccess,
+                    onScanFailure
+                );
+            } catch (err) {
+                 updateStatusUI('error', 'لا يمكن تشغيل الكاميرا', 'ri-error-warning-line');
+                 console.error("Failed to start scanner", err);
+            }
         }
         
-        let isScanning = false;
-        function startScanning() {
-            isScanning = true;
-            codeReader.getVideoInputDevices().then(videoInputDevices => {
-                if (videoInputDevices.length === 0) {
-                    errorMessageElement.textContent = 'لم يتم العثور على كاميرا في هذا الجهاز.';
-                    statusElement.textContent = '';
+        if (!sessionId) {
+            updateStatusUI('error', 'لا يوجد معرّف جلسة. ارجع إلى الكمبيوتر للربط.', 'ri-error-warning-line');
+        } else {
+            onSnapshot(scannerSessionDocRef, async (snapshot) => {
+                if (!snapshot.exists()) {
+                    await scannerSessionDocRef.set({ status: 'phoneReady', lastSeen: new Date() });
+                    updateStatusUI('ready', 'الماسح جاهز وفي انتظار الطلب من الكمبيوتر', 'ri-check-double-line');
                     return;
                 }
 
-                let selectedDeviceId = null;
-                const rearCamera = videoInputDevices.find(device => device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('environment'));
-                
-                if (rearCamera) {
-                    selectedDeviceId = rearCamera.deviceId;
-                } else {
-                    selectedDeviceId = videoInputDevices[0].deviceId;
+                const data = snapshot.data();
+                switch(data.status) {
+                    case 'scanRequested':
+                        const purposeText = data.purpose === 'search' ? 'للبحث' : 'لإضافة منتج';
+                        updateStatusUI('scanning', `جاري المسح ${purposeText}...`, 'ri-qr-scan-2-line animate-pulse');
+                        await scannerSessionDocRef.update({ status: 'scanning' });
+                        startScanner();
+                        break;
+                    case 'readyForNextScan':
+                    case 'phoneReady':
+                        readerDiv.style.display = 'none';
+                        updateStatusUI('ready', 'الماسح جاهز وفي انتظار الطلب من الكمبيوتر', 'ri-check-double-line');
+                        if(html5QrCode && html5QrCode.isScanning) {
+                            html5QrCode.stop();
+                        }
+                        break;
+                    case 'scanning':
+                        break;
+                    case 'scanned':
+                        updateStatusUI('success', 'تم إرسال الكود بنجاح!', 'ri-check-line');
+                        break;
+                    default:
+                         readerDiv.style.display = 'none';
+                         updateStatusUI('ready', 'في انتظار طلبات المسح...', 'ri-time-line');
                 }
-
-                statusElement.innerHTML = '<i class="fas fa-camera"></i> جاهز للمسح...';
-                
-                codeReader.decodeFromVideoDevice(selectedDeviceId, videoElement, (result, err) => {
-                    if (result && isScanning) {
-                        isScanning = false;
-                        handleScanResult(result.text);
-                    }
-                    if (err && !(err instanceof ZXing.NotFoundException)) {
-                        console.error(err);
-                        errorMessageElement.textContent = 'حدث خطأ أثناء المسح. حاول مرة أخرى.';
-                    }
-                });
-            }).catch(err => {
-                console.error(err);
-                errorMessageElement.textContent = 'فشل الوصول إلى الكاميرا. تأكد من إعطاء الصلاحيات.';
-                statusElement.textContent = '';
+            }, (error) => {
+                console.error("Firestore listener error:", error);
+                updateStatusUI('error', 'فشل الاتصال بالنظام', 'ri-signal-wifi-error-line');
             });
-        }
-
-        async function handleScanResult(barcode) {
-            codeReader.reset();
-            statusElement.innerHTML = `<i class="fas fa-check-circle"></i> تم المسح بنجاح! جاري إرسال النتيجة...`;
-            
-            try {
-                await db.collection('phoneSessions').doc(sessionId).update({
-                    barcode: barcode,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                statusElement.textContent = 'تم إرسال النتيجة. في انتظار أمر جديد.';
-            } catch (error) {
-                console.error('Error sending scan result to Firestore:', error);
-                errorMessageElement.textContent = 'حدث خطأ في إرسال النتيجة. حاول مرة أخرى.';
-            }
         }
     </script>
 </body>
