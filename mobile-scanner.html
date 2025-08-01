@@ -109,7 +109,22 @@
 
         function startScanning() {
             codeReader.getVideoInputDevices().then(videoInputDevices => {
-                const selectedDeviceId = videoInputDevices[0].deviceId;
+                if (videoInputDevices.length === 0) {
+                    errorMessageElement.textContent = 'لم يتم العثور على كاميرا في هذا الجهاز.';
+                    return;
+                }
+
+                let selectedDeviceId = null;
+                // محاولة إيجاد الكاميرا الخلفية (environment)
+                const rearCamera = videoInputDevices.find(device => device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('environment'));
+                
+                if (rearCamera) {
+                    selectedDeviceId = rearCamera.deviceId;
+                } else {
+                    // إذا لم يتم العثور على الكاميرا الخلفية، استخدم الكاميرا الافتراضية
+                    selectedDeviceId = videoInputDevices[0].deviceId;
+                }
+
                 statusElement.innerHTML = '<i class="fas fa-camera"></i> جاهز للمسح...';
                 
                 codeReader.decodeFromVideoDevice(selectedDeviceId, videoElement, (result, err) => {
@@ -136,8 +151,9 @@
                     barcode: barcode,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                // يمكن إغلاق النافذة تلقائياً بعد فترة
-                setTimeout(() => window.close(), 2000);
+                setTimeout(() => {
+                    window.close();
+                }, 2000);
             } catch (error) {
                 console.error('Error sending scan result to Firestore:', error);
                 errorMessageElement.textContent = 'حدث خطأ في إرسال النتيجة. حاول مرة أخرى.';
