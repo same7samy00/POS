@@ -102,15 +102,35 @@
         const sessionId = urlParams.get('sessionId');
 
         if (!sessionId) {
-            errorMessageElement.textContent = 'خطأ: لم يتم العثور على معرّف جلسة المسح.';
+            errorMessageElement.textContent = 'خطأ: لم يتم العثور على معرّف الجلسة.';
+            statusElement.textContent = 'الرجاء مسح رمز QR من صفحة الكمبيوتر للربط.';
         } else {
-            startScanning();
+            db.collection('phoneSessions').doc(sessionId).set({ linked: true, timestamp: new Date() })
+            .then(() => {
+                statusElement.textContent = 'تم ربط الهاتف بنجاح. في انتظار الأوامر من الكمبيوتر.';
+                listenForCommands();
+            })
+            .catch(err => {
+                errorMessageElement.textContent = 'خطأ في الربط: ' + err.message;
+            });
         }
 
+        function listenForCommands() {
+            db.collection('phoneSessions').doc(sessionId).onSnapshot(doc => {
+                const data = doc.data();
+                if (data && data.command === 'scan') {
+                    startScanning();
+                }
+            });
+        }
+        
+        let isScanning = false;
         function startScanning() {
+            isScanning = true;
             codeReader.getVideoInputDevices().then(videoInputDevices => {
                 if (videoInputDevices.length === 0) {
                     errorMessageElement.textContent = 'لم يتم العثور على كاميرا في هذا الجهاز.';
+                    statusElement.textContent = '';
                     return;
                 }
 
@@ -126,7 +146,8 @@
                 statusElement.innerHTML = '<i class="fas fa-camera"></i> جاهز للمسح...';
                 
                 codeReader.decodeFromVideoDevice(selectedDeviceId, videoElement, (result, err) => {
-                    if (result) {
+                    if (result && isScanning) {
+                        isScanning = false;
                         handleScanResult(result.text);
                     }
                     if (err && !(err instanceof ZXing.NotFoundException)) {
@@ -137,6 +158,7 @@
             }).catch(err => {
                 console.error(err);
                 errorMessageElement.textContent = 'فشل الوصول إلى الكاميرا. تأكد من إعطاء الصلاحيات.';
+                statusElement.textContent = '';
             });
         }
 
@@ -145,13 +167,11 @@
             statusElement.innerHTML = `<i class="fas fa-check-circle"></i> تم المسح بنجاح! جاري إرسال النتيجة...`;
             
             try {
-                await db.collection('scanSessions').doc(sessionId).update({
+                await db.collection('phoneSessions').doc(sessionId).update({
                     barcode: barcode,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                setTimeout(() => {
-                    window.close();
-                }, 2000);
+                statusElement.textContent = 'تم إرسال النتيجة. في انتظار أمر جديد.';
             } catch (error) {
                 console.error('Error sending scan result to Firestore:', error);
                 errorMessageElement.textContent = 'حدث خطأ في إرسال النتيجة. حاول مرة أخرى.';
