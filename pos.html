@@ -19,6 +19,7 @@
             --bg-color: #eef1f5;
             --card-bg: #fff;
             --border-color: #ddd;
+            --input-bg: #f9f9f9;
         }
         * {
             margin: 0;
@@ -96,6 +97,7 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
         .search-bar {
             display: flex;
@@ -104,42 +106,54 @@
         }
         .search-bar input {
             flex-grow: 1;
-            padding: 10px;
+            padding: 12px 15px;
             border: 1px solid var(--border-color);
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 1rem;
+            background: var(--input-bg);
         }
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 15px;
             overflow-y: auto;
-            max-height: 500px;
+            flex-grow: 1;
         }
         .product-card {
             background-color: var(--light);
-            border-radius: 8px;
-            padding: 15px;
+            border-radius: 12px;
+            padding: 20px;
             text-align: center;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
         .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            background-color: #e0e0e0;
+        }
+        .product-card .product-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
         }
         .product-card h4 {
             margin-top: 10px;
-            font-size: 1rem;
+            font-size: 1.1rem;
+            color: var(--dark);
         }
         .product-card span {
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: var(--primary-dark);
             font-weight: bold;
+            margin-top: 5px;
         }
         .receipt-header {
             text-align: center;
-            border-bottom: 2px dashed var(--border-color);
+            border-bottom: 1px dashed var(--border-color);
             padding-bottom: 15px;
             margin-bottom: 15px;
         }
@@ -147,15 +161,18 @@
             list-style: none;
             flex-grow: 1;
             overflow-y: auto;
-            max-height: 300px;
+            max-height: 40vh;
             margin-bottom: 15px;
         }
         .receipt-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
+            padding: 15px 0;
             border-bottom: 1px solid var(--light);
+        }
+        .receipt-item:last-child {
+            border-bottom: none;
         }
         .receipt-item .item-info {
             display: flex;
@@ -165,36 +182,43 @@
         }
         .receipt-item .item-name {
             font-weight: bold;
+            font-size: 1rem;
         }
         .receipt-item .item-details {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: #777;
+            margin-top: 5px;
         }
         .receipt-item .item-actions {
             display: flex;
-            gap: 5px;
+            gap: 10px;
             align-items: center;
         }
         .receipt-item .item-actions input {
-            width: 50px;
+            width: 60px;
             text-align: center;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
         }
         .receipt-item .remove-btn {
             background: none;
             border: none;
             color: var(--error);
             cursor: pointer;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
+            padding: 5px;
         }
         .receipt-summary {
-            border-top: 2px dashed var(--border-color);
+            border-top: 1px dashed var(--border-color);
             padding-top: 15px;
             margin-top: auto;
         }
         .summary-line {
             display: flex;
             justify-content: space-between;
-            font-size: 1.1rem;
+            align-items: center;
+            font-size: 1rem;
             margin-bottom: 10px;
         }
         .summary-total {
@@ -231,8 +255,6 @@
         .btn-secondary:hover {
             background: #bbb;
         }
-
-        /* Modern Discount & Tax fields */
         .input-group {
             display: flex;
             align-items: center;
@@ -278,10 +300,13 @@
             position: relative;
         }
         #paymentModal .modal-content {
-            width: 100vw;
-            height: 100vh;
+            width: 90vw;
+            height: 90vh;
             max-width: none;
-            border-radius: 0;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .modal-header {
             display: flex;
@@ -313,13 +338,14 @@
             color: var(--dark);
             font-weight: 500;
         }
-        .form-group input, .form-group select {
+        .form-group input, .form-group select, .form-group datalist {
             width: 100%;
             padding: 12px 15px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 5px;
             font-size: 1rem;
             transition: all 0.3s;
+            background-color: var(--input-bg);
         }
         .form-group .btn-inline {
             width: auto;
@@ -414,10 +440,6 @@
                     <div class="summary-line">
                         <span>الإجمالي بعد الخصم والضريبة:</span>
                         <span id="totalBeforePaid">0.00 EGP</span>
-                    </div>
-                    <div class="summary-line summary-total">
-                        <span>المبلغ النهائي:</span>
-                        <span id="total">0.00 EGP</span>
                     </div>
                     <div class="summary-line">
                         <span>المبلغ المستلم:</span>
@@ -585,6 +607,7 @@
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
                 productCard.innerHTML = `
+                    <i class="fas fa-box product-icon"></i>
                     <h4>${product.name}</h4>
                     <span>${product.price.toFixed(2)} EGP</span>
                 `;
@@ -602,11 +625,6 @@
             updateReceipt();
         };
 
-        const removeProductFromReceipt = (productId) => {
-            delete currentReceiptItems[productId];
-            updateReceipt();
-        };
-        
         const updateReceipt = () => {
             receiptItemsList.innerHTML = '';
             let subtotal = 0;
@@ -621,7 +639,7 @@
                 receiptItem.innerHTML = `
                     <div class="item-info">
                         <span class="item-name">${item.name}</span>
-                        <span class="item-details">السعر: ${item.price.toFixed(2)} | الكمية: ${item.quantity}</span>
+                        <span class="item-details">${item.quantity} x ${item.price.toFixed(2)} EGP</span>
                     </div>
                     <div class="item-actions">
                         <span>${itemTotal.toFixed(2)} EGP</span>
@@ -632,7 +650,12 @@
             }
             calculateTotals(subtotal);
         };
-
+        
+        const removeProductFromReceipt = (productId) => {
+            delete currentReceiptItems[productId];
+            updateReceipt();
+        };
+        
         const calculateTotals = (subtotal) => {
             const discountPercentage = parseFloat(discountInput.value) || 0;
             const taxPercentage = parseFloat(taxInput.value) || 0;
@@ -656,6 +679,9 @@
             currentReceiptItems = {};
             updateReceipt();
             amountReceivedInput.value = '0';
+            discountInput.value = '0';
+            taxInput.value = '0';
+            customerSearchInput.value = '';
         };
 
         const processPayment = async () => {
@@ -675,7 +701,7 @@
             } else if (customerName) {
                 const newCustomer = await db.collection('customers').add({ name: customerName, createdAt: new Date() });
                 customerId = newCustomer.id;
-                allCustomers.push({ id: newCustomer.id, name: customerName });
+                allCustomers.push({ id: newCustomer.id, name: newCustomerName });
                 renderCustomersDatalist();
             }
 
@@ -708,17 +734,25 @@
                 return;
             }
             
-            if (confirm(`هل أنت متأكد من إرجاع المنتج: ${product.name}؟`)) {
+            if (confirm(`هل أنت متأكد من إرجاع منتج "${product.name}"؟`)) {
                 const productRef = db.collection('products').doc(product.id);
-                await db.runTransaction(async (transaction) => {
-                    const doc = await transaction.get(productRef);
-                    const newQuantity = doc.data().quantity + 1;
-                    transaction.update(productRef, { quantity: newQuantity });
-                });
-                alert(`تم إرجاع منتج ${product.name} بنجاح.`);
-                closeModal('refundModal');
-                refundBarcodeInput.value = '';
-                fetchProducts();
+                try {
+                    await db.runTransaction(async (transaction) => {
+                        const doc = await transaction.get(productRef);
+                        if (!doc.exists) {
+                            throw "Document does not exist!";
+                        }
+                        const newQuantity = doc.data().quantity + 1;
+                        transaction.update(productRef, { quantity: newQuantity });
+                    });
+                    alert(`تم إرجاع منتج "${product.name}" بنجاح. تم تحديث المخزون.`);
+                    closeModal('refundModal');
+                    refundBarcodeInput.value = '';
+                    fetchProducts();
+                } catch (e) {
+                    console.error("Transaction failed: ", e);
+                    alert("فشل إرجاع المنتج. الرجاء المحاولة مرة أخرى.");
+                }
             }
         };
 
