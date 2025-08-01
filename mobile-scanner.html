@@ -115,13 +115,11 @@
                 }
 
                 let selectedDeviceId = null;
-                // محاولة إيجاد الكاميرا الخلفية (environment)
                 const rearCamera = videoInputDevices.find(device => device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('environment'));
                 
                 if (rearCamera) {
                     selectedDeviceId = rearCamera.deviceId;
                 } else {
-                    // إذا لم يتم العثور على الكاميرا الخلفية، استخدم الكاميرا الافتراضية
                     selectedDeviceId = videoInputDevices[0].deviceId;
                 }
 
