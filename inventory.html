@@ -241,15 +241,16 @@
             width: 95%;
             height: auto;
             max-width: 600px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
         }
-
-        /* Full-screen for product modal */
+        
         #productModal .modal-content {
             width: 95vw;
             height: 95vh;
             max-width: none;
-            display: flex;
-            flex-direction: column;
+            border-radius: 10px;
         }
 
         .modal-header {
@@ -266,6 +267,9 @@
         }
 
         .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
             color: #aaa;
             font-size: 2rem;
             font-weight: bold;
@@ -312,16 +316,29 @@
             border: 2px solid var(--primary);
             border-radius: 5px;
         }
+        
+        #connectPhoneModal .modal-content {
+            text-align: center;
+            max-width: 500px;
+            height: auto;
+        }
 
-        /* Button Blinking Effect */
-        @keyframes blink {
-            50% {
-                box-shadow: 0 0 10px var(--warning), 0 0 20px var(--warning);
-                background-color: var(--warning);
-            }
+        @keyframes pulse-success {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+            50% { box-shadow: 0 0 10px 5px rgba(76, 175, 80, 0.8); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+        }
+        .btn-success-pulse {
+            animation: pulse-success 1s ease-in-out;
+        }
+
+        @keyframes pulse-waiting {
+            0% { background: #ccc; }
+            50% { background: var(--warning); }
+            100% { background: #ccc; }
         }
         .btn-waiting {
-            animation: blink 1s infinite;
+            animation: pulse-waiting 1s infinite;
         }
 
         @media (max-width: 768px) {
@@ -489,6 +506,22 @@
             <p id="scannerError" style="color: var(--error); margin-top: 1rem;"></p>
         </div>
     </div>
+    
+    <div id="connectPhoneModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ربط الهاتف بالكمبيوتر</h2>
+                <span class="close-btn" onclick="closeModal('connectPhoneModal')">&times;</span>
+            </div>
+            <p>امسح الكود التالي بهاتفك لربطه بالكمبيوتر:</p>
+            <img id="qrCodeImage" src="" alt="QR Code">
+            <p style="margin-top: 1rem; font-size: 0.9rem;">
+                <i class="fas fa-info-circle"></i> هذا الربط يتم لمرة واحدة فقط. بعد المسح، يمكن الضغط على زر "مسح بالهاتف" مباشرة من الكمبيوتر ليقوم بفتح الكاميرا في صفحة الهاتف تلقائياً.
+            </p>
+        </div>
+    </div>
+
+    <div id="barcodeSvgContainer" style="display: none;"></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -537,9 +570,17 @@
         const scannerError = document.getElementById('scannerError');
 
         const scanWithPhoneBtn = document.getElementById('scanWithPhoneBtn');
+        const connectPhoneModal = document.getElementById('connectPhoneModal');
+        const qrCodeImage = document.getElementById('qrCodeImage');
         
         let codeReader = null;
-        let scanSessionListener = null;
+        let phoneSessionListener = null;
+
+        let userSessionId = localStorage.getItem('userSessionId');
+        if (!userSessionId) {
+            userSessionId = uuid.v4();
+            localStorage.setItem('userSessionId', userSessionId);
+        }
 
         auth.onAuthStateChanged(user => {
             if (!user) {
@@ -620,22 +661,24 @@
         };
 
         const printBarcode = (barcode, productName) => {
+            const barcodeSvgContainer = document.getElementById('barcodeSvgContainer');
+            JsBarcode(barcodeSvgContainer, barcode, {
+                format: "EAN13",
+                displayValue: true,
+                fontSize: 18,
+                width: 2,
+                height: 50
+            });
+            const svgContent = barcodeSvgContainer.innerHTML;
+
             const printWindow = window.open('', '', 'height=400,width=600');
             printWindow.document.write('<html><head><title>طباعة باركود</title>');
             printWindow.document.write('<style>body{text-align:center;font-family:"Tajawal",sans-serif;} svg{max-width:200px;}</style>');
             printWindow.document.write('</head><body>');
             printWindow.document.write(`<h1>${productName}</h1>`);
-            printWindow.document.write(`<svg id="barcode"></svg>`);
+            printWindow.document.write(svgContent);
             printWindow.document.write('</body></html>');
             printWindow.document.close();
-
-            const svgElement = printWindow.document.getElementById('barcode');
-            JsBarcode(svgElement, barcode, {
-                format: "EAN13",
-                displayValue: true,
-                fontSize: 18
-            });
-
             printWindow.print();
         };
 
@@ -651,10 +694,6 @@
             if (codeReader) {
                 codeReader.reset();
                 codeReader = null;
-            }
-            if (scanSessionListener) {
-                scanSessionListener();
-                scanSessionListener = null;
             }
         };
 
@@ -710,10 +749,16 @@
             fetchProducts();
         });
 
-        searchBtn.addEventListener('click', () => fetchProducts(searchInput.value));
+        const performSearch = (searchTerm) => {
+            fetchProducts(searchTerm);
+            searchBtn.classList.add('btn-success-pulse');
+            setTimeout(() => searchBtn.classList.remove('btn-success-pulse'), 1000);
+        };
+
+        searchBtn.addEventListener('click', () => performSearch(searchInput.value));
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                fetchProducts(searchInput.value);
+                performSearch(searchInput.value);
             }
         });
 
@@ -748,7 +793,7 @@
                 codeReader.decodeFromVideoDevice(selectedDeviceId, scannerVideo, (result, err) => {
                     if (result) {
                         searchInput.value = result.text;
-                        fetchProducts(result.text);
+                        performSearch(result.text);
                         closeModal('scannerModal');
                     }
                     if (err && !(err instanceof ZXing.NotFoundException)) {
@@ -763,33 +808,55 @@
                 scannerStatus.textContent = '';
             }
         });
-
-        // ===================================
+        
+        // ===========================================
         // وظيفة المسح بالهاتف (الجهاز المنفصل)
-        // ===================================
+        // ===========================================
         scanWithPhoneBtn.addEventListener('click', async () => {
-            const sessionId = uuid.v4();
-            const sessionRef = db.collection('scanSessions').doc(sessionId);
-            await sessionRef.set({ status: 'waiting' });
-            
-            scanWithPhoneBtn.classList.add('btn-waiting');
-
             const pathParts = window.location.pathname.split('/');
             const subPath = pathParts.length > 2 ? `/${pathParts[1]}/` : '/';
-            const scanUrl = `${window.location.origin}${subPath}mobile-scanner.html?sessionId=${sessionId}`;
+            const scanUrl = `${window.location.origin}${subPath}mobile-scanner.html`;
             
-            window.open(scanUrl, '_blank');
+            // التحقق مما إذا كان الجهاز مرتبطًا بالفعل
+            if (!localStorage.getItem('phoneLinked')) {
+                openModal('connectPhoneModal');
+                const sessionId = userSessionId;
+                
+                const linkingUrl = `${scanUrl}?sessionId=${sessionId}`;
+                
+                QRCode.toDataURL(linkingUrl, function (err, url) {
+                    if (!err) {
+                        qrCodeImage.src = url;
+                    }
+                });
+                
+                // الاستماع لجلسة المستخدم
+                phoneSessionListener = db.collection('phoneSessions').doc(sessionId).onSnapshot(doc => {
+                    const sessionData = doc.data();
+                    if (sessionData && sessionData.linked) {
+                        localStorage.setItem('phoneLinked', 'true');
+                        closeModal('connectPhoneModal');
+                        phoneSessionListener();
+                        doc.ref.delete();
+                        alert('تم ربط الهاتف بنجاح! الآن يمكنك الضغط على "مسح بالهاتف" لتفعيل المسح.');
+                    }
+                });
+            } else {
+                scanWithPhoneBtn.classList.add('btn-waiting');
+                const phoneRef = db.collection('phoneSessions').doc(userSessionId);
+                await phoneRef.set({ command: 'scan', timestamp: new Date() });
 
-            scanSessionListener = sessionRef.onSnapshot(doc => {
-                const sessionData = doc.data();
-                if (sessionData && sessionData.barcode) {
-                    searchInput.value = sessionData.barcode;
-                    fetchProducts(sessionData.barcode);
-                    scanWithPhoneBtn.classList.remove('btn-waiting');
-                    scanSessionListener();
-                    doc.ref.delete();
-                }
-            });
+                phoneSessionListener = phoneRef.onSnapshot(doc => {
+                    const sessionData = doc.data();
+                    if (sessionData && sessionData.barcode) {
+                        searchInput.value = sessionData.barcode;
+                        performSearch(sessionData.barcode);
+                        scanWithPhoneBtn.classList.remove('btn-waiting');
+                        phoneSessionListener();
+                        doc.ref.delete();
+                    }
+                });
+            }
         });
 
         logoutBtn.addEventListener('click', async (e) => {
@@ -797,11 +864,14 @@
             try {
                 await auth.signOut();
                 localStorage.removeItem('currentUser');
+                localStorage.removeItem('userSessionId');
+                localStorage.removeItem('phoneLinked');
                 window.location.href = 'login.html';
             } catch (error) {
                 console.error('Logout Error:', error);
             }
         });
+
     </script>
 </body>
 </html>
