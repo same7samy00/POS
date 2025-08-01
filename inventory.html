@@ -143,16 +143,6 @@
             font-size: 1rem;
         }
 
-        .awaiting-scan-icon {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--warning);
-            font-size: 1.2rem;
-            display: none;
-        }
-
         .product-table-container {
             background: #fff;
             padding: 1.5rem;
@@ -253,6 +243,15 @@
             max-width: 600px;
         }
 
+        /* Full-screen for product modal */
+        #productModal .modal-content {
+            width: 95vw;
+            height: 95vh;
+            max-width: none;
+            display: flex;
+            flex-direction: column;
+        }
+
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -301,11 +300,10 @@
             margin-top: 1.5rem;
         }
 
-        #scannerModal .modal-content,
-        #qrCodeModal .modal-content {
+        #scannerModal .modal-content {
             text-align: center;
-            height: auto;
             max-width: 500px;
+            height: auto;
         }
         
         #scannerModal video {
@@ -314,11 +312,16 @@
             border: 2px solid var(--primary);
             border-radius: 5px;
         }
-        
-        #qrCodeModal img {
-            max-width: 100%;
-            height: auto;
-            margin-top: 1rem;
+
+        /* Button Blinking Effect */
+        @keyframes blink {
+            50% {
+                box-shadow: 0 0 10px var(--warning), 0 0 20px var(--warning);
+                background-color: var(--warning);
+            }
+        }
+        .btn-waiting {
+            animation: blink 1s infinite;
         }
 
         @media (max-width: 768px) {
@@ -359,6 +362,11 @@
             .search-bar .btn {
                 width: 100%;
             }
+            #productModal .modal-content {
+                width: 100vw;
+                height: 100vh;
+                border-radius: 0;
+            }
         }
     </style>
 </head>
@@ -390,10 +398,9 @@
 
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="البحث بالاسم أو الباركود...">
-            <i class="fas fa-spinner fa-spin awaiting-scan-icon" id="awaitingScanIcon"></i>
             <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> بحث</button>
-            <button class="btn btn-secondary" id="scanBtn"><i class="fas fa-barcode"></i> مسح باركود</button>
-            <button class="btn btn-secondary" id="scanWithPhoneBtn"><i class="fas fa-qrcode"></i> مسح بالهاتف</button>
+            <button class="btn btn-secondary" id="scanBtn"><i class="fas fa-barcode"></i> مسح باركود (الجهاز الحالي)</button>
+            <button class="btn btn-secondary" id="scanWithPhoneBtn"><i class="fas fa-mobile-alt"></i> مسح بالهاتف</button>
         </div>
 
         <div class="product-table-container">
@@ -483,22 +490,6 @@
         </div>
     </div>
 
-    <div id="qrCodeModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>مسح الباركود بالهاتف</h2>
-                <span class="close-btn" onclick="closeModal('qrCodeModal')">&times;</span>
-            </div>
-            <p>امسح الكود التالي بهاتفك لفتح الماسح الضوئي:</p>
-            <img id="qrCodeImage" src="" alt="QR Code">
-            <p style="margin-top: 1rem; font-size: 0.9rem;">
-                <i class="fas fa-info-circle"></i> سيتم البحث تلقائياً بعد المسح بنجاح.
-            </p>
-            <p id="scanStatusQR" style="font-weight: bold; margin-top: 1rem; color: var(--primary);"></p>
-            <p> أو افتح هذا الرابط: <br> <a id="mobileScannerLink" href="#" target="_blank">...</a> </p>
-        </div>
-    </div>
-
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -546,11 +537,6 @@
         const scannerError = document.getElementById('scannerError');
 
         const scanWithPhoneBtn = document.getElementById('scanWithPhoneBtn');
-        const qrCodeModal = document.getElementById('qrCodeModal');
-        const qrCodeImage = document.getElementById('qrCodeImage');
-        const scanStatusQR = document.getElementById('scanStatusQR');
-        const mobileScannerLink = document.getElementById('mobileScannerLink');
-        const awaitingScanIcon = document.getElementById('awaitingScanIcon');
         
         let codeReader = null;
         let scanSessionListener = null;
@@ -778,40 +764,30 @@
             }
         });
 
+        // ===================================
+        // وظيفة المسح بالهاتف (الجهاز المنفصل)
+        // ===================================
         scanWithPhoneBtn.addEventListener('click', async () => {
-            openModal('qrCodeModal');
-            scanStatusQR.textContent = 'في انتظار المسح...';
-            awaitingScanIcon.style.display = 'inline-block';
-            
             const sessionId = uuid.v4();
             const sessionRef = db.collection('scanSessions').doc(sessionId);
             await sessionRef.set({ status: 'waiting' });
             
+            scanWithPhoneBtn.classList.add('btn-waiting');
+
             const pathParts = window.location.pathname.split('/');
             const subPath = pathParts.length > 2 ? `/${pathParts[1]}/` : '/';
             const scanUrl = `${window.location.origin}${subPath}mobile-scanner.html?sessionId=${sessionId}`;
             
-            QRCode.toDataURL(scanUrl, function (err, url) {
-                if (err) {
-                    console.error('QR Code error:', err);
-                    return;
-                }
-                qrCodeImage.src = url;
-            });
-            if (mobileScannerLink) {
-                 mobileScannerLink.href = scanUrl;
-                 mobileScannerLink.textContent = scanUrl;
-            }
+            window.open(scanUrl, '_blank');
 
             scanSessionListener = sessionRef.onSnapshot(doc => {
                 const sessionData = doc.data();
                 if (sessionData && sessionData.barcode) {
-                    scanStatusQR.textContent = `تم المسح بنجاح! الباركود: ${sessionData.barcode}`;
                     searchInput.value = sessionData.barcode;
                     fetchProducts(sessionData.barcode);
-                    setTimeout(() => closeModal('qrCodeModal'), 1500);
+                    scanWithPhoneBtn.classList.remove('btn-waiting');
+                    scanSessionListener();
                     doc.ref.delete();
-                    awaitingScanIcon.style.display = 'none';
                 }
             });
         });
@@ -826,7 +802,6 @@
                 console.error('Logout Error:', error);
             }
         });
-
     </script>
 </body>
 </html>
