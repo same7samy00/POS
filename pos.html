@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نقطة البيع - نظام إدارة المحل</title>
+    <link rel="icon" href="data:,">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --error: #f44336;
+            --warning: #ff9800;
+            --light: #f5f5f5;
+            --dark: #212121;
+            --secondary-dark: #555;
+            --bg-color: #eef1f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #fff;
+            padding: 1rem;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2rem;
+        }
+
+        .sidebar .nav-list {
+            list-style: none;
+            width: 100%;
+        }
+
+        .sidebar .nav-list a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            color: var(--secondary-dark);
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .sidebar .nav-list a.active,
+        .sidebar .nav-list a:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .sidebar .nav-list a .fas {
+            margin-left: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            flex-grow: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .pos-left, .pos-right {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+
+        .pos-left {
+            flex: 2;
+        }
+
+        .pos-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .product-search {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .product-search input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .product-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .product-item:hover {
+            background: var(--light);
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            margin-top: 1.5rem;
+        }
+
+        .invoice-table th, .invoice-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .invoice-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #ccc;
+            color: var(--dark);
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 95%;
+            height: auto;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #aaa;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: right;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        #paymentModal .payment-options {
+            display: flex;
+            gap: 10px;
+            justify-content: space-around;
+        }
+        
+        @keyframes pulse-waiting {
+            0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4); }
+            50% { box-shadow: 0 0 10px 5px rgba(255, 152, 0, 0.8); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4); }
+        }
+        .btn-waiting {
+            animation: pulse-waiting 1s infinite;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            .main-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .pos-left, .pos-right {
+                width: 100%;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            نظام إدارة المحل
+        </div>
+        <ul class="nav-list">
+            <li><a href="index.html"><i class="fas fa-chart-line"></i><span>لوحة التحكم</span></a></li>
+            <li><a href="inventory.html"><i class="fas fa-boxes"></i><span>إدارة المخزون</span></a></li>
+            <li><a href="pos.html" class="active"><i class="fas fa-cash-register"></i><span>نقطة البيع</span></a></li>
+            <li><a href="customers.html"><i class="fas fa-users"></i><span>إدارة العملاء</span></a></li>
+            <li><a href="reports.html"><i class="fas fa-chart-pie"></i><span>التقارير</span></a></li>
+            <li><a href="settings.html"><i class="fas fa-cogs"></i><span>الإعدادات</span></a></li>
+            <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>تسجيل الخروج</span></a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="pos-left">
+            <h2><i class="fas fa-receipt"></i> الفاتورة الحالية</h2>
+            <div id="invoiceContent">
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>المنتج</th>
+                            <th>الكمية</th>
+                            <th>السعر</th>
+                            <th>الإجمالي</th>
+                            <th>إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoiceTableBody">
+                        </tbody>
+                </table>
+                <div id="invoiceTotals" style="margin-top: 1.5rem; text-align: left;">
+                    <p>الإجمالي الفرعي: <span id="subTotal">0.00</span> EGP</p>
+                    <p>الخصم: <span id="discountValue">0.00</span> EGP</p>
+                    <h3>الإجمالي النهائي: <span id="finalTotal">0.00</span> EGP</h3>
+                </div>
+            </div>
+            
+            <div class="invoice-actions">
+                <button class="btn btn-secondary" onclick="clearInvoice()"><i class="fas fa-trash"></i> إلغاء الفاتورة</button>
+                <button class="btn btn-primary" id="checkoutBtn"><i class="fas fa-credit-card"></i> إتمام الدفع</button>
+            </div>
+        </div>
+        
+        <div class="pos-right">
+            <h2><i class="fas fa-search"></i> بحث عن منتج</h2>
+            <div class="product-search">
+                <input type="text" id="productSearchInput" placeholder="بحث بالاسم أو الباركود...">
+                <button class="btn btn-secondary" id="searchBarcodeBtn"><i class="fas fa-barcode"></i> مسح باركود (الجهاز)</button>
+                <button class="btn btn-secondary" id="scanWithPhoneBtn"><i class="fas fa-mobile-alt"></i> مسح بالهاتف</button>
+            </div>
+
+            <div id="productResults" class="product-list" style="margin-top: 1rem;">
+                <p style="text-align: center; color: var(--secondary-dark);">ابحث عن المنتجات لإضافتها للفاتورة.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="scannerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ماسح الباركود</h2>
+                <span class="close-btn" onclick="closeModal('scannerModal')">&times;</span>
+            </div>
+            <p id="scannerStatus">
+                <i class="fas fa-spinner fa-spin"></i> جاري تهيئة الكاميرا...
+            </p>
+            <video id="scannerVideo" style="width: 100%; height: auto;"></video>
+            <p id="scannerError" style="color: var(--error); margin-top: 1rem;"></p>
+        </div>
+    </div>
+    
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-credit-card"></i> إتمام الدفع</h2>
+                <span class="close-btn" onclick="closeModal('paymentModal')">&times;</span>
+            </div>
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label for="paymentType"><i class="fas fa-dollar-sign"></i> طريقة الدفع</label>
+                    <select id="paymentType" required>
+                        <option value="cash">نقدي</option>
+                        <option value="credit">آجل</option>
+                    </select>
+                </div>
+                <div id="customerSection" class="form-group" style="display: none;">
+                    <label for="customerSearch"><i class="fas fa-user"></i> العميل</label>
+                    <input type="text" id="customerSearch" placeholder="ابحث عن العميل أو أضف جديد">
+                    <div id="customerResults" class="product-list" style="max-height: 150px; display: none;"></div>
+                </div>
+                <div class="form-group">
+                    <label for="discountAmount"><i class="fas fa-tags"></i> الخصم (EGP)</label>
+                    <input type="number" id="discountAmount" min="0" step="0.01" value="0">
+                </div>
+                <div id="changeSection" class="form-group">
+                    <label for="amountPaid"><i class="fas fa-money-bill-wave"></i> المبلغ المدفوع (EGP)</label>
+                    <input type="number" id="amountPaid" min="0" step="0.01" required>
+                    <p style="margin-top: 0.5rem;">الباقي: <span id="changeDue">0.00</span> EGP</p>
+                </div>
+                <div style="text-align: left; margin-top: 1rem;">
+                    <h3>الإجمالي المطلوب: <span id="paymentTotal">0.00</span> EGP</h3>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;"><i class="fas fa-check"></i> تأكيد الدفع</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="barcodeSvgContainer" style="display: none;"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.18.6/umd/index.min.js"></script>
+
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5ls-rPdJ65x5BoMGwAOpdcPtD585C2ys",
+            authDomain: "pharmacy-inventory-bf04a.firebaseapp.com",
+            projectId: "pharmacy-inventory-bf04a",
+            storageBucket: "pharmacy-inventory-bf04a.firebasestorage.app",
+            messagingSenderId: "937788650384",
+            appId: "1:937788650384:web:6451225d00e648f3a0b915",
+            measurementId: "G-ZGC9EQ55SL"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const scannerSessionDocRef = db.collection('scannerSessions').doc('fixed');
+        const productsCollection = db.collection('products');
+        const salesCollection = db.collection('sales');
+        const customersCollection = db.collection('customers');
+        
+        const logoutBtn = document.getElementById('logoutBtn');
+        const searchBarcodeBtn = document.getElementById('searchBarcodeBtn');
+        const scanWithPhoneBtn = document.getElementById('scanWithPhoneBtn');
+        const productSearchInput = document.getElementById('productSearchInput');
+        const productResultsDiv = document.getElementById('productResults');
+        const invoiceTableBody = document.getElementById('invoiceTableBody');
+        const subTotalSpan = document.getElementById('subTotal');
+        const discountValueSpan = document.getElementById('discountValue');
+        const finalTotalSpan = document.getElementById('finalTotal');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        
+        const paymentModal = document.getElementById('paymentModal');
+        const paymentForm = document.getElementById('paymentForm');
+        const paymentTypeSelect = document.getElementById('paymentType');
+        const customerSection = document.getElementById('customerSection');
+        const customerSearchInput = document.getElementById('customerSearch');
+        const customerResultsDiv = document.getElementById('customerResults');
+        const discountAmountInput = document.getElementById('discountAmount');
+        const amountPaidInput = document.getElementById('amountPaid');
+        const changeDueSpan = document.getElementById('changeDue');
+        const paymentTotalSpan = document.getElementById('paymentTotal');
+        
+        let currentInvoice = {
+            items: [],
+            subTotal: 0,
+            discount: 0,
+            finalTotal: 0,
+            customer: null
+        };
+
+        // ===========================================
+        // Modal & Core UI Functions
+        // ===========================================
+        const openModal = (id) => {
+            document.getElementById(id).classList.add('active');
+        };
+
+        const closeModal = (id) => {
+            document.getElementById(id).classList.remove('active');
+        };
+
+        // ===========================================
+        // Product & Invoice Logic
+        // ===========================================
+        const renderProductResults = (products) => {
+            productResultsDiv.innerHTML = '';
+            if (products.length === 0) {
+                productResultsDiv.innerHTML = '<p style="text-align: center; color: var(--error);">لا توجد منتجات مطابقة.</p>';
+                return;
+            }
+            products.forEach(product => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'product-item';
+                itemDiv.innerHTML = `
+                    <span>${product.name} (${product.unit})</span>
+                    <span>${product.price.toFixed(2)} EGP</span>
+                `;
+                itemDiv.onclick = () => addToCart(product);
+                productResultsDiv.appendChild(itemDiv);
+            });
+        };
+
+        const addToCart = (productToAdd) => {
+            const existingItem = currentInvoice.items.find(item => item.id === productToAdd.id);
+            if (existingItem) {
+                if (existingItem.quantity < productToAdd.quantity) {
+                    existingItem.quantity++;
+                } else {
+                    alert('الكمية المتاحة من المنتج نفدت.');
+                }
+            } else {
+                currentInvoice.items.push({
+                    id: productToAdd.id,
+                    name: productToAdd.name,
+                    price: productToAdd.price,
+                    purchasePrice: productToAdd.purchasePrice,
+                    unit: productToAdd.unit,
+                    barcode: productToAdd.barcode,
+                    quantity: 1
+                });
+            }
+            renderInvoice();
+        };
+
+        const renderInvoice = () => {
+            invoiceTableBody.innerHTML = '';
+            currentInvoice.items.forEach((item, index) => {
+                const itemTotal = item.quantity * item.price;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>
+                        <input type="number" value="${item.quantity}" min="1" max="${item.maxQuantity || 1000}" onchange="updateQuantity(${index}, this.value)" style="width: 60px; text-align: center;">
+                    </td>
+                    <td>${item.price.toFixed(2)}</td>
+                    <td>${itemTotal.toFixed(2)}</td>
+                    <td><button onclick="removeItem(${index})" class="btn btn-sm btn-secondary"><i class="fas fa-trash"></i></button></td>
+                `;
+                invoiceTableBody.appendChild(row);
+            });
+            calculateTotals();
+        };
+
+        const updateQuantity = (index, newQuantity) => {
+            currentInvoice.items[index].quantity = parseInt(newQuantity);
+            calculateTotals();
+        };
+
+        const removeItem = (index) => {
+            currentInvoice.items.splice(index, 1);
+            renderInvoice();
+        };
+
+        const clearInvoice = () => {
+            currentInvoice.items = [];
+            currentInvoice.customer = null;
+            renderInvoice();
+            alert('تم إلغاء الفاتورة.');
+        };
+
+        const calculateTotals = () => {
+            let subTotal = currentInvoice.items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+            let finalTotal = subTotal - currentInvoice.discount;
+            currentInvoice.subTotal = subTotal;
+            currentInvoice.finalTotal = finalTotal > 0 ? finalTotal : 0;
+            
+            subTotalSpan.textContent = currentInvoice.subTotal.toFixed(2);
+            discountValueSpan.textContent = currentInvoice.discount.toFixed(2);
+            finalTotalSpan.textContent = currentInvoice.finalTotal.toFixed(2);
+            paymentTotalSpan.textContent = currentInvoice.finalTotal.toFixed(2);
+        };
+
+        // ===========================================
+        // Checkout & Payment Logic
+        // ===========================================
+        const openPaymentModal = () => {
+            if (currentInvoice.items.length === 0) {
+                alert('لا يمكن إتمام الدفع، الفاتورة فارغة.');
+                return;
+            }
+            paymentTotalSpan.textContent = currentInvoice.finalTotal.toFixed(2);
+            openModal('paymentModal');
+        };
+
+        const processPayment = async (e) => {
+            e.preventDefault();
+            const paymentType = paymentTypeSelect.value;
+            const discount = parseFloat(discountAmountInput.value) || 0;
+            const amountPaid = parseFloat(amountPaidInput.value) || 0;
+            
+            if (paymentType === 'cash' && amountPaid < currentInvoice.finalTotal) {
+                alert('المبلغ المدفوع أقل من الإجمالي.');
+                return;
+            }
+
+            try {
+                const salesData = {
+                    items: currentInvoice.items.map(item => ({
+                        barcode: item.barcode,
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: item.price,
+                        purchasePrice: item.purchasePrice
+                    })),
+                    subTotal: currentInvoice.subTotal,
+                    discount: discount,
+                    finalTotal: currentInvoice.finalTotal,
+                    paymentType: paymentType,
+                    timestamp: new Date(),
+                    clerk: auth.currentUser.email
+                };
+
+                // Update product quantities
+                const batch = db.batch();
+                for (const item of currentInvoice.items) {
+                    const productRef = productsCollection.doc(item.id);
+                    batch.update(productRef, {
+                        quantity: firebase.firestore.FieldValue.increment(-item.quantity)
+                    });
+                }
+                
+                await salesCollection.add(salesData);
+                await batch.commit();
+
+                alert('تمت عملية البيع بنجاح!');
+                clearInvoice();
+                closeModal('paymentModal');
+
+            } catch (error) {
+                console.error('Error processing payment:', error);
+                alert('حدث خطأ أثناء معالجة الدفع. يرجى المحاولة مرة أخرى.');
+            }
+        };
+
+        // ===========================================
+        // Main Logic & Event Listeners
+        // ===========================================
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                window.location.href = 'login.html';
+            }
+        });
+
+        productSearchInput.addEventListener('input', async (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            if (searchTerm.length > 0) {
+                const products = await productsCollection.get();
+                const filtered = products.docs.map(doc => ({id: doc.id, ...doc.data()}))
+                    .filter(p => p.name.toLowerCase().includes(searchTerm) || p.barcode.includes(searchTerm));
+                renderProductResults(filtered);
+            } else {
+                productResultsDiv.innerHTML = '<p style="text-align: center; color: var(--secondary-dark);">ابحث عن المنتجات لإضافتها للفاتورة.</p>';
+            }
+        });
+        
+        searchBarcodeBtn.addEventListener('click', async () => {
+            // Placeholder for opening scanner modal
+        });
+        
+        scanWithPhoneBtn.addEventListener('click', async () => {
+            // Placeholder for remote scanner logic
+        });
+
+        checkoutBtn.addEventListener('click', openPaymentModal);
+        paymentForm.addEventListener('submit', processPayment);
+        discountAmountInput.addEventListener('input', calculateTotals);
+        amountPaidInput.addEventListener('input', () => {
+            const finalTotal = currentInvoice.finalTotal;
+            const amountPaid = parseFloat(amountPaidInput.value) || 0;
+            changeDueSpan.textContent = (amountPaid - finalTotal).toFixed(2);
+        });
+
+        paymentTypeSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'credit') {
+                customerSection.style.display = 'block';
+                changeSection.style.display = 'none';
+                amountPaidInput.required = false;
+            } else {
+                customerSection.style.display = 'none';
+                changeSection.style.display = 'block';
+                amountPaidInput.required = true;
+            }
+        });
+
+        // ===========================================
+        // Additional functions (copied from inventory.html)
+        // ===========================================
+        // [Copy-pasting the scanner and print functions from the last inventory.html response]
+        const scannerModal = document.getElementById('scannerModal');
+        const scannerVideo = document.getElementById('scannerVideo');
+        const scannerStatus = document.getElementById('scannerStatus');
+        const scannerError = document.getElementById('scannerError');
+        let codeReader = null;
+        let phoneSessionListener = null;
+        const connectPhoneModal = document.getElementById('connectPhoneModal');
+        const qrCodeImage = document.getElementById('qrCodeImage');
+
+        searchBarcodeBtn.addEventListener('click', async () => {
+            openModal('scannerModal');
+            scannerStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تهيئة الكاميرا...';
+            scannerError.textContent = '';
+
+            if (!codeReader) {
+                codeReader = new ZXing.BrowserMultiFormatReader();
+            }
+
+            try {
+                const videoInputDevices = await codeReader.getVideoInputDevices();
+                if (videoInputDevices.length === 0) {
+                    scannerError.textContent = 'لم يتم العثور على كاميرا في هذا الجهاز.';
+                    scannerStatus.textContent = '';
+                    return;
+                }
+
+                let selectedDeviceId = null;
+                const rearCamera = videoInputDevices.find(device => device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('environment'));
+                
+                if (rearCamera) {
+                    selectedDeviceId = rearCamera.deviceId;
+                } else {
+                    selectedDeviceId = videoInputDevices[0].deviceId;
+                }
+
+                scannerStatus.innerHTML = '<i class="fas fa-camera"></i> جاهز للمسح...';
+                
+                codeReader.decodeFromVideoDevice(selectedDeviceId, scannerVideo, (result, err) => {
+                    if (result) {
+                        addProductByBarcode(result.text);
+                        closeModal('scannerModal');
+                    }
+                    if (err && !(err instanceof ZXing.NotFoundException)) {
+                        console.error(err);
+                        scannerError.textContent = 'حدث خطأ أثناء المسح. حاول مرة أخرى.';
+                    }
+                });
+
+            } catch (err) {
+                console.error(err);
+                scannerError.textContent = 'فشل الوصول إلى الكاميرا. تأكد من إعطاء الصلاحيات.';
+                scannerStatus.textContent = '';
+            }
+        });
+        
+        async function addProductByBarcode(barcode) {
+             const productSnapshot = await productsCollection.where('barcode', '==', barcode).limit(1).get();
+             if (!productSnapshot.empty) {
+                const product = { id: productSnapshot.docs[0].id, ...productSnapshot.docs[0].data() };
+                addToCart(product);
+             } else {
+                alert('لم يتم العثور على منتج بهذا الباركود.');
+             }
+        }
+        
+        const scannerSessionDocRef = db.collection('scannerSessions').doc('fixed');
+        scanWithPhoneBtn.addEventListener('click', async () => {
+            scanWithPhoneBtn.classList.add('btn-waiting');
+            try {
+                await scannerSessionDocRef.set({ status: 'scanRequested', purpose: 'search', lastSeen: new Date() });
+            } catch (error) {
+                console.error("Failed to send scan request:", error);
+                alert("فشل إرسال طلب المسح. تأكد من أن الهاتف متصل بالإنترنت.");
+            } finally {
+                setTimeout(() => {
+                    scanWithPhoneBtn.classList.remove('btn-waiting');
+                }, 1500);
+            }
+        });
+
+        scannerSessionDocRef.onSnapshot(doc => {
+            const data = doc.data();
+            if (data && data.status === 'scanned') {
+                scanWithPhoneBtn.classList.remove('btn-waiting');
+                addProductByBarcode(data.scannedValue);
+                scannerSessionDocRef.set({ status: 'readyForNextScan' });
+            }
+        });
+
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await auth.signOut();
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
