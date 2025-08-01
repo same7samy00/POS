@@ -7,13 +7,12 @@
     <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #4CAF50;
             --primary-dark: #388E3C;
+            --secondary: #03A9F4; /* New secondary color */
             --error: #f44336;
-            --warning: #ff9800;
             --light: #f5f5f5;
             --dark: #212121;
             --secondary-dark: #555;
@@ -21,423 +20,221 @@
             --border-color: #ddd;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Tajawal', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
 
         body {
             background-color: var(--bg-color);
             display: flex;
             min-height: 100vh;
             color: var(--dark);
+            overflow: hidden; /* Prevent scrolling when modal is open */
         }
 
         .sidebar {
             width: 250px;
             background: #fff;
             padding: 1rem;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-
-        .sidebar .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 2rem;
-        }
-
-        .sidebar .nav-list {
-            list-style: none;
-            width: 100%;
-        }
-
+        .sidebar .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 2rem; }
+        .sidebar .nav-list { list-style: none; width: 100%; }
         .sidebar .nav-list a {
-            display: flex;
-            align-items: center;
-            padding: 0.8rem 1rem;
-            color: var(--secondary-dark);
-            text-decoration: none;
-            border-radius: 5px;
-            margin-bottom: 0.5rem;
-            transition: background 0.3s, color 0.3s;
+            display: flex; align-items: center; padding: 0.8rem 1rem; color: var(--secondary-dark);
+            text-decoration: none; border-radius: 5px; margin-bottom: 0.5rem; transition: background 0.3s, color 0.3s;
         }
+        .sidebar .nav-list a.active, .sidebar .nav-list a:hover { background: var(--primary); color: white; }
+        .sidebar .nav-list a i { margin-left: 10px; font-size: 1.2rem; }
 
-        .sidebar .nav-list a.active,
-        .sidebar .nav-list a:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .sidebar .nav-list a .fas {
-            margin-left: 10px;
-            font-size: 1.1rem;
-        }
-
-        .main-content {
-            flex-grow: 1;
-            padding: 1.5rem;
-            display: flex;
-            gap: 1.5rem;
-        }
-
-        .pos-left {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
+        .main-content { flex-grow: 1; padding: 1.5rem; display: flex; gap: 1.5rem; }
+        .pos-left { flex-grow: 1; display: flex; flex-direction: column; }
         .pos-right {
-            width: 350px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
+            width: 380px; background: #fff; border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); padding: 1.5rem; display: flex; flex-direction: column;
         }
+
+        .input-group { position: relative; display: flex; align-items: center; margin-bottom: 1.5rem; }
+        .input-group i { position: absolute; right: 15px; color: #aaa; font-size: 1.2rem; }
+        .input-group input {
+            flex-grow: 1; padding: 14px 45px 14px 15px; border: 1px solid var(--border-color);
+            border-radius: 8px; font-size: 1rem; transition: all 0.3s;
+        }
+        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2); outline: none; }
+        .input-group .btn { margin-right: 10px; padding: 10px; }
+
+        .search-results-container {
+            position: absolute; top: 105%; left: 0; right: 0; background: #fff; border: 1px solid var(--border-color);
+            border-radius: 8px; z-index: 1000; max-height: 250px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .search-results-container .result-item { padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; }
+        .search-results-container .result-item:hover { background-color: var(--light); }
+        .search-results-container .result-item .price { color: var(--primary-dark); font-weight: 600; }
         
-        .search-bar {
-            display: flex;
-            margin-bottom: 1.5rem;
-            gap: 10px;
-            position: relative;
-        }
-
-        .search-bar input {
-            flex-grow: 1;
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-        
-        #search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: #fff;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            z-index: 100;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        #search-results .result-item {
-            padding: 10px 15px;
-            cursor: pointer;
-        }
-
-        #search-results .result-item:hover {
-            background-color: var(--light);
-        }
-
         .invoice-items-container {
-            flex-grow: 1;
-            background: #fff;
-            padding: 1rem;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            overflow-y: auto;
+            flex-grow: 1; background: #fff; padding: 1rem; border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow-y: auto;
         }
-
-        .invoice-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .invoice-table th, .invoice-table td {
-            padding: 12px 15px;
-            text-align: right;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .invoice-table th {
-            background-color: var(--light);
-        }
-        
-        .invoice-table .qty-control {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
+        .invoice-table { width: 100%; border-collapse: collapse; }
+        .invoice-table th, .invoice-table td { padding: 12px 15px; text-align: right; border-bottom: 1px solid var(--border-color); }
+        .invoice-table th { background-color: var(--light); }
+        .invoice-table .qty-control { display: flex; align-items: center; gap: 5px; }
         .invoice-table .qty-control button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
+            background: var(--primary); color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
         }
-        
-        .invoice-table .qty-control input {
-            width: 40px;
-            text-align: center;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-        }
+        .invoice-table .qty-control input { width: 40px; text-align: center; border: 1px solid var(--border-color); border-radius: 5px; padding: 5px; }
+        .invoice-table .delete-item-btn { background: var(--error); color: white; padding: 5px 8px; }
 
-        .customer-section, .summary-section, .payment-section {
-            margin-bottom: 1.5rem;
+        .pos-right h3 {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; font-size: 1.2rem;
+            color: var(--primary-dark); border-bottom: 2px solid var(--bg-color); padding-bottom: 0.5rem;
         }
-        
-        .customer-section h3, .summary-section h3 {
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-            color: var(--primary-dark);
-            border-bottom: 2px solid var(--bg-color);
-            padding-bottom: 0.5rem;
+        .summary-details .detail-row { display: flex; justify-content: space-between; margin-bottom: 0.75rem; align-items: center; }
+        .summary-details .detail-row input {
+            width: 80px; text-align: left; border: 1px solid var(--border-color); border-radius: 5px; padding: 5px;
         }
-
-        .customer-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        #customer-search {
-            flex-grow: 1;
-        }
-
-        .btn {
-            padding: 10px 15px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-
-        .btn-icon {
-            padding: 10px;
-        }
-
-        .summary-details .detail-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.75rem;
-        }
-        
         .summary-details .total-row {
-            font-weight: 700;
-            font-size: 1.3rem;
-            color: var(--primary-dark);
-            margin-top: 1rem;
-            border-top: 2px solid var(--bg-color);
-            padding-top: 1rem;
+            font-weight: 700; font-size: 1.5rem; color: var(--primary-dark); margin-top: 1rem;
+            border-top: 2px solid var(--bg-color); padding-top: 1rem;
         }
         
-        .payment-methods {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 1.5rem;
-        }
-        
+        .payment-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 1.5rem 0; }
         .payment-methods .btn {
-            width: 100%;
-            font-size: 1.1rem;
-            padding: 15px;
+            width: 100%; font-size: 1.1rem; padding: 15px; display: flex;
+            align-items: center; justify-content: center; gap: 8px;
         }
+        #complete-sale-btn { width: 100%; padding: 18px; font-size: 1.3rem; font-weight: 700; }
         
-        #complete-sale-btn {
-            width: 100%;
-            padding: 18px;
-            font-size: 1.3rem;
-            font-weight: 700;
-        }
-        
+        .btn { padding: 10px 15px; border-radius: 8px; border: none; cursor: pointer; font-size: 1rem; font-weight: 500; transition: all 0.3s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary { background: var(--secondary); color: white; }
+        .btn-icon { padding: 12px; font-size: 1.2rem; }
+        .payment-methods .btn.inactive { background-color: var(--light); color: var(--dark); }
+
         .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.6);
-            justify-content: center;
-            align-items: center;
+            display: none; position: fixed; z-index: 2000; left: 0; top: 0;
+            width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.7);
+            justify-content: center; align-items: center; padding: 1rem;
         }
-        
-        .modal.active {
-            display: flex;
-        }
-
+        .modal.active { display: flex; }
         .modal-content {
-            background-color: #fff;
-            margin: auto;
-            padding: 2rem;
-            border-radius: 10px;
-            width: 95%;
-            max-width: 500px;
+            background-color: #fff; padding: 2rem; border-radius: 15px;
+            width: 100%; height: 100%; max-width: 95vw; max-height: 95vh;
+            display: flex; flex-direction: column; position: relative;
         }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+        .modal-header h2 { margin: 0; }
         .close-btn {
-            color: #aaa;
-            font-size: 2rem;
-            font-weight: bold;
-            cursor: pointer;
+            position: absolute; top: 15px; left: 15px; color: #aaa; font-size: 2.5rem;
+            font-weight: bold; cursor: pointer; z-index: 10;
         }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
+        .modal-body { flex-grow: 1; overflow-y: auto; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
         
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
+        #toast-container {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 3000;
         }
-        
-        .form-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
+        .toast {
+            padding: 12px 20px; color: white; border-radius: 8px; margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background-color: var(--primary-dark); }
+        .toast.error { background-color: var(--error); }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <div class="logo">نظام إدارة المحل</div>
+        <div class="logo">نظام الإدارة</div>
         <ul class="nav-list">
-            <li><a href="inventory.html"><i class="fas fa-boxes"></i><span>إدارة المخزون</span></a></li>
-            <li><a href="pos.html" class="active"><i class="fas fa-cash-register"></i><span>نقطة البيع</span></a></li>
-            <li><a href="customers.html"><i class="fas fa-users"></i><span>إدارة العملاء</span></a></li>
-            <li><a href="reports.html"><i class="fas fa-chart-pie"></i><span>التقارير</span></a></li>
-            <li><a href="settings.html"><i class="fas fa-cogs"></i><span>الإعدادات</span></a></li>
-            <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>تسجيل الخروج</span></a></li>
+            <li><a href="inventory.html"><i class="ri-box-3-line"></i><span>إدارة المخزون</span></a></li>
+            <li><a href="pos.html" class="active"><i class="ri-shopping-cart-2-line"></i><span>نقطة البيع</span></a></li>
+            <li><a href="customers.html"><i class="ri-user-3-line"></i><span>إدارة العملاء</span></a></li>
+            <li><a href="reports.html"><i class="ri-pie-chart-line"></i><span>التقارير</span></a></li>
+            <li><a href="settings.html"><i class="ri-settings-3-line"></i><span>الإعدادات</span></a></li>
+            <li><a href="#" id="logoutBtn"><i class="ri-logout-box-r-line"></i><span>تسجيل الخروج</span></a></li>
         </ul>
     </div>
 
     <div class="main-content">
         <div class="pos-left">
-            <div class="search-bar">
-                <input type="text" id="product-search" placeholder="🔍 ابحث بالاسم أو امسح الباركود...">
-                <div id="search-results"></div>
+            <div class="input-group">
+                <i class="ri-barcode-line"></i>
+                <input type="text" id="product-search" placeholder="ابحث بالاسم أو امسح الباركود...">
+                <button class="btn btn-secondary btn-icon" id="scan-with-phone-btn" title="مسح بالهاتف"><i class="ri-smartphone-line"></i></button>
+                <div class="search-results-container" id="product-search-results"></div>
             </div>
             <div class="invoice-items-container">
                 <table class="invoice-table">
                     <thead>
                         <tr>
-                            <th>المنتج</th>
-                            <th>السعر</th>
-                            <th style="width: 120px;">الكمية</th>
-                            <th>الإجمالي</th>
-                            <th style="width: 50px;"></th>
+                            <th>المنتج</th><th>السعر</th><th style="width: 120px;">الكمية</th><th>الإجمالي</th><th style="width: 50px;"></th>
                         </tr>
                     </thead>
-                    <tbody id="invoice-items">
-                        </tbody>
+                    <tbody id="invoice-items"></tbody>
                 </table>
             </div>
         </div>
 
         <div class="pos-right">
             <div class="customer-section">
-                <h3><i class="fas fa-user"></i> العميل</h3>
-                <div class="customer-controls">
-                    <input type="text" id="customer-search" list="customers-list" placeholder="ابحث عن عميل...">
-                    <datalist id="customers-list"></datalist>
-                    <button class="btn btn-primary btn-icon" id="add-customer-btn"><i class="fas fa-plus"></i></button>
+                <h3><i class="ri-user-search-line"></i> العميل</h3>
+                <div class="input-group">
+                    <i class="ri-user-3-line"></i>
+                    <input type="text" id="customer-search" placeholder="ابحث عن عميل أو أضف جديد">
+                    <button class="btn btn-primary btn-icon" id="add-customer-btn" title="إضافة عميل جديد"><i class="ri-user-add-line"></i></button>
+                    <div class="search-results-container" id="customer-search-results"></div>
                 </div>
             </div>
 
             <div class="summary-section">
-                <h3><i class="fas fa-receipt"></i> ملخص الفاتورة</h3>
+                <h3><i class="ri-file-list-3-line"></i> ملخص الفاتورة</h3>
                 <div class="summary-details">
-                    <div class="detail-row">
-                        <span>الإجمالي الفرعي</span>
-                        <span id="subtotal">0.00 EGP</span>
-                    </div>
-                    <div class="detail-row">
-                        <span>خصم</span>
-                        <input type="number" id="discount-input" value="0" style="width: 80px; text-align: left;">
-                    </div>
-                    <div class="detail-row total-row">
-                        <span>الإجمالي</span>
-                        <span id="total">0.00 EGP</span>
-                    </div>
+                    <div class="detail-row"><span>الإجمالي الفرعي</span><span id="subtotal">0.00 EGP</span></div>
+                    <div class="detail-row"><span>خصم</span><input type="number" id="discount-input" value="0"></div>
+                    <div class="detail-row total-row"><span>الإجمالي</span><span id="total">0.00 EGP</span></div>
                 </div>
             </div>
 
             <div class="payment-section">
                  <div class="payment-methods">
-                    <button class="btn btn-primary" data-method="نقدي">
-                        <i class="fas fa-money-bill-wave"></i> نقدي
-                    </button>
-                    <button class="btn" data-method="آجل" style="background-color: var(--warning); color: white;">
-                        <i class="fas fa-credit-card"></i> آجل
-                    </button>
+                    <button class="btn btn-primary" data-method="نقدي"><i class="ri-money-dollar-circle-line"></i> نقدي</button>
+                    <button class="btn btn-secondary inactive" data-method="آجل"><i class="ri-bank-card-line"></i> آجل</button>
                 </div>
-                <button class="btn btn-primary" id="complete-sale-btn" disabled>
-                    إتمام البيع
-                </button>
+                <button class="btn btn-primary" id="complete-sale-btn" disabled><i class="ri-check-double-line"></i> إتمام البيع</button>
             </div>
         </div>
     </div>
-
+    
     <div id="customerModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>إضافة عميل جديد</h2>
-                <span class="close-btn" onclick="closeModal('customerModal')">&times;</span>
+            <span class="close-btn" onclick="closeModal('customerModal')">&times;</span>
+            <div class="modal-header"><h2><i class="ri-user-add-line"></i> إضافة عميل جديد</h2></div>
+            <div class="modal-body">
+                <form id="customerForm">
+                    <div class="form-group"><label for="customerName">اسم العميل</label><input type="text" id="customerName" required></div>
+                    <div class="form-group"><label for="customerPhone">رقم الهاتف</label><input type="tel" id="customerPhone"></div>
+                    <div class="form-group"><label for="customerAddress">العنوان</label><input type="text" id="customerAddress"></div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.1rem;">حفظ العميل</button>
+                </form>
             </div>
-            <form id="customerForm">
-                <div class="form-group">
-                    <label for="customerName">اسم العميل</label>
-                    <input type="text" id="customerName" required>
-                </div>
-                <div class="form-group">
-                    <label for="customerPhone">رقم الهاتف</label>
-                    <input type="tel" id="customerPhone">
-                </div>
-                <div class="form-group">
-                    <label for="customerAddress">العنوان</label>
-                    <input type="text" id="customerAddress">
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">حفظ العميل</button>
-            </form>
         </div>
     </div>
     
     <div id="invoiceModal" class="modal">
-        <div class="modal-content" style="max-width: 80mm;">
-             <div id="invoice-print-area">
-                </div>
-            <button onclick="printInvoice()" class="btn btn-primary" style="width:100%; margin-top: 1rem;">طباعة</button>
+         <div class="modal-content" style="max-width: 400px; max-height: 90vh;">
+            <span class="close-btn" onclick="closeModal('invoiceModal')">&times;</span>
+            <div id="invoice-print-area" class="modal-body"></div>
+            <button onclick="printInvoice()" class="btn btn-primary" style="width:100%; margin-top: 1rem; padding: 15px;">طباعة</button>
         </div>
     </div>
-
+    
+    <div id="toast-container"></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -456,94 +253,93 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const scannerSessionDocRef = db.collection('scannerSessions').doc('fixed');
 
-        let invoice = {
-            items: [],
-            customerId: null,
-            customerName: 'عميل نقدي',
-            discount: 0,
-            paymentMethod: 'نقدي'
-        };
+        let invoice = { items: [], customerId: null, customerName: 'عميل نقدي', discount: 0, paymentMethod: 'نقدي' };
+        let customersCache = [];
 
         // DOM Elements
         const productSearchInput = document.getElementById('product-search');
-        const searchResultsContainer = document.getElementById('search-results');
+        const productSearchResults = document.getElementById('product-search-results');
         const invoiceItemsTable = document.getElementById('invoice-items');
         const subtotalEl = document.getElementById('subtotal');
         const discountInput = document.getElementById('discount-input');
         const totalEl = document.getElementById('total');
         const completeSaleBtn = document.getElementById('complete-sale-btn');
         const addCustomerBtn = document.getElementById('add-customer-btn');
-        const customerModal = document.getElementById('customerModal');
-        const customerForm = document.getElementById('customerForm');
         const customerSearchInput = document.getElementById('customer-search');
-        const customersDatalist = document.getElementById('customers-list');
+        const customerSearchResults = document.getElementById('customer-search-results');
         const paymentMethodBtns = document.querySelectorAll('.payment-methods .btn');
+        const scanWithPhoneBtn = document.getElementById('scan-with-phone-btn');
         const logoutBtn = document.getElementById('logoutBtn');
 
-        // Auth Redirect
         auth.onAuthStateChanged(user => {
-            if (!user) {
-                window.location.href = 'login.html';
-            } else {
-                loadInitialData();
+            if (!user) { window.location.href = 'login.html'; } 
+            else { 
+                loadCustomers();
+                listenToScanner();
             }
         });
 
-        async function loadInitialData() {
-            await loadCustomers();
-        }
-
-        async function searchProducts(term) {
-            if (!term) {
-                searchResultsContainer.innerHTML = '';
-                return;
-            }
-            searchResultsContainer.innerHTML = '';
+        // --- Search Logic ---
+        async function handleProductSearch(term) {
+            if (!term) { productSearchResults.style.display = 'none'; return; }
+            productSearchResults.innerHTML = '';
             
-            // Search by barcode first
-            let query = db.collection('products').where('barcode', '==', term);
-            let snapshot = await query.get();
+            const barcodeQuery = db.collection('products').where('barcode', '==', term);
+            let snapshot = await barcodeQuery.get();
+            
+            if (snapshot.empty) {
+                const nameQuery = db.collection('products').orderBy('name').startAt(term).endAt(term + '\uf8ff').limit(5);
+                snapshot = await nameQuery.get();
+            }
 
             if (snapshot.empty) {
-                // if not found, search by name
-                query = db.collection('products').orderBy('name').startAt(term).endAt(term + '\uf8ff');
-                snapshot = await query.get();
+                productSearchResults.style.display = 'none'; return;
             }
             
             snapshot.forEach(doc => {
                 const product = { id: doc.id, ...doc.data() };
                 const item = document.createElement('div');
                 item.className = 'result-item';
-                item.textContent = `${product.name} - ${product.price.toFixed(2)} EGP`;
+                item.innerHTML = `<span>${product.name}</span><span class="price">${product.price.toFixed(2)} EGP</span>`;
                 item.onclick = () => addProductToInvoice(product);
-                searchResultsContainer.appendChild(item);
+                productSearchResults.appendChild(item);
             });
+            productSearchResults.style.display = 'block';
         }
-        
+
+        function handleCustomerSearch(term) {
+            if (!term) { customerSearchResults.style.display = 'none'; return; }
+            customerSearchResults.innerHTML = '';
+            const filteredCustomers = customersCache.filter(c => c.name.includes(term) || (c.phone && c.phone.includes(term)));
+            
+            filteredCustomers.forEach(customer => {
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.textContent = `${customer.name} (${customer.phone || 'لا يوجد هاتف'})`;
+                item.onclick = () => selectCustomer(customer);
+                customerSearchResults.appendChild(item);
+            });
+            customerSearchResults.style.display = 'block';
+        }
+
+        // --- Invoice Management ---
         function addProductToInvoice(product) {
             const existingItem = invoice.items.find(item => item.id === product.id);
-
-            if (existingItem) {
-                existingItem.qty++;
-            } else {
-                invoice.items.push({ ...product, qty: 1 });
-            }
+            if (existingItem) { existingItem.qty++; } 
+            else { invoice.items.push({ ...product, qty: 1 }); }
             
             productSearchInput.value = '';
-            searchResultsContainer.innerHTML = '';
+            productSearchResults.style.display = 'none';
             productSearchInput.focus();
-            
             renderInvoice();
+            showToast(`تم إضافة: ${product.name}`);
         }
 
         function renderInvoice() {
             invoiceItemsTable.innerHTML = '';
-            if (invoice.items.length === 0) {
-                completeSaleBtn.disabled = true;
-            } else {
-                completeSaleBtn.disabled = false;
-            }
+            completeSaleBtn.disabled = invoice.items.length === 0;
 
             invoice.items.forEach((item, index) => {
                 const row = document.createElement('tr');
@@ -552,15 +348,13 @@
                     <td>${item.price.toFixed(2)}</td>
                     <td>
                         <div class="qty-control">
-                            <button onclick="updateQty(${index}, -1)">-</button>
+                            <button onclick="updateQty(${index}, -1)"><i class="ri-subtract-line"></i></button>
                             <input type="number" value="${item.qty}" onchange="setQty(${index}, this.value)">
-                            <button onclick="updateQty(${index}, 1)">+</button>
+                            <button onclick="updateQty(${index}, 1)"><i class="ri-add-line"></i></button>
                         </div>
                     </td>
                     <td>${(item.price * item.qty).toFixed(2)}</td>
-                    <td>
-                        <button class="btn" style="background: var(--error); color: white;" onclick="removeItem(${index})"><i class="fas fa-times"></i></button>
-                    </td>
+                    <td><button class="btn delete-item-btn" onclick="removeItem(${index})"><i class="ri-delete-bin-6-line"></i></button></td>
                 `;
                 invoiceItemsTable.appendChild(row);
             });
@@ -569,20 +363,15 @@
         
         function updateQty(index, change) {
             invoice.items[index].qty += change;
-            if (invoice.items[index].qty <= 0) {
-                invoice.items.splice(index, 1);
-            }
+            if (invoice.items[index].qty <= 0) { invoice.items.splice(index, 1); }
             renderInvoice();
         }
         
         function setQty(index, value) {
             const qty = parseInt(value);
-            if (qty > 0) {
-                invoice.items[index].qty = qty;
-            } else {
-                 invoice.items.splice(index, 1);
-            }
-             renderInvoice();
+            if (qty > 0) { invoice.items[index].qty = qty; } 
+            else { invoice.items.splice(index, 1); }
+            renderInvoice();
         }
         
         function removeItem(index) {
@@ -595,38 +384,32 @@
             const discount = parseFloat(discountInput.value) || 0;
             invoice.discount = discount;
             const total = subtotal - discount;
-
             subtotalEl.textContent = `${subtotal.toFixed(2)} EGP`;
             totalEl.textContent = `${total.toFixed(2)} EGP`;
         }
-        
+
+        // --- Customer Management ---
         async function loadCustomers() {
             const snapshot = await db.collection('customers').get();
-            customersDatalist.innerHTML = '';
-            snapshot.forEach(doc => {
-                const customer = { id: doc.id, ...doc.data() };
-                const option = document.createElement('option');
-                option.value = customer.name;
-                option.dataset.id = customer.id;
-                customersDatalist.appendChild(option);
-            });
+            customersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         }
-        
-        function selectCustomer() {
-            const selectedOption = Array.from(customersDatalist.options).find(opt => opt.value === customerSearchInput.value);
-            if (selectedOption) {
-                invoice.customerId = selectedOption.dataset.id;
-                invoice.customerName = selectedOption.value;
-            } else {
-                invoice.customerId = null;
-                invoice.customerName = customerSearchInput.value || 'عميل نقدي';
-            }
+
+        function selectCustomer(customer) {
+            invoice.customerId = customer.id;
+            invoice.customerName = customer.name;
+            customerSearchInput.value = customer.name;
+            customerSearchResults.style.display = 'none';
+            showToast(`تم اختيار العميل: ${customer.name}`);
         }
-        
+
+        // --- Sale Completion & Printing ---
         async function completeSale() {
-            if (invoice.items.length === 0) return alert('الفاتورة فارغة!');
+            if (invoice.items.length === 0) return showToast('الفاتورة فارغة!', 'error');
             
-            selectCustomer(); // Make sure customer is set before saving
+            // Set customer name if not selected from list but typed
+            if(!invoice.customerId && customerSearchInput.value) {
+                invoice.customerName = customerSearchInput.value;
+            }
 
             const sale = {
                 ...invoice,
@@ -635,69 +418,44 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
-            // Firestore transaction to save sale and update inventory
             const batch = db.batch();
-            
-            // 1. Add sale record
             const saleRef = db.collection('sales').doc();
             batch.set(saleRef, sale);
-            
-            // 2. Update product quantities
             sale.items.forEach(item => {
                 const productRef = db.collection('products').doc(item.id);
-                batch.update(productRef, {
-                    quantity: firebase.firestore.FieldValue.increment(-item.qty)
-                });
+                batch.update(productRef, { quantity: firebase.firestore.FieldValue.increment(-item.qty) });
             });
             
             try {
                 await batch.commit();
-                alert('تم البيع بنجاح!');
+                showToast('تم البيع بنجاح!');
                 prepareInvoiceForPrint(sale);
                 resetPOS();
             } catch (error) {
                 console.error("Error completing sale: ", error);
-                alert('فشل إتمام البيع. الرجاء المحاولة مرة أخرى.');
+                showToast('فشل إتمام البيع.', 'error');
             }
         }
         
         function prepareInvoiceForPrint(sale) {
             const printArea = document.getElementById('invoice-print-area');
             const now = new Date();
-            // Basic Store Info (Should be fetched from settings)
             const storeName = "اسم المحل";
-            const storeLogo = "رابط الشعار"; // URL to logo image
             const storeContact = "معلومات التواصل";
 
-            let itemsHtml = sale.items.map(item => `
-                <tr>
-                    <td>${item.name}</td>
-                    <td>${item.qty}</td>
-                    <td>${item.price.toFixed(2)}</td>
-                    <td>${(item.qty * item.price).toFixed(2)}</td>
-                </tr>
-            `).join('');
+            let itemsHtml = sale.items.map(item => `<tr><td>${item.name}</td><td>${item.qty}</td><td>${item.price.toFixed(2)}</td><td>${(item.qty * item.price).toFixed(2)}</td></tr>`).join('');
 
             printArea.innerHTML = `
-                <style>
-                    #invoice-print-area { text-align: center; font-family: 'Tajawal', sans-serif; }
-                    #invoice-print-area h2 { margin: 0; }
-                    #invoice-print-area p { margin: 2px 0; }
-                    #invoice-print-area table { width: 100%; margin-top: 15px; border-collapse: collapse; font-size: 10px; }
-                    #invoice-print-area th, #invoice-print-area td { padding: 4px; border: 1px solid #ccc; }
+                <style> /* Styles for printing */
+                    #invoice-print-area { text-align: center; font-family: 'Tajawal', sans-serif; padding: 10px; }
+                    #invoice-print-area h3 { margin: 10px 0 5px; } #invoice-print-area p { margin: 2px 0; font-size: 12px; }
+                    #invoice-print-area table { width: 100%; margin-top: 15px; border-collapse: collapse; font-size: 11px; }
+                    #invoice-print-area th, #invoice-print-area td { padding: 5px; border: 1px solid #ccc; }
                 </style>
-                <h2>${storeName}</h2>
-                <p>${storeContact}</p>
-                <hr>
-                <p>العميل: ${sale.customerName}</p>
-                <p>التاريخ: ${now.toLocaleDateString('ar-EG')} ${now.toLocaleTimeString('ar-EG')}</p>
-                <table>
-                    <thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead>
-                    <tbody>${itemsHtml}</tbody>
-                </table>
-                <hr>
-                <p>الإجمالي الفرعي: ${sale.subtotal.toFixed(2)} EGP</p>
-                <p>الخصم: ${sale.discount.toFixed(2)} EGP</p>
+                <h3>${storeName}</h3><p>${storeContact}</p><hr>
+                <p>العميل: ${sale.customerName}</p><p>التاريخ: ${now.toLocaleString('ar-EG')}</p>
+                <table><thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>${itemsHtml}</tbody></table><hr>
+                <p>الإجمالي الفرعي: ${sale.subtotal.toFixed(2)} EGP</p><p>الخصم: ${sale.discount.toFixed(2)} EGP</p>
                 <h3>الإجمالي: ${sale.total.toFixed(2)} EGP</h3>
             `;
             openModal('invoiceModal');
@@ -705,44 +463,79 @@
 
         function printInvoice(){
             const printContent = document.getElementById('invoice-print-area').innerHTML;
-            const printWindow = window.open('', '_blank');
+            const printWindow = window.open('', '', 'height=600,width=400');
             printWindow.document.write('<html><head><title>طباعة فاتورة</title>');
-            printWindow.document.write('<style>body{font-family: "Tajawal", sans-serif; direction: rtl;}</style>');
-            printWindow.document.write('</head><body>');
+            printWindow.document.write('<style>body{font-family: "Tajawal", sans-serif; direction: rtl;}</style></head><body>');
             printWindow.document.write(printContent);
             printWindow.document.write('</body></html>');
             printWindow.document.close();
+            printWindow.focus();
             printWindow.print();
+            printWindow.close();
+            closeModal('invoiceModal');
         }
 
         function resetPOS() {
-            invoice = {
-                items: [],
-                customerId: null,
-                customerName: 'عميل نقدي',
-                discount: 0,
-                paymentMethod: 'نقدي'
-            };
+            invoice = { items: [], customerId: null, customerName: 'عميل نقدي', discount: 0, paymentMethod: 'نقدي' };
             customerSearchInput.value = '';
             discountInput.value = 0;
             renderInvoice();
         }
 
-        // Event Listeners
-        productSearchInput.addEventListener('keyup', (e) => {
-             // Barcode scanner often sends an 'Enter' key press after the scan
-            if (e.key === 'Enter') {
-                 searchProducts(e.target.value.trim());
-            } else {
-                 searchProducts(e.target.value.trim());
-            }
+        // --- Phone Scanner ---
+        async function listenToScanner() {
+            scannerSessionDocRef.onSnapshot(async (snapshot) => {
+                const data = snapshot.data();
+                if (data && data.status === 'scanned' && data.purpose === 'pos') {
+                    showToast('تم استلام الباركود من الهاتف...');
+                    const productSnapshot = await db.collection('products').where('barcode', '==', data.scannedValue).get();
+                    if (!productSnapshot.empty) {
+                        const product = {id: productSnapshot.docs[0].id, ...productSnapshot.docs[0].data()};
+                        addProductToInvoice(product);
+                    } else {
+                        showToast('المنتج غير موجود!', 'error');
+                    }
+                    await scannerSessionDocRef.set({ status: 'readyForNextScan' });
+                }
+            });
+        }
+        
+        scanWithPhoneBtn.addEventListener('click', async () => {
+            try {
+                await scannerSessionDocRef.set({ status: 'scanRequested', purpose: 'pos', lastSeen: new Date() });
+                showToast('افتح كاميرا الهاتف للمسح');
+            } catch (error) { showToast('فشل طلب المسح', 'error'); }
+        });
+
+        // --- UI Helpers & Event Listeners ---
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => { toast.classList.add('show'); }, 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => { toast.remove(); }, 300);
+            }, 3000);
+        }
+        
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        productSearchInput.addEventListener('keyup', (e) => handleProductSearch(e.target.value.trim()));
+        customerSearchInput.addEventListener('keyup', (e) => handleCustomerSearch(e.target.value.trim()));
+        document.addEventListener('click', (e) => { // Hide search results on outside click
+            if (!productSearchInput.contains(e.target)) productSearchResults.style.display = 'none';
+            if (!customerSearchInput.contains(e.target)) customerSearchResults.style.display = 'none';
         });
 
         discountInput.addEventListener('input', updateTotals);
         addCustomerBtn.addEventListener('click', () => openModal('customerModal'));
         completeSaleBtn.addEventListener('click', completeSale);
         
-        customerForm.addEventListener('submit', async (e) => {
+        document.getElementById('customerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const newCustomer = {
                 name: document.getElementById('customerName').value,
@@ -751,42 +544,27 @@
             };
             try {
                 const docRef = await db.collection('customers').add(newCustomer);
-                alert('تم إضافة العميل بنجاح');
+                showToast('تم إضافة العميل بنجاح');
                 closeModal('customerModal');
-                customerForm.reset();
-                await loadCustomers(); // Refresh datalist
-                customerSearchInput.value = newCustomer.name; // Select new customer
-                invoice.customerId = docRef.id;
-                invoice.customerName = newCustomer.name;
-            } catch (error) {
-                console.error("Error adding customer: ", error);
-                alert('حدث خطأ أثناء إضافة العميل');
-            }
+                document.getElementById('customerForm').reset();
+                await loadCustomers();
+                selectCustomer({id: docRef.id, ...newCustomer});
+            } catch (error) { showToast('خطأ في إضافة العميل', 'error'); }
         });
         
         paymentMethodBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 invoice.paymentMethod = btn.dataset.method;
-                // Visual feedback for selected method
-                paymentMethodBtns.forEach(b => b.classList.remove('btn-primary'));
-                btn.classList.add('btn-primary');
+                paymentMethodBtns.forEach(b => b.classList.add('inactive'));
+                btn.classList.remove('inactive');
             });
         });
         
         logoutBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            try {
-                await auth.signOut();
-                window.location.href = 'login.html';
-            } catch (error) {
-                console.error('Logout Error:', error);
-            }
+            try { await auth.signOut(); window.location.href = 'login.html'; } 
+            catch (error) { showToast('خطأ في تسجيل الخروج', 'error'); }
         });
-
-        // Modal helpers
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
     </script>
 </body>
 </html>
