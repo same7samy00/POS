@@ -8,16 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* تحسينات للخطوط والتدرجات اللونية */
-        body {
-            font-family: 'Tajawal', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: var(--bg-color);
-            display: flex;
-            min-height: 100vh;
-        }
-        
         :root {
             /* تحسين التباين للألوان */
             --primary: #2E7D32;
@@ -38,7 +28,13 @@
             box-sizing: border-box;
             font-family: 'Tajawal', sans-serif;
         }
-
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.6;
+        }
         .sidebar {
             width: 250px;
             background: #fff;
@@ -68,7 +64,6 @@
             margin-bottom: 0.5rem;
             transition: background 0.3s, color 0.3s;
         }
-        /* تحسينات للعناصر النشطة */
         .sidebar .nav-list a.active,
         .sidebar .nav-list a:hover {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
@@ -118,7 +113,6 @@
             border-radius: 8px;
             font-size: 1rem;
             background: var(--input-bg);
-            /* تحسينات للإدخال */
             border: 2px solid #ddd !important;
             transition: border 0.3s;
         }
@@ -127,7 +121,6 @@
             outline: none;
             box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
         }
-
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -135,7 +128,6 @@
             overflow-y: auto;
             flex-grow: 1;
         }
-        /* تحسينات للبطاقات */
         .product-card {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             border: 1px solid rgba(0,0,0,0.1);
@@ -144,7 +136,6 @@
             padding: 15px;
             text-align: center;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
         }
         .product-card:hover {
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
@@ -174,7 +165,6 @@
             margin-bottom: 15px;
             padding: 0 10px;
         }
-        /* تحسينات لوحة الفاتورة */
         .receipt-item {
             display: grid;
             grid-template-columns: 3fr 1fr 1fr;
@@ -198,11 +188,11 @@
         }
         .receipt-item .item-name {
             font-weight: bold;
-            font-size: 0.9rem; /* تصغير الخط */
+            font-size: 0.9rem;
             color: var(--dark);
         }
         .receipt-item .item-details {
-            font-size: 0.8rem; /* تصغير الخط */
+            font-size: 0.8rem;
             color: #777;
             margin-top: 5px;
         }
@@ -210,7 +200,7 @@
             text-align: left;
             font-weight: bold;
             color: var(--primary-dark);
-            font-size: 0.9rem; /* تصغير الخط */
+            font-size: 0.9rem;
         }
         .item-quantity-control {
             display: flex;
@@ -245,7 +235,6 @@
             padding-top: 15px;
             margin-top: auto;
         }
-        /* تحسينات لوحة الفاتورة */
         .summary-line {
             padding: 10px 0;
             border-bottom: 1px solid #eee;
@@ -270,7 +259,6 @@
             gap: 10px;
             margin-top: 15px;
         }
-        /* تحسينات للأزرار */
         .btn {
             padding: 15px;
             border-radius: 8px;
@@ -353,6 +341,21 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            padding: 4rem; /* Improved padding for the full-screen modal */
+        }
+        #paymentModal .payment-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        #paymentModal .payment-card {
+            background: var(--bg-color);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
         .modal-header {
             display: flex;
@@ -391,6 +394,7 @@
             font-size: 1rem;
             transition: all 0.3s;
             background-color: var(--input-bg);
+            border: 2px solid #ddd !important;
         }
         .form-group .btn-inline {
             width: auto;
@@ -403,6 +407,30 @@
             gap: 10px;
             margin-top: 1.5rem;
         }
+        .payment-summary-display {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .payment-summary-display h3 {
+            font-size: 1.2rem;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+        }
+        .payment-summary-display .summary-line {
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 0;
+            font-size: 1rem;
+        }
+        .payment-summary-display .total-line {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 15px;
+        }
+
 
         /* تحسينات للاستجابة على الأجهزة الصغيرة */
         @media (max-width: 768px) {
@@ -421,6 +449,12 @@
             .search-bar input,
             .search-bar button {
                 width: 100%;
+            }
+            #paymentModal .payment-grid {
+                grid-template-columns: 1fr;
+            }
+            #paymentModal .modal-content {
+                padding: 1rem;
             }
         }
     </style>
@@ -497,34 +531,42 @@
     <div id="paymentModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>إتمام البيع - اختيار العميل وطريقة الدفع</h2>
+                <h2>إتمام البيع</h2>
                 <span class="close-btn" onclick="closeModal('paymentModal')">&times;</span>
             </div>
-            <form id="paymentForm">
-                <div class="form-group">
-                    <label for="paymentMethod">طريقة الدفع:</label>
-                    <select id="paymentMethod">
-                        <option value="cash">نقدي</option>
-                        <option value="credit">آجل</option>
-                    </select>
-                </div>
-                <div class="form-group" id="customerSelectionGroup">
-                    <label for="customerSearch">بحث عن عميل أو إضافة جديد:</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="customerSearch" list="customerList" placeholder="اكتب اسم العميل...">
-                        <datalist id="customerList">
-                            </datalist>
-                        <button type="button" class="btn btn-secondary btn-inline" id="addCustomerBtn">
-                            <i class="fas fa-plus"></i> إضافة جديد
+            <div class="payment-grid">
+                <div class="payment-card">
+                    <h3>بيانات العميل</h3>
+                    <div class="form-group" id="customerSelectionGroup">
+                        <label for="customerSearch">بحث عن عميل أو إضافة جديد:</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="customerSearch" list="customerList" placeholder="اكتب اسم العميل...">
+                            <datalist id="customerList">
+                                </datalist>
+                        </div>
+                        <div id="customerDetails" style="margin-top: 10px; font-size: 0.9rem; color: var(--primary-dark);"></div>
+                        <button type="button" class="btn btn-primary" id="addCustomerBtn" style="margin-top: 10px;">
+                            <i class="fas fa-plus"></i> إضافة عميل جديد
                         </button>
                     </div>
-                    <div id="customerDetails" style="margin-top: 10px; font-size: 0.9rem; color: var(--primary-dark);"></div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button>
-                    <button type="submit" class="btn btn-primary">تأكيد الدفع</button>
+
+                <div class="payment-card">
+                    <h3>تفاصيل الدفع</h3>
+                    <div class="form-group">
+                        <label for="paymentMethod">طريقة الدفع:</label>
+                        <select id="paymentMethod">
+                            <option value="cash">نقدي</option>
+                            <option value="credit">آجل</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>المبلغ المطلوب:</label>
+                        <input type="text" id="modalTotal" readonly style="font-weight: bold; color: var(--primary-dark);">
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="confirmPaymentBtn">تأكيد الدفع</button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -593,12 +635,13 @@
 
         // Modals
         const paymentModal = document.getElementById('paymentModal');
-        const paymentForm = document.getElementById('paymentForm');
         const paymentMethodSelect = document.getElementById('paymentMethod');
         const customerList = document.getElementById('customerList');
         const customerSearchInput = document.getElementById('customerSearch');
         const customerDetailsDiv = document.getElementById('customerDetails');
         const addCustomerBtn = document.getElementById('addCustomerBtn');
+        const modalTotalInput = document.getElementById('modalTotal');
+        const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
 
         const refundModal = document.getElementById('refundModal');
         const refundBarcodeInput = document.getElementById('refundBarcodeInput');
@@ -732,7 +775,7 @@
         };
 
         const processPayment = async () => {
-            const totalAmount = parseFloat(totalSpan.textContent);
+            const totalAmount = parseFloat(modalTotalInput.value);
             const paymentMethod = paymentMethodSelect.value;
             const customerName = customerSearchInput.value;
             
@@ -818,6 +861,11 @@
         });
         
         checkoutBtn.addEventListener('click', () => {
+            if (Object.keys(currentReceiptItems).length === 0) {
+                alert('الرجاء إضافة منتجات إلى الفاتورة أولاً.');
+                return;
+            }
+            modalTotalInput.value = totalSpan.textContent;
             openModal('paymentModal');
         });
 
@@ -855,7 +903,7 @@
             changeDueSpan.textContent = `${change.toFixed(2)} EGP`;
         });
         
-        paymentForm.addEventListener('submit', (e) => {
+        confirmPaymentBtn.addEventListener('click', (e) => {
             e.preventDefault();
             processPayment();
         });
