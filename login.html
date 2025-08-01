@@ -1,164 +1,237 @@
 <!DOCTYPE html>
-<html dir="rtl">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول - نظام إدارة المحل</title>
-    <link rel="icon" href="data:,">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>نظام إدارة المحل - تسجيل الدخول</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4CAF50;
-            --primary-dark: #388E3C;
-            --error: #f44336;
-            --light: #f5f5f5;
-            --dark: #212121;
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --danger-color: #f72585;
+            --success-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
         }
-
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Tajawal', sans-serif;
         }
-
+        
         body {
-            background-color: var(--light);
+            background-color: #f5f7fa;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
-
+        
         .login-container {
-            background: white;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             width: 90%;
             max-width: 400px;
             padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             text-align: center;
+            transition: all 0.3s ease;
         }
-
-        .login-icon {
-            font-size: 3rem;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
+        
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1.5rem;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
         }
-
+        
         h1 {
-            color: var(--dark);
+            color: var(--dark-color);
             margin-bottom: 1.5rem;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
         }
-
+        
         .form-group {
             margin-bottom: 1.5rem;
             text-align: right;
         }
-
+        
         label {
             display: block;
             margin-bottom: 0.5rem;
-            color: var(--dark);
+            color: var(--dark-color);
             font-weight: 500;
         }
-
+        
         input {
             width: 100%;
-            padding: 12px 15px;
+            padding: 0.75rem 1rem;
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 1rem;
-            transition: all 0.3s;
+            transition: border 0.3s ease;
         }
-
+        
         input:focus {
-            border-color: var(--primary);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
         }
-
+        
         .btn {
             width: 100%;
-            padding: 12px;
-            background: var(--primary);
-            color: white;
+            padding: 0.75rem;
             border: none;
             border-radius: 5px;
+            background-color: var(--primary-color);
+            color: white;
             font-size: 1rem;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 0.5rem;
+            transition: background-color 0.3s ease;
         }
-
+        
         .btn:hover {
-            background: var(--primary-dark);
+            background-color: var(--secondary-color);
         }
-
+        
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
         .error-message {
-            color: var(--error);
-            margin-top: 1rem;
+            color: var(--danger-color);
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            text-align: right;
             display: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .footer-links {
+            margin-top: 1.5rem;
             font-size: 0.9rem;
         }
-
-        .connection-status {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            background: var(--error);
-            color: white;
+        
+        .footer-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
         }
-
-        .connection-status.online {
-            background: var(--primary);
+        
+        .footer-links a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+        
+        .offline-message {
+            background-color: #ffecb3;
+            color: #ff6f00;
+            padding: 0.5rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1.5rem;
+                width: 95%;
+            }
+            
+            .logo {
+                width: 80px;
+                height: 80px;
+                font-size: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 1.3rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="connection-status offline" id="connectionStatus">
-        <i class="fas fa-wifi-slash"></i> جاري التحقق من الاتصال...
-    </div>
-
     <div class="login-container">
-        <div class="login-icon">
-            <i class="fas fa-store-alt"></i>
-        </div>
+        <div class="logo">ن</div>
         <h1>تسجيل الدخول إلى النظام</h1>
+        
+        <div class="offline-message" id="offlineAlert">
+            أنت تعمل في وضع عدم الاتصال. سيتم مزامنة البيانات عند عودة الاتصال.
+        </div>
         
         <form id="loginForm">
             <div class="form-group">
-                <label for="email"><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
-                <input type="email" id="email" required placeholder="example@domain.com">
+                <label for="email">البريد الإلكتروني</label>
+                <input type="email" id="email" required placeholder="أدخل بريدك الإلكتروني">
+                <div class="error-message" id="emailError">البريد الإلكتروني غير صحيح</div>
             </div>
             
             <div class="form-group">
-                <label for="password"><i class="fas fa-lock"></i> كلمة المرور</label>
+                <label for="password">كلمة المرور</label>
                 <input type="password" id="password" required placeholder="أدخل كلمة المرور">
+                <div class="error-message" id="passwordError">كلمة المرور يجب أن تكون 6 أحرف على الأقل</div>
             </div>
             
-            <div class="error-message" id="errorMessage"></div>
-            
             <button type="submit" class="btn" id="loginBtn">
-                <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+                <span id="btnText">تسجيل الدخول</span>
             </button>
         </form>
+        
+        <div class="footer-links">
+            <a href="#" id="forgotPassword">نسيت كلمة المرور؟</a>
+            <span> | </span>
+            <a href="#" id="createAccount">إنشاء حساب جديد</a>
+        </div>
     </div>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            sendPasswordResetEmail,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc,
+            enableIndexedDbPersistence 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    <script>
-        // التهيئة والإعدادات
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
             authDomain: "supplies-system.firebaseapp.com",
@@ -170,97 +243,172 @@
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // عناصر واجهة المستخدم
+        // Enable offline persistence
+        enableIndexedDbPersistence(db)
+            .catch((err) => {
+                if (err.code === 'failed-precondition') {
+                    console.log("Offline persistence can only be enabled in one tab at a time.");
+                } else if (err.code === 'unimplemented') {
+                    console.log("The current browser does not support offline persistence.");
+                }
+            });
+
+        // Check online/offline status
+        function updateOnlineStatus() {
+            const offlineAlert = document.getElementById('offlineAlert');
+            if (navigator.onLine) {
+                offlineAlert.style.display = 'none';
+            } else {
+                offlineAlert.style.display = 'block';
+            }
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
+
+        // DOM elements
         const loginForm = document.getElementById('loginForm');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
-        const errorElement = document.getElementById('errorMessage');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
         const loginBtn = document.getElementById('loginBtn');
-        const connectionStatus = document.getElementById('connectionStatus');
+        const btnText = document.getElementById('btnText');
+        const forgotPasswordLink = document.getElementById('forgotPassword');
+        const createAccountLink = document.getElementById('createAccount');
 
-        // حالات الاتصال
-        function updateConnectionStatus() {
-            if (navigator.onLine) {
-                connectionStatus.innerHTML = '<i class="fas fa-wifi"></i> متصل بالإنترنت';
-                connectionStatus.className = 'connection-status online';
-            } else {
-                connectionStatus.innerHTML = '<i class="fas fa-wifi-slash"></i> غير متصل بالإنترنت';
-                connectionStatus.className = 'connection-status offline';
+        // Form validation
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        function validatePassword(password) {
+            return password.length >= 6;
+        }
+
+        // Login function
+        async function login(email, password) {
+            try {
+                loginBtn.disabled = true;
+                btnText.innerHTML = '<span class="loading"></span> جاري تسجيل الدخول...';
+                
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Check user role in Firestore
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    if (userData.role === 'admin' || userData.role === 'employee') {
+                        // Redirect to dashboard
+                        window.location.href = "dashboard.html";
+                    } else {
+                        throw new Error("ليس لديك صلاحية الدخول للنظام");
+                    }
+                } else {
+                    throw new Error("بيانات المستخدم غير موجودة");
+                }
+            } catch (error) {
+                loginBtn.disabled = false;
+                btnText.textContent = 'تسجيل الدخول';
+                
+                let errorMessage = "حدث خطأ أثناء تسجيل الدخول";
+                if (error.code === 'auth/invalid-email') {
+                    errorMessage = "البريد الإلكتروني غير صحيح";
+                    emailError.textContent = errorMessage;
+                    emailError.style.display = 'block';
+                } else if (error.code === 'auth/user-not-found') {
+                    errorMessage = "لا يوجد حساب بهذا البريد الإلكتروني";
+                    emailError.textContent = errorMessage;
+                    emailError.style.display = 'block';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = "كلمة المرور غير صحيحة";
+                    passwordError.textContent = errorMessage;
+                    passwordError.style.display = 'block';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = "تم تجاوز عدد المحاولات المسموح بها، حاول مرة أخرى لاحقاً";
+                    passwordError.textContent = errorMessage;
+                    passwordError.style.display = 'block';
+                } else {
+                    errorMessage = error.message || "حدث خطأ غير متوقع";
+                    alert(errorMessage);
+                }
             }
         }
 
-        // تحويل أكواد الخطأ إلى رسائل واضحة
-        function getAuthErrorMessage(errorCode) {
-            const messages = {
-                'auth/invalid-email': 'صيغة البريد الإلكتروني غير صحيحة',
-                'auth/user-disabled': 'هذا الحساب معطل',
-                'auth/user-not-found': 'لا يوجد حساب مرتبط بهذا البريد',
-                'auth/wrong-password': 'كلمة المرور غير صحيحة',
-                'auth/too-many-requests': 'محاولات دخول كثيرة، حاول لاحقاً',
-                'auth/network-request-failed': 'خطأ في الاتصال بالشبكة'
-            };
-            return messages[errorCode] || 'حدث خطأ غير متوقع أثناء تسجيل الدخول';
-        }
-
-        // تسجيل الدخول
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-            
-            // التحقق الأساسي من المدخلات
-            if (!email || !password) {
-                errorElement.textContent = 'جميع الحقول مطلوبة';
-                errorElement.style.display = 'block';
+        // Forgot password function
+        async function resetPassword(email) {
+            if (!validateEmail(email)) {
+                emailError.textContent = "الرجاء إدخال بريد إلكتروني صحيح";
+                emailError.style.display = 'block';
                 return;
             }
 
-            // تعطيل الزر أثناء المحاولة
-            loginBtn.disabled = true;
-            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تسجيل الدخول...';
-            errorElement.style.display = 'none';
-
             try {
-                // محاولة تسجيل الدخول
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                
-                // تخزين بيانات الجلسة
-                localStorage.setItem('currentUser', JSON.stringify({
-                    uid: userCredential.user.uid,
-                    email: userCredential.user.email,
-                    lastLogin: new Date().toISOString()
-                }));
-                
-                // التوجيه إلى الصفحة الرئيسية
-                window.location.href = 'index.html';
-                
+                await sendPasswordResetEmail(auth, email);
+                alert("تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني");
             } catch (error) {
-                // معالجة الأخطاء
-                errorElement.textContent = getAuthErrorMessage(error.code);
-                errorElement.style.display = 'block';
-                console.error('Login error:', error);
-                
-            } finally {
-                // إعادة تمكين الزر
-                loginBtn.disabled = false;
-                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> تسجيل الدخول';
+                let errorMessage = "حدث خطأ أثناء إرسال رابط إعادة التعيين";
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = "لا يوجد حساب مسجل بهذا البريد الإلكتروني";
+                }
+                alert(errorMessage);
+            }
+        }
+
+        // Event listeners
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Reset error messages
+            emailError.style.display = 'none';
+            passwordError.style.display = 'none';
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            let isValid = true;
+            
+            if (!validateEmail(email)) {
+                emailError.style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!validatePassword(password)) {
+                passwordError.style.display = 'block';
+                isValid = false;
+            }
+            
+            if (isValid) {
+                login(email, password);
             }
         });
 
-        // التهيئة الأولية
-        updateConnectionStatus();
-        window.addEventListener('online', updateConnectionStatus);
-        window.addEventListener('offline', updateConnectionStatus);
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const email = prompt("الرجاء إدخال بريدك الإلكتروني لإرسال رابط إعادة تعيين كلمة المرور:");
+            if (email) {
+                resetPassword(email);
+            }
+        });
 
-        // التحقق التلقائي من حالة المستخدم
-        auth.onAuthStateChanged((user) => {
-            if (user && window.location.pathname.endsWith('login.html')) {
-                window.location.href = 'index.html';
+        createAccountLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert("يجب على المدير إنشاء الحسابات للموظفين من لوحة التحكم");
+        });
+
+        // Check auth state
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in, redirect to dashboard
+                window.location.href = "dashboard.html";
             }
         });
     </script>
