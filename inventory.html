@@ -6,6 +6,7 @@
     <title>إدارة المخزون - نظام إدارة المحل</title>
     <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -322,6 +323,12 @@
             max-width: 500px;
             height: auto;
         }
+        
+        #connectPhoneModal img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 1rem;
+        }
 
         @keyframes pulse-success {
             0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
@@ -333,9 +340,9 @@
         }
 
         @keyframes pulse-waiting {
-            0% { background: #ccc; }
-            50% { background: var(--warning); }
-            100% { background: #ccc; }
+            0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4); }
+            50% { box-shadow: 0 0 10px 5px rgba(255, 152, 0, 0.8); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4); }
         }
         .btn-waiting {
             animation: pulse-waiting 1s infinite;
@@ -516,7 +523,7 @@
             <p>امسح الكود التالي بهاتفك لربطه بالكمبيوتر:</p>
             <img id="qrCodeImage" src="" alt="QR Code">
             <p style="margin-top: 1rem; font-size: 0.9rem;">
-                <i class="fas fa-info-circle"></i> هذا الربط يتم لمرة واحدة فقط. بعد المسح، يمكن الضغط على زر "مسح بالهاتف" مباشرة من الكمبيوتر ليقوم بفتح الكاميرا في صفحة الهاتف تلقائياً.
+                <i class="fas fa-info-circle"></i> هذا الربط يتم لمرة واحدة فقط. بعد المسح، يمكنك الضغط على زر "مسح بالهاتف" مباشرة من الكمبيوتر ليقوم بفتح الكاميرا في صفحة الهاتف تلقائياً.
             </p>
         </div>
     </div>
@@ -534,13 +541,13 @@
 
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
-            authDomain: "supplies-system.firebaseapp.com",
-            projectId: "supplies-system",
-            storageBucket: "supplies-system.appspot.com",
-            messagingSenderId: "205884975863",
-            appId: "1:205884975863:web:de65d32c2459f9979ac1f2",
-            measurementId: "G-2KSYJRKSCX"
+            apiKey: "AIzaSyC5ls-rPdJ65x5BoMGwAOpdcPtD585C2ys",
+            authDomain: "pharmacy-inventory-bf04a.firebaseapp.com",
+            projectId: "pharmacy-inventory-bf04a",
+            storageBucket: "pharmacy-inventory-bf04a.firebasestorage.app",
+            messagingSenderId: "937788650384",
+            appId: "1:937788650384:web:6451225d00e648f3a0b915",
+            measurementId: "G-ZGC9EQ55SL"
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -813,16 +820,12 @@
         // وظيفة المسح بالهاتف (الجهاز المنفصل)
         // ===========================================
         scanWithPhoneBtn.addEventListener('click', async () => {
-            const pathParts = window.location.pathname.split('/');
-            const subPath = pathParts.length > 2 ? `/${pathParts[1]}/` : '/';
-            const scanUrl = `${window.location.origin}${subPath}mobile-scanner.html`;
-            
             // التحقق مما إذا كان الجهاز مرتبطًا بالفعل
             if (!localStorage.getItem('phoneLinked')) {
                 openModal('connectPhoneModal');
                 const sessionId = userSessionId;
                 
-                const linkingUrl = `${scanUrl}?sessionId=${sessionId}`;
+                const linkingUrl = `https://same7samy00.github.io/POS/mobile-scanner.html?sessionId=${sessionId}`;
                 
                 QRCode.toDataURL(linkingUrl, function (err, url) {
                     if (!err) {
@@ -831,26 +834,27 @@
                 });
                 
                 // الاستماع لجلسة المستخدم
-                phoneSessionListener = db.collection('phoneSessions').doc(sessionId).onSnapshot(doc => {
+                phoneSessionListener = db.collection('scannerSessions').doc(sessionId).onSnapshot(doc => {
                     const sessionData = doc.data();
-                    if (sessionData && sessionData.linked) {
+                    if (sessionData && sessionData.status === 'phoneReady') {
                         localStorage.setItem('phoneLinked', 'true');
                         closeModal('connectPhoneModal');
                         phoneSessionListener();
-                        doc.ref.delete();
                         alert('تم ربط الهاتف بنجاح! الآن يمكنك الضغط على "مسح بالهاتف" لتفعيل المسح.');
+                        // إزالة جلسة الربط فقط، الجلسة الرئيسية ستظل
+                        doc.ref.delete();
                     }
                 });
             } else {
                 scanWithPhoneBtn.classList.add('btn-waiting');
-                const phoneRef = db.collection('phoneSessions').doc(userSessionId);
-                await phoneRef.set({ command: 'scan', timestamp: new Date() });
+                const phoneRef = db.collection('scannerSessions').doc(userSessionId);
+                await phoneRef.set({ status: 'scanRequested', purpose: 'search', lastSeen: new Date() });
 
                 phoneSessionListener = phoneRef.onSnapshot(doc => {
                     const sessionData = doc.data();
-                    if (sessionData && sessionData.barcode) {
-                        searchInput.value = sessionData.barcode;
-                        performSearch(sessionData.barcode);
+                    if (sessionData && sessionData.status === 'scanned') {
+                        searchInput.value = sessionData.scannedValue;
+                        performSearch(sessionData.scannedValue);
                         scanWithPhoneBtn.classList.remove('btn-waiting');
                         phoneSessionListener();
                         doc.ref.delete();
@@ -871,7 +875,6 @@
                 console.error('Logout Error:', error);
             }
         });
-
     </script>
 </body>
 </html>
