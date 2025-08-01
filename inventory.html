@@ -175,37 +175,36 @@
             background-color: #d32f2f;
         }
 
-        .btn-warning {
-            background-color: var(--warning);
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
         }
 
-        .btn-warning:hover {
-            background-color: #e68a00;
-        }
-
-        .products-table {
-            width: 100%;
+        .table-container {
             background: #fff;
+            padding: 1.5rem;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
             border-collapse: collapse;
-        }
-
-        .products-table th,
-        .products-table td {
-            padding: 1rem;
             text-align: right;
+        }
+
+        table thead {
+            background-color: #f8f9fa;
+        }
+
+        table th, table td {
+            padding: 1rem;
             border-bottom: 1px solid #eee;
+            white-space: nowrap;
         }
-
-        .products-table th {
-            background-color: var(--primary);
-            color: white;
-            font-weight: 500;
-        }
-
-        .products-table tr:hover {
+        
+        table tr:hover {
             background-color: rgba(76, 175, 80, 0.05);
         }
 
@@ -468,12 +467,6 @@
         </div>
         <ul class="nav-list">
             <li>
-                <a href="dashboard.html">
-                    <i class="fas fa-chart-line"></i>
-                    <span>لوحة التحكم</span>
-                </a>
-            </li>
-            <li>
                 <a href="inventory.html" class="active">
                     <i class="fas fa-boxes"></i>
                     <span>إدارة المخزون</span>
@@ -504,7 +497,7 @@
                 </a>
             </li>
             <li>
-                <a href="#" id="logoutBtn">
+                <a href="index.html" id="logoutBtn">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>تسجيل الخروج</span>
                 </a>
@@ -529,19 +522,13 @@
                 <button class="btn" id="addProductBtn">
                     <i class="fas fa-plus"></i> إضافة منتج
                 </button>
-                <button class="btn btn-secondary" id="importBtn">
-                    <i class="fas fa-file-import"></i> استيراد
-                </button>
-                <button class="btn btn-secondary" id="exportBtn">
-                    <i class="fas fa-file-export"></i> تصدير
-                </button>
                 <button class="btn btn-warning" id="scanBarcodeBtn">
                     <i class="fas fa-barcode"></i> مسح باركود
                 </button>
             </div>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-container">
             <table class="products-table">
                 <thead>
                     <tr>
@@ -557,7 +544,6 @@
                     </tr>
                 </thead>
                 <tbody id="productsTableBody">
-                    <!-- سيتم ملؤها بالبيانات من Firebase -->
                     <tr>
                         <td colspan="9" style="text-align: center;">جاري تحميل البيانات...</td>
                     </tr>
@@ -565,16 +551,8 @@
             </table>
         </div>
 
-        <div class="pagination">
-            <button id="prevPageBtn"><i class="fas fa-chevron-right"></i></button>
-            <button class="active">1</button>
-            <button>2</button>
-            <button>3</button>
-            <button id="nextPageBtn"><i class="fas fa-chevron-left"></i></button>
-        </div>
     </div>
 
-    <!-- Modal لإضافة/تعديل منتج -->
     <div class="modal" id="productModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -628,7 +606,7 @@
                         <label for="productUnit">وحدة القياس</label>
                         <select id="productUnit">
                             <option value="piece">قطعة</option>
-                            <option value="kg">كيلوغرام</option>
+                            <option value="kg">كجم</option>
                             <option value="liter">لتر</option>
                             <option value="box">علبة</option>
                             <option value="pack">كرتونة</option>
@@ -657,7 +635,6 @@
         </div>
     </div>
 
-    <!-- Modal لمسح الباركود -->
     <div class="modal" id="barcodeModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -680,25 +657,28 @@
             </div>
         </div>
     </div>
+    
+    <div id="barcodeSvgContainer" style="display: none;"></div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/@zxing/library@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
 
     <script>
         // التهيئة والإعدادات
         const firebaseConfig = {
-            apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
-            authDomain: "supplies-system.firebaseapp.com",
-            projectId: "supplies-system",
-            storageBucket: "supplies-system.appspot.com",
-            messagingSenderId: "205884975863",
-            appId: "1:205884975863:web:de65d32c2459f9979ac1f2",
-            measurementId: "G-2KSYJRKSCX"
+            apiKey: "AIzaSyC5ls-rPdJ65x5BoMGwAOpdcPtD585C2ys",
+            authDomain: "pharmacy-inventory-bf04a.firebaseapp.com",
+            projectId: "pharmacy-inventory-bf04a",
+            storageBucket: "pharmacy-inventory-bf04a.firebasestorage.app",
+            messagingSenderId: "937788650384",
+            appId: "1:937788650384:web:6451225d00e648f3a0b915",
+            measurementId: "G-ZGC9EQ55SL"
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -740,7 +720,7 @@
         // التحقق من حالة المستخدم
         auth.onAuthStateChanged(user => {
             if (!user) {
-                window.location.href = 'login.html';
+                window.location.href = 'index.html';
             } else {
                 currentUser = user;
                 loadProducts();
@@ -929,7 +909,7 @@
             const productImage = document.getElementById('productImage').files[0];
             
             // التحقق من صحة البيانات
-            if (!productName || isNaN(productPrice) {
+            if (!productName || isNaN(productPrice) || isNaN(productQuantity)) {
                 alert('الرجاء إدخال البيانات المطلوبة بشكل صحيح');
                 return;
             }
@@ -1077,7 +1057,7 @@
         // تسجيل الخروج
         document.getElementById('logoutBtn').addEventListener('click', () => {
             auth.signOut().then(() => {
-                window.location.href = 'login.html';
+                window.location.href = 'index.html';
             });
         });
     </script>
