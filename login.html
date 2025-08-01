@@ -154,9 +154,9 @@
     </div>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <script>
         // Firebase Configuration
@@ -171,9 +171,9 @@
         };
 
         // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.getAuth(app);
-        const db = firebase.getFirestore(app);
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
         // إدارة حالة الاتصال
         function updateConnectionStatus() {
@@ -199,7 +199,7 @@
             
             try {
                 const email = `${username}@store.com`;
-                await firebase.signInWithEmailAndPassword(auth, email, password);
+                await firebase.auth().signInWithEmailAndPassword(email, password);
                 
                 // حفظ بيانات المستخدم محلياً للعمل Offline
                 localStorage.setItem('currentUser', JSON.stringify({
@@ -226,24 +226,6 @@
                     alert('تم حفظ بيانات الدخول محلياً، سيتم المزامنة عند عودة الاتصال');
                     window.location.href = 'index.html';
                 }
-            }
-        });
-
-        // التحقق من المحاولات المحفوظة عند عودة الاتصال
-        window.addEventListener('online', async () => {
-            updateConnectionStatus();
-            const pendingAuth = JSON.parse(localStorage.getItem('pendingAuth') || '[]');
-            
-            if (pendingAuth.length > 0) {
-                for (const attempt of pendingAuth) {
-                    try {
-                        const email = `${attempt.username}@store.com`;
-                        await firebase.signInWithEmailAndPassword(auth, email, 'password');
-                    } catch (error) {
-                        console.error('Sync error:', error);
-                    }
-                }
-                localStorage.removeItem('pendingAuth');
             }
         });
 
