@@ -154,7 +154,6 @@
             color: var(--primary-dark);
             font-weight: bold;
         }
-
         .receipt-header {
             text-align: center;
             border-bottom: 1px dashed var(--border-color);
@@ -230,13 +229,11 @@
             width: 30px;
             text-align: center;
         }
-        
         .receipt-summary {
             border-top: 1px dashed var(--border-color);
             padding-top: 15px;
             margin-top: auto;
         }
-
         .summary-line {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -248,11 +245,6 @@
         .summary-line:last-of-type {
             border-bottom: none;
         }
-
-        .summary-line span {
-            font-size: 1rem;
-        }
-
         .summary-line input {
             padding: 8px;
             border: 2px solid #ddd !important;
@@ -266,13 +258,11 @@
             border-color: var(--primary) !important;
             box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
         }
-        
         .summary-line .input-container {
             display: flex;
             align-items: center;
             gap: 5px;
         }
-
         .summary-total {
             font-weight: 700;
             color: var(--primary);
@@ -280,12 +270,9 @@
             padding-top: 15px;
             border-top: 2px dashed #ddd;
         }
-
-        /* Color for negative change due */
-        .summary-total .change-due-negative {
+        .change-due-negative {
             color: var(--error);
         }
-
         .pos-actions {
             display: flex;
             flex-direction: column;
@@ -456,6 +443,49 @@
                 grid-template-columns: 1fr 150px;
             }
         }
+        /* Print Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #receiptToPrint, #receiptToPrint * {
+                visibility: visible;
+            }
+            #receiptToPrint {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 80mm;
+                padding: 10mm;
+                font-family: 'Tajawal', sans-serif;
+                font-size: 12px;
+                color: #000;
+            }
+            #receiptToPrint h3, #receiptToPrint h4 {
+                text-align: center;
+                margin: 0;
+            }
+            #receiptToPrint .receipt-header, #receiptToPrint .receipt-footer {
+                border-top: 1px dashed #000;
+                padding-top: 5mm;
+                margin-top: 5mm;
+            }
+            #receiptToPrint .receipt-item {
+                display: flex;
+                justify-content: space-between;
+                padding: 2mm 0;
+            }
+            #receiptToPrint .receipt-item .item-details {
+                font-size: 10px;
+            }
+            #receiptToPrint .summary-line {
+                display: flex;
+                justify-content: space-between;
+            }
+            #receiptToPrint .summary-total {
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -497,13 +527,17 @@
                     </div>
                     <div class="summary-line input-group">
                         <span>الخصم:</span>
-                        <input type="number" id="discountInput" value="0" min="0" step="0.01">
-                        <span>EGP</span>
+                        <div class="input-container">
+                            <input type="number" id="discountInput" value="0" min="0" step="0.01">
+                            <span>EGP</span>
+                        </div>
                     </div>
                     <div class="summary-line input-group">
                         <span>الضريبة:</span>
-                        <input type="number" id="taxInput" value="0" min="0" step="0.01">
-                        <span>EGP</span>
+                        <div class="input-container">
+                            <input type="number" id="taxInput" value="0" min="0" step="0.01">
+                            <span>EGP</span>
+                        </div>
                     </div>
                     <div class="summary-line">
                         <span>الإجمالي بعد الخصم والضريبة:</span>
@@ -511,8 +545,10 @@
                     </div>
                     <div class="summary-line input-group">
                         <span>المبلغ المستلم:</span>
-                        <input type="number" id="amountReceived" value="0" min="0" step="0.01">
-                        <span>EGP</span>
+                        <div class="input-container">
+                            <input type="number" id="amountReceived" value="0" min="0" step="0.01">
+                            <span>EGP</span>
+                        </div>
                     </div>
                     <div class="summary-line summary-total">
                         <span>المبلغ المتبقي:</span>
@@ -545,10 +581,8 @@
                 </div>
                 <div class="form-group" id="customerSelectionGroup">
                     <label for="customerSearch">بحث عن عميل:</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="customerSearch" list="customerList" placeholder="اكتب اسم العميل...">
-                        <datalist id="customerList"></datalist>
-                    </div>
+                    <input type="text" id="customerSearch" list="customerList" placeholder="اكتب اسم العميل...">
+                    <datalist id="customerList"></datalist>
                     <div id="customerDetails" style="margin-top: 10px; font-size: 0.9rem; color: var(--primary-dark);"></div>
                 </div>
                 <div class="modal-footer">
@@ -599,7 +633,7 @@
         const changeDueSpan = document.getElementById('changeDue');
         const checkoutBtn = document.getElementById('checkoutBtn');
         const clearBtn = document.getElementById('clearBtn');
-
+        
         // Scanner Buttons
         const scanWithPhoneBtn = document.getElementById('scanWithPhoneBtn');
 
@@ -712,7 +746,6 @@
             updateReceipt();
         };
         
-        // Updated calculateTotals function
         const calculateTotals = (subtotal) => {
             const discountAmount = parseFloat(discountInput.value) || 0;
             const taxAmount = parseFloat(taxInput.value) || 0;
@@ -784,10 +817,86 @@
             
             await db.collection('sales').add(sale);
             showToast('تم إتمام عملية البيع بنجاح!');
+            printReceipt(sale);
             clearReceipt();
             closeModal('paymentModal');
         };
-        
+
+        const printReceipt = (sale) => {
+            const receiptWindow = window.open('', '_blank');
+            const receiptContent = `
+                <div id="receiptToPrint" style="width: 80mm; padding: 10mm; font-family: 'Tajawal', sans-serif; font-size: 12px; color: #000;">
+                    <h3 style="text-align: center; margin: 0;">نظام إدارة المحل</h3>
+                    <h4 style="text-align: center; margin: 5mm 0;">فاتورة مبيعات</h4>
+                    <div style="margin-top: 10mm; border-top: 1px dashed #000; padding-top: 5mm;">
+                        <p style="text-align: right;"><strong>التاريخ:</strong> ${new Date(sale.timestamp.seconds * 1000).toLocaleString('ar-EG')}</p>
+                        ${sale.customerId ? `<p style="text-align: right;"><strong>العميل:</strong> ${allCustomers.find(c => c.id === sale.customerId)?.name || 'غير محدد'}</p>` : ''}
+                    </div>
+                    <div style="margin-top: 10mm; border-top: 1px dashed #000; padding-top: 5mm;">
+                        <div style="display: flex; justify-content: space-between; font-weight: bold; padding-bottom: 5px; border-bottom: 1px solid #ccc;">
+                            <span>المنتج</span>
+                            <span>الإجمالي</span>
+                        </div>
+                        ${Object.values(sale.items).map(item => `
+                            <div style="display: flex; justify-content: space-between; padding: 2mm 0;">
+                                <div style="display: flex; flex-direction: column; text-align: right;">
+                                    <span>${item.name}</span>
+                                    <span style="font-size: 10px; color: #555;">${item.quantity} x ${item.price.toFixed(2)} EGP</span>
+                                </div>
+                                <span style="font-weight: bold; white-space: nowrap;">${(item.quantity * item.price).toFixed(2)} EGP</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="margin-top: 10mm; border-top: 1px dashed #000; padding-top: 5mm;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>الإجمالي الفرعي:</span>
+                            <span>${sale.subtotal.toFixed(2)} EGP</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>الخصم:</span>
+                            <span>${sale.discount.toFixed(2)} EGP</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>الضريبة:</span>
+                            <span>${sale.tax.toFixed(2)} EGP</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-top: 5mm;">
+                            <span>الإجمالي الكلي:</span>
+                            <span>${sale.total.toFixed(2)} EGP</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10mm; border-top: 1px dashed #000; padding-top: 5mm; text-align: center;">
+                        <p>شكراً لزيارتكم!</p>
+                    </div>
+                </div>
+            `;
+            receiptWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>فاتورة</title>
+                    <style>
+                        @media print {
+                            @page { size: 80mm auto; margin: 0; }
+                            body { margin: 0; }
+                            #receiptToPrint { box-shadow: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${receiptContent}
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            window.close();
+                        };
+                    </script>
+                </body>
+                </html>
+            `);
+            receiptWindow.document.close();
+        };
+
         const showToast = (message, type = 'success') => {
             const toast = document.createElement('div');
             const iconClass = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
