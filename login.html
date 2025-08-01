@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول - نظام إدارة المحل</title>
+    <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #4CAF50;
             --primary-dark: #388E3C;
-            --error: #f44336;
             --light: #f5f5f5;
             --dark: #212121;
             --bg-color: #eef1f5;
+            --card-bg: #ffffff;
+            --border-color: #ddd;
+            --error-color: #f44336;
         }
 
         * {
@@ -24,109 +27,134 @@
         }
 
         body {
-            background-color: var(--bg-color);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            background-color: var(--bg-color);
             color: var(--dark);
         }
 
         .login-container {
-            background: white;
-            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            background-color: var(--card-bg);
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 450px;
             text-align: center;
         }
 
-        .logo {
+        .login-container h2 {
             font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-container p {
+            color: #777;
+            margin-bottom: 2rem;
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
             text-align: right;
+            margin-bottom: 1.5rem;
+            position: relative;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
-            color: var(--dark);
             font-weight: 500;
         }
 
         .form-group input {
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
+            padding: 12px 15px 12px 40px; /* Adjust padding for icon */
+            border: 1px solid var(--border-color);
             border-radius: 5px;
             font-size: 1rem;
             transition: all 0.3s;
         }
 
-        .btn {
-            padding: 12px 20px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s;
-            width: 100%;
+        .form-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+            outline: none;
         }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
+        
+        .form-group .fas {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            pointer-events: none;
         }
 
         .error-message {
-            color: var(--error);
-            margin-top: 1rem;
-            text-align: center;
+            color: var(--error-color);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
         }
 
-        @media (max-width: 768px) {
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--primary);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-login:hover {
+            background-color: var(--primary-dark);
+        }
+
+        @media (max-width: 480px) {
             .login-container {
-                padding: 1.5rem;
                 margin: 1rem;
+                padding: 1.5rem;
+            }
+            .login-container h2 {
+                font-size: 1.5rem;
+            }
+            .btn-login {
+                font-size: 1rem;
+                padding: 12px;
             }
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="logo">نظام إدارة المحل</div>
+        <h2>نظام إدارة المحل</h2>
+        <p>الرجاء تسجيل الدخول للمتابعة</p>
+        
         <form id="loginForm">
             <div class="form-group">
-                <label for="email"><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
+                <label for="email">البريد الإلكتروني</label>
                 <input type="email" id="email" required>
+                <i class="fas fa-envelope"></i>
             </div>
             <div class="form-group">
-                <label for="password"><i class="fas fa-lock"></i> كلمة المرور</label>
+                <label for="password">كلمة المرور</label>
                 <input type="password" id="password" required>
+                <i class="fas fa-lock"></i>
             </div>
-            <button type="submit" class="btn btn-primary">تسجيل الدخول</button>
             <div id="errorMessage" class="error-message"></div>
+            <button type="submit" class="btn-login">تسجيل الدخول</button>
         </form>
     </div>
 
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
-
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script>
         // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
@@ -139,45 +167,57 @@
         };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const analytics = getAnalytics(app);
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
 
-        // تسجيل الدخول
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorMessage = document.getElementById('errorMessage');
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const errorMessage = document.getElementById('errorMessage');
 
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                // تسجيل الدخول ناجح
-                window.location.href = 'inventory.html'; // توجيه إلى صفحة إدارة المخزون
-            } catch (error) {
-                console.error('Login Error:', error);
-                let message = 'حدث خطأ أثناء تسجيل الدخول';
-                
-                if (error.code === 'auth/invalid-email') {
-                    message = 'البريد الإلكتروني غير صحيح';
-                } else if (error.code === 'auth/user-not-found') {
-                    message = 'المستخدم غير موجود';
-                } else if (error.code === 'auth/wrong-password') {
-                    message = 'كلمة المرور غير صحيحة';
-                }
-                
-                errorMessage.textContent = message;
-            }
-        });
-
-        // تتبع حالة المصادقة
+        // Check if user is already logged in
         auth.onAuthStateChanged(user => {
             if (user) {
-                // إذا كان المستخدم مسجل الدخول، توجيه إلى الصفحة الرئيسية
+                // User is signed in, redirect to inventory page
                 window.location.href = 'inventory.html';
             }
         });
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed in successfully
+                    const user = userCredential.user;
+                    console.log("User signed in:", user);
+                    window.location.href = 'inventory.html';
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const message = getErrorMessage(errorCode);
+                    errorMessage.textContent = message;
+                    errorMessage.style.display = 'block';
+                    console.error("Login Error:", errorCode);
+                });
+        });
+
+        function getErrorMessage(errorCode) {
+            switch (errorCode) {
+                case 'auth/invalid-email':
+                    return 'البريد الإلكتروني الذي أدخلته غير صالح.';
+                case 'auth/user-not-found':
+                    return 'لا يوجد مستخدم بهذا البريد الإلكتروني.';
+                case 'auth/wrong-password':
+                    return 'كلمة المرور غير صحيحة.';
+                case 'auth/user-disabled':
+                    return 'تم تعطيل حسابك. الرجاء التواصل مع الدعم.';
+                default:
+                    return 'حدث خطأ أثناء تسجيل الدخول. الرجاء المحاولة مرة أخرى.';
+            }
+        }
     </script>
 </body>
 </html>
