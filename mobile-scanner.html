@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ماسح الباركود - نظام إدارة المحل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --dark: #212121;
+        }
+        
+        * {
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--dark);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        #scanner-container {
+            position: relative;
+            width: 90%;
+            max-width: 400px;
+            height: 300px;
+            background-color: black;
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        #scanner-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #status {
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        #error-message {
+            color: #f44336;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>ماسح الباركود</h1>
+    <div id="scanner-container">
+        <video id="video"></video>
+    </div>
+    <div id="status">
+        <i class="fas fa-spinner fa-spin"></i> جاري تهيئة الكاميرا...
+    </div>
+    <div id="error-message"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.18.6/umd/index.min.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
+            authDomain: "supplies-system.firebaseapp.com",
+            projectId: "supplies-system",
+            storageBucket: "supplies-system.appspot.com",
+            messagingSenderId: "205884975863",
+            appId: "1:205884975863:web:de65d32c2459f9979ac1f2",
+            measurementId: "G-2KSYJRKSCX"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const videoElement = document.getElementById('video');
+        const statusElement = document.getElementById('status');
+        const errorMessageElement = document.getElementById('error-message');
+
+        const codeReader = new ZXing.BrowserMultiFormatReader();
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('sessionId');
+
+        if (!sessionId) {
+            errorMessageElement.textContent = 'خطأ: لم يتم العثور على معرّف جلسة المسح.';
+        } else {
+            startScanning();
+        }
+
+        function startScanning() {
+            codeReader.getVideoInputDevices().then(videoInputDevices => {
+                const selectedDeviceId = videoInputDevices[0].deviceId;
+                statusElement.innerHTML = '<i class="fas fa-camera"></i> جاهز للمسح...';
+                
+                codeReader.decodeFromVideoDevice(selectedDeviceId, videoElement, (result, err) => {
+                    if (result) {
+                        handleScanResult(result.text);
+                    }
+                    if (err && !(err instanceof ZXing.NotFoundException)) {
+                        console.error(err);
+                        errorMessageElement.textContent = 'حدث خطأ أثناء المسح. حاول مرة أخرى.';
+                    }
+                });
+            }).catch(err => {
+                console.error(err);
+                errorMessageElement.textContent = 'فشل الوصول إلى الكاميرا. تأكد من إعطاء الصلاحيات.';
+            });
+        }
+
+        async function handleScanResult(barcode) {
+            codeReader.reset();
+            statusElement.innerHTML = `<i class="fas fa-check-circle"></i> تم المسح بنجاح! الباركود: ${barcode}`;
+            
+            try {
+                await db.collection('scanSessions').doc(sessionId).update({
+                    barcode: barcode,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                // يمكن إغلاق النافذة تلقائياً بعد فترة
+                setTimeout(() => window.close(), 2000);
+            } catch (error) {
+                console.error('Error sending scan result to Firestore:', error);
+                errorMessageElement.textContent = 'حدث خطأ في إرسال النتيجة. حاول مرة أخرى.';
+            }
+        }
+    </script>
+</body>
+</html>
