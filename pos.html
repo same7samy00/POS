@@ -121,35 +121,25 @@
         }
         .product-card {
             background-color: var(--light);
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 8px;
+            padding: 15px;
             text-align: center;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            background-color: #e0e0e0;
-        }
-        .product-card .product-icon {
-            font-size: 2.5rem;
-            color: var(--primary);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         .product-card h4 {
             margin-top: 10px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--dark);
         }
         .product-card span {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: var(--primary-dark);
             font-weight: bold;
-            margin-top: 5px;
         }
         .receipt-header {
             text-align: center;
@@ -163,11 +153,13 @@
             overflow-y: auto;
             max-height: 40vh;
             margin-bottom: 15px;
+            padding: 0 10px;
         }
         .receipt-item {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 3fr 1fr 1fr;
             align-items: center;
+            gap: 10px;
             padding: 15px 0;
             border-bottom: 1px solid var(--light);
         }
@@ -178,35 +170,47 @@
             display: flex;
             flex-direction: column;
             text-align: right;
-            flex-grow: 1;
         }
         .receipt-item .item-name {
             font-weight: bold;
             font-size: 1rem;
+            color: var(--dark);
         }
         .receipt-item .item-details {
             font-size: 0.9rem;
             color: #777;
             margin-top: 5px;
         }
-        .receipt-item .item-actions {
+        .receipt-item .item-price {
+            text-align: left;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+        .item-quantity-control {
             display: flex;
-            gap: 10px;
             align-items: center;
+            gap: 5px;
+            direction: ltr; /* To make buttons and input display left-to-right */
         }
-        .receipt-item .item-actions input {
-            width: 60px;
-            text-align: center;
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid var(--border-color);
-        }
-        .receipt-item .remove-btn {
-            background: none;
+        .item-quantity-control button {
+            background: var(--primary);
+            color: white;
             border: none;
-            color: var(--error);
-            cursor: pointer;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
             font-size: 1.2rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .item-quantity-control button:hover {
+            background: var(--primary-dark);
+        }
+        .item-quantity-control input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
             padding: 5px;
         }
         .receipt-summary {
@@ -409,7 +413,6 @@
             <div class="pos-left-panel">
                 <div class="search-bar">
                     <input type="text" id="searchInput" placeholder="البحث بالاسم أو الباركود..." oninput="performSearch(this.value)">
-                    <button class="btn btn-secondary" id="scanBtn"><i class="fas fa-barcode"></i> مسح باركود</button>
                     <button class="btn btn-secondary" id="scanWithPhoneBtn"><i class="fas fa-mobile-alt"></i> مسح بالهاتف</button>
                 </div>
                 <div class="product-grid" id="productGrid">
@@ -554,7 +557,6 @@
         const refundBtn = document.getElementById('refundBtn');
 
         // Scanner Buttons
-        const scanBtn = document.getElementById('scanBtn');
         const scanWithPhoneBtn = document.getElementById('scanWithPhoneBtn');
 
         // Modals
@@ -607,7 +609,6 @@
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
                 productCard.innerHTML = `
-                    <i class="fas fa-box product-icon"></i>
                     <h4>${product.name}</h4>
                     <span>${product.price.toFixed(2)} EGP</span>
                 `;
@@ -624,6 +625,17 @@
             }
             updateReceipt();
         };
+        
+        const updateReceiptItemQuantity = (productId, change) => {
+            if (currentReceiptItems[productId]) {
+                currentReceiptItems[productId].quantity += change;
+                if (currentReceiptItems[productId].quantity <= 0) {
+                    removeProductFromReceipt(productId);
+                } else {
+                    updateReceipt();
+                }
+            }
+        };
 
         const updateReceipt = () => {
             receiptItemsList.innerHTML = '';
@@ -639,11 +651,15 @@
                 receiptItem.innerHTML = `
                     <div class="item-info">
                         <span class="item-name">${item.name}</span>
-                        <span class="item-details">${item.quantity} x ${item.price.toFixed(2)} EGP</span>
+                        <span class="item-details">سعر الوحدة: ${item.price.toFixed(2)} EGP</span>
                     </div>
-                    <div class="item-actions">
+                    <div class="item-quantity-control">
+                        <button onclick="updateReceiptItemQuantity('${id}', 1)"><i class="fas fa-plus"></i></button>
+                        <span>${item.quantity}</span>
+                        <button onclick="updateReceiptItemQuantity('${id}', -1)"><i class="fas fa-minus"></i></button>
+                    </div>
+                    <div class="item-price">
                         <span>${itemTotal.toFixed(2)} EGP</span>
-                        <button class="remove-btn" onclick="removeProductFromReceipt('${id}')"><i class="fas fa-trash-alt"></i></button>
                     </div>
                 `;
                 receiptItemsList.appendChild(receiptItem);
@@ -669,7 +685,6 @@
             totalBeforePaidSpan.textContent = `${total.toFixed(2)} EGP`;
             totalSpan.textContent = `${total.toFixed(2)} EGP`;
             
-            // Recalculate change due
             const amountReceived = parseFloat(amountReceivedInput.value) || 0;
             const change = amountReceived - total;
             changeDueSpan.textContent = `${change.toFixed(2)} EGP`;
@@ -763,10 +778,6 @@
                 p.name.toLowerCase().includes(searchTerm) || (p.barcode && p.barcode.includes(searchTerm))
             );
             renderProductsGrid(filteredProducts);
-        });
-
-        scanBtn.addEventListener('click', () => {
-            alert('مسح الباركود من الجهاز الحالي غير مدعوم في هذه النسخة. الرجاء استخدام مسح بالهاتف.');
         });
         
         scanWithPhoneBtn.addEventListener('click', async () => {
