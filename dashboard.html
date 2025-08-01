@@ -421,7 +421,8 @@
         </header>
 
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="البحث بالاسم أو الباركود..." oninput="performSearch(this.value)">
+            <input type="text" id="searchInput" placeholder="البحث بالاسم أو الباركود...">
+            <button class="btn btn-primary" id="searchBtn"><i class="fas fa-search"></i> بحث</button>
             <button class="btn btn-secondary" id="scanBtn"><i class="fas fa-barcode"></i> مسح باركود (الجهاز الحالي)</button>
             <button class="btn btn-secondary" id="scanWithPhoneBtn"><i class="fas fa-mobile-alt"></i> مسح بالهاتف</button>
         </div>
@@ -441,7 +442,7 @@
                     </tr>
                 </thead>
                 <tbody id="productsTableBody">
-                    </tbody>
+                </tbody>
             </table>
         </div>
     </div>
@@ -553,7 +554,6 @@
         const db = firebase.firestore();
         const scannerSessionDocRef = db.collection('scannerSessions').doc('fixed');
 
-
         const productsTableBody = document.getElementById('productsTableBody');
         const searchInput = document.getElementById('searchInput');
         const addProductBtn = document.getElementById('addProductBtn');
@@ -581,7 +581,6 @@
         const qrCodeImage = document.getElementById('qrCodeImage');
         
         let codeReader = null;
-        let phoneSessionListener = null;
 
         auth.onAuthStateChanged(user => {
             if (!user) {
@@ -591,9 +590,6 @@
             }
         });
         
-        // ===========================================
-        // وظيفة جلب وعرض المنتجات من قاعدة البيانات
-        // ===========================================
         const fetchProducts = async (searchTerm = '') => {
             console.log("Fetching products with search term:", searchTerm);
             productsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">جاري تحميل المنتجات...</td></tr>';
@@ -608,9 +604,7 @@
                         products.push(...barcodeQuery.docs);
                     } else {
                         const nameQuery = await query.get();
-                        products.push(...nameQuery.docs.filter(doc => 
-                            doc.data().name.toLowerCase().includes(searchTerm.toLowerCase())
-                        ));
+                        products.push(...nameQuery.docs.filter(doc => doc.data().name.toLowerCase().includes(searchTerm.toLowerCase())));
                     }
                 } else {
                     const snapshot = await query.get();
@@ -668,33 +662,73 @@
         };
 
         const generateBarcode = () => {
-            const barcode = '7' + Math.floor(100000000000 + Math.random() * 900000000000).toString();
-            productBarcodeInput.value = barcode;
+            // إنشاء باركود EAN13 صالح
+            const randomPart = Math.floor(10000000000 + Math.random() * 90000000000).toString().substr(0, 11);
+            const barcode = '7' + randomPart; // نبدأ بـ 7 ليكون صالحًا لـ EAN13
+            
+            // احسب رقم التحقق
+            let checksum = 0;
+            for (let i = 0; i < 12; i++) {
+                checksum += parseInt(barcode[i]) * (i % 2 === 0 ? 1 : 3);
+            }
+            checksum = (10 - (checksum % 10)) % 10;
+            
+            productBarcodeInput.value = barcode + checksum;
+        };
+
+        const isValidEAN13 = (barcode) => {
+            if (!barcode || barcode.length !== 13 || !/^[0-9]+$/.test(barcode)) {
+                return false;
+            }
+            
+            // التحقق من الرقم القياسي (الأول)
+            const firstDigit = barcode.charAt(0);
+            if (!['0', '1', '6', '7', '8', '9'].includes(firstDigit)) {
+                return false;
+            }
+            
+            return true;
         };
 
         const printBarcode = (barcode, productName) => {
-            const barcodeSvgContainer = document.getElementById('barcodeSvgContainer');
-            barcodeSvgContainer.innerHTML = `<svg id="barcode"></svg>`;
+            const barcodeSvgContainer = document.createElement('div');
+            barcodeSvgContainer.id = 'tempBarcode';
+            document.body.appendChild(barcodeSvgContainer);
             
-            JsBarcode("#barcode", barcode, {
-                format: "EAN13",
-                displayValue: true,
-                fontSize: 18,
-                width: 2,
-                height: 50
-            });
-            
-            const svgContent = document.getElementById('barcode').outerHTML;
+            try {
+                JsBarcode("#tempBarcode", barcode, {
+                    format: isValidEAN13(barcode) ? "EAN13" : "CODE128",
+                    displayValue: true,
+                    fontSize: 18,
+                    width: 2,
+                    height: 50,
+                    margin: 10
+                });
+                
+                const svgContent = barcodeSvgContainer.innerHTML;
+                const printWindow = window.open('', '', 'height=400,width=600');
+                printWindow.document.write('<html><head><title>طباعة باركود</title>');
+                printWindow.document.write('<style>');
+                printWindow.document.write('@media print { @page { size: 80mm 50mm; margin: 0; } body { margin: 0; padding: 5mm; } h1, svg { max-width: 100%; margin: 0 auto; } }');
+                printWindow.document.write('body{text-align:center;font-family:"Tajawal",sans-serif;} svg{max-width:100%; margin: 20px auto;}');
+                printWindow.document.write('</style>');
+                printWindow.document.write('</head><body>');
+                printWindow.document.write(`<h2 style="font-size: 14px; margin-bottom: 5px;">${productName}</h2>`);
+                printWindow.document.write(svgContent);
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                    barcodeSvgContainer.remove();
+                }, 500);
 
-            const printWindow = window.open('', '', 'height=400,width=600');
-            printWindow.document.write('<html><head><title>طباعة باركود</title>');
-            printWindow.document.write('<style>body{text-align:center;font-family:"Tajawal",sans-serif;} svg{max-width:200px;}</style>');
-            printWindow.document.write('</head><body>');
-            printWindow.document.write(`<h1>${productName}</h1>`);
-            printWindow.document.write(svgContent);
-            printWindow.document.write('</body></html>');
-            printWindow.document.close();
-            printWindow.print();
+            } catch (error) {
+                console.error("Error generating barcode:", error);
+                alert("حدث خطأ أثناء توليد الباركود. الرجاء التأكد من بيانات الباركود.");
+                barcodeSvgContainer.remove();
+            }
         };
 
         const openModal = (id) => {
@@ -768,6 +802,13 @@
             fetchProducts(searchTerm);
         };
 
+        searchBtn.addEventListener('click', () => performSearch(searchInput.value));
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch(searchInput.value);
+            }
+        });
+
         scanBtn.addEventListener('click', async () => {
             openModal('scannerModal');
             scannerStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تهيئة الكاميرا...';
@@ -823,21 +864,18 @@
             if (data && data.status === 'scanned') {
                 searchInput.value = data.scannedValue;
                 performSearch(data.scannedValue);
-                // إعادة تعيين الحالة لتكون جاهزة للمسح التالي
                 scannerSessionDocRef.set({ status: 'readyForNextScan' });
             }
         });
 
-        // عند الضغط على زر "مسح بالهاتف"، نرسل أمر بدء المسح
         scanWithPhoneBtn.addEventListener('click', async () => {
             scanWithPhoneBtn.classList.add('btn-waiting');
             try {
-                 await scannerSessionDocRef.set({ status: 'scanRequested', purpose: 'search', lastSeen: new Date() });
+                await scannerSessionDocRef.set({ status: 'scanRequested', purpose: 'search', lastSeen: new Date() });
             } catch (error) {
                 console.error("Failed to send scan request:", error);
                 alert("فشل إرسال طلب المسح. تأكد من أن الهاتف متصل بالإنترنت.");
             } finally {
-                // إزالة تأثير الوميض بعد فترة قصيرة
                 setTimeout(() => {
                     scanWithPhoneBtn.classList.remove('btn-waiting');
                 }, 1500);
