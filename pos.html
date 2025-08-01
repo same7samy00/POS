@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* General Styles - Unified with Inventory Page */
         :root {
             --primary: #4CAF50;
             --primary-dark: #388E3C;
@@ -22,7 +21,6 @@
             --border-color: #ddd;
             --input-bg: #f9f9f9;
         }
-
         * {
             margin: 0;
             padding: 0;
@@ -30,14 +28,12 @@
             font-family: 'Tajawal', sans-serif;
             line-height: 1.6;
         }
-
         body {
             background-color: var(--bg-color);
             display: flex;
             min-height: 100vh;
             color: var(--dark);
         }
-
         .sidebar {
             width: 250px;
             background: #fff;
@@ -47,19 +43,16 @@
             flex-direction: column;
             align-items: center;
         }
-
         .sidebar .logo {
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary);
             margin-bottom: 2rem;
         }
-
         .sidebar .nav-list {
             list-style: none;
             width: 100%;
         }
-
         .sidebar .nav-list a {
             display: flex;
             align-items: center;
@@ -70,18 +63,15 @@
             margin-bottom: 0.5rem;
             transition: background 0.3s, color 0.3s;
         }
-
         .sidebar .nav-list a.active,
         .sidebar .nav-list a:hover {
             background: var(--primary);
             color: white;
         }
-
         .sidebar .nav-list a .fas {
             margin-left: 10px;
             font-size: 1.1rem;
         }
-
         .main-content {
             flex-grow: 1;
             display: flex;
@@ -89,21 +79,17 @@
             padding: 2rem;
             overflow-y: auto;
         }
-
-        /* POS Specific Styles */
         .pos-container {
             display: flex;
             gap: 20px;
             flex-grow: 1;
         }
-
         .pos-left-panel {
             flex: 2;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
-
         .pos-right-panel {
             flex: 1;
             background-color: var(--card-bg);
@@ -114,7 +100,6 @@
             flex-direction: column;
             position: relative;
         }
-        
         .search-bar {
             display: flex;
             gap: 10px;
@@ -129,7 +114,6 @@
             border: 2px solid #ddd !important;
             transition: border 0.3s;
         }
-        
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -137,8 +121,6 @@
             overflow-y: auto;
             flex-grow: 1;
         }
-        
-        /* Product Card - Redesigned */
         .product-card {
             background: #f8f9fa;
             border: 1px solid rgba(0,0,0,0.1);
@@ -151,7 +133,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            aspect-ratio: 1 / 1; /* Make it square */
+            aspect-ratio: 1 / 1;
         }
         .product-card:hover {
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
@@ -173,7 +155,6 @@
             font-weight: bold;
         }
 
-        /* Receipt Panel Styles */
         .receipt-header {
             text-align: center;
             border-bottom: 1px dashed var(--border-color);
@@ -189,15 +170,13 @@
             padding: 0 10px;
         }
         .receipt-item {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 3fr 1fr 1fr;
             align-items: center;
+            gap: 10px;
             padding: 12px 0;
             border-bottom: 1px solid #eee;
             transition: background 0.3s;
-        }
-        .receipt-item:last-child {
-            border-bottom: none;
         }
         .receipt-item:hover {
             background-color: rgba(76, 175, 80, 0.05);
@@ -205,22 +184,30 @@
         .receipt-item .item-info {
             display: flex;
             flex-direction: column;
-            flex-grow: 1;
             text-align: right;
-            margin-left: 10px;
         }
         .receipt-item .item-name {
             font-weight: bold;
             font-size: 0.9rem;
+            color: var(--dark);
         }
         .receipt-item .item-details {
             font-size: 0.8rem;
             color: #777;
+            margin-top: 5px;
+        }
+        .receipt-item .item-price {
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: var(--primary-dark);
+            white-space: nowrap;
         }
         .item-quantity-control {
             display: flex;
             align-items: center;
             gap: 5px;
+            direction: ltr;
         }
         .item-quantity-control button {
             background: none;
@@ -243,35 +230,30 @@
             width: 30px;
             text-align: center;
         }
-        .receipt-item .item-price {
-            font-weight: bold;
-            font-size: 0.9rem;
-            color: var(--primary-dark);
-            width: 80px;
-            text-align: left;
-        }
         
         .receipt-summary {
             border-top: 1px dashed var(--border-color);
             padding-top: 15px;
             margin-top: auto;
         }
-        
-        /* Professional Input Fields */
-        .summary-line.input-group {
+
+        .summary-line {
             display: grid;
-            grid-template-columns: 1fr 100px;
+            grid-template-columns: 1fr 1fr;
             align-items: center;
             gap: 10px;
             padding: 10px 0;
             border-bottom: 1px solid #eee;
         }
-        .summary-line.input-group label {
-            font-size: 1rem;
-            color: var(--secondary-dark);
-            font-weight: 500;
+        .summary-line:last-of-type {
+            border-bottom: none;
         }
-        .summary-line.input-group input {
+
+        .summary-line span {
+            font-size: 1rem;
+        }
+
+        .summary-line input {
             padding: 8px;
             border: 2px solid #ddd !important;
             border-radius: 5px;
@@ -280,12 +262,15 @@
             background-color: var(--input-bg);
             transition: all 0.3s;
         }
-        .summary-line.input-group input:focus {
+        .summary-line input:focus {
             border-color: var(--primary) !important;
             box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
         }
-        .summary-line.input-group span {
-            font-size: 1rem;
+        
+        .summary-line .input-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .summary-total {
@@ -295,6 +280,12 @@
             padding-top: 15px;
             border-top: 2px dashed #ddd;
         }
+
+        /* Color for negative change due */
+        .summary-total .change-due-negative {
+            color: var(--error);
+        }
+
         .pos-actions {
             display: flex;
             flex-direction: column;
@@ -371,11 +362,10 @@
         .modal-header h2 {
             margin: 0;
         }
-        /* Close Button Position */
         .close-btn {
             position: absolute;
             top: 10px;
-            left: 10px; /* Moved to the top left for RTL */
+            left: 10px;
             color: #aaa;
             font-size: 2rem;
             font-weight: bold;
@@ -394,15 +384,11 @@
         .form-group input, .form-group select, .form-group datalist {
             width: 100%;
             padding: 12px 15px;
+            border: 2px solid #ddd !important;
             border-radius: 5px;
             font-size: 1rem;
             transition: all 0.3s;
             background-color: var(--input-bg);
-        }
-        .form-group .btn-inline {
-            width: auto;
-            padding: 10px 15px;
-            margin-right: 10px;
         }
         .modal-footer {
             display: flex;
@@ -466,6 +452,9 @@
             .search-bar button {
                 width: 100%;
             }
+            .summary-line.input-group {
+                grid-template-columns: 1fr 150px;
+            }
         }
     </style>
 </head>
@@ -509,16 +498,16 @@
                     <div class="summary-line input-group">
                         <span>الخصم:</span>
                         <input type="number" id="discountInput" value="0" min="0" step="0.01">
-                        <span>%</span>
+                        <span>EGP</span>
                     </div>
                     <div class="summary-line input-group">
                         <span>الضريبة:</span>
                         <input type="number" id="taxInput" value="0" min="0" step="0.01">
-                        <span>%</span>
+                        <span>EGP</span>
                     </div>
                     <div class="summary-line">
                         <span>الإجمالي بعد الخصم والضريبة:</span>
-                        <span id="totalBeforePaid">0.00 EGP</span>
+                        <span id="totalBeforePaid" class="summary-total">0.00 EGP</span>
                     </div>
                     <div class="summary-line input-group">
                         <span>المبلغ المستلم:</span>
@@ -561,10 +550,6 @@
                         <datalist id="customerList"></datalist>
                     </div>
                     <div id="customerDetails" style="margin-top: 10px; font-size: 0.9rem; color: var(--primary-dark);"></div>
-                </div>
-                 <div class="form-group" id="newCustomerGroup" style="display: none;">
-                    <label for="newCustomerName">اسم العميل الجديد:</label>
-                    <input type="text" id="newCustomerName">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button>
@@ -625,10 +610,8 @@
         const customerList = document.getElementById('customerList');
         const customerSearchInput = document.getElementById('customerSearch');
         const customerDetailsDiv = document.getElementById('customerDetails');
-        const newCustomerGroup = document.getElementById('newCustomerGroup');
-        const newCustomerNameInput = document.getElementById('newCustomerName');
         const toastContainer = document.getElementById('toastContainer');
-
+        
         // POS State
         let allProducts = [];
         let allCustomers = [];
@@ -729,14 +712,12 @@
             updateReceipt();
         };
         
+        // Updated calculateTotals function
         const calculateTotals = (subtotal) => {
-            const discountPercentage = parseFloat(discountInput.value) || 0;
-            const taxPercentage = parseFloat(taxInput.value) || 0;
-
-            const discountAmount = subtotal * (discountPercentage / 100);
-            const subtotalAfterDiscount = subtotal - discountAmount;
-            const taxAmount = subtotalAfterDiscount * (taxPercentage / 100);
-            const total = subtotalAfterDiscount + taxAmount;
+            const discountAmount = parseFloat(discountInput.value) || 0;
+            const taxAmount = parseFloat(taxInput.value) || 0;
+        
+            const total = subtotal - discountAmount + taxAmount;
             
             subtotalSpan.textContent = `${subtotal.toFixed(2)} EGP`;
             totalBeforePaidSpan.textContent = `${total.toFixed(2)} EGP`;
@@ -744,7 +725,13 @@
             
             const amountReceived = parseFloat(amountReceivedInput.value) || 0;
             const change = amountReceived - total;
+            
             changeDueSpan.textContent = `${change.toFixed(2)} EGP`;
+            if (change < 0) {
+                changeDueSpan.classList.add('change-due-negative');
+            } else {
+                changeDueSpan.classList.remove('change-due-negative');
+            }
         };
         
         const clearReceipt = () => {
@@ -803,8 +790,8 @@
         
         const showToast = (message, type = 'success') => {
             const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
             const iconClass = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            toast.className = `toast ${type}`;
             toast.innerHTML = `<i class="${iconClass}"></i> <span>${message}</span>`;
             toastContainer.appendChild(toast);
             
@@ -861,7 +848,13 @@
             const totalAmount = parseFloat(totalBeforePaidSpan.textContent);
             const amountReceived = parseFloat(amountReceivedInput.value) || 0;
             const change = amountReceived - totalAmount;
+            
             changeDueSpan.textContent = `${change.toFixed(2)} EGP`;
+            if (change < 0) {
+                changeDueSpan.classList.add('change-due-negative');
+            } else {
+                changeDueSpan.classList.remove('change-due-negative');
+            }
         });
         
         paymentForm.addEventListener('submit', (e) => {
