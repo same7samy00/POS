@@ -598,25 +598,31 @@
         });
 
         const fetchProducts = async (searchTerm = '') => {
+            console.log("Fetching products with search term:", searchTerm);
             productsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">جاري تحميل المنتجات...</td></tr>';
             
-            let query = db.collection('products');
-            let products = [];
-            
-            if (searchTerm) {
-                const barcodeQuery = await query.where('barcode', '==', searchTerm).get();
-                if (!barcodeQuery.empty) {
-                    products.push(...barcodeQuery.docs);
+            try {
+                let query = db.collection('products');
+                let products = [];
+                
+                if (searchTerm) {
+                    const barcodeQuery = await query.where('barcode', '==', searchTerm).get();
+                    if (!barcodeQuery.empty) {
+                        products.push(...barcodeQuery.docs);
+                    } else {
+                        const nameQuery = await query.get();
+                        products.push(...nameQuery.docs.filter(doc => doc.data().name.includes(searchTerm)));
+                    }
                 } else {
-                    const nameQuery = await query.get();
-                    products.push(...nameQuery.docs.filter(doc => doc.data().name.includes(searchTerm)));
+                    const snapshot = await query.get();
+                    products = snapshot.docs;
                 }
-            } else {
-                const snapshot = await query.get();
-                products = snapshot.docs;
-            }
 
-            renderProductsTable(products);
+                renderProductsTable(products);
+            } catch (error) {
+                console.error("Error fetching products:", error);
+                productsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--error);">فشل جلب المنتجات. تأكد من قواعد أمان Firebase.</td></tr>';
+            }
         };
 
         const renderProductsTable = (products) => {
@@ -648,8 +654,8 @@
                         <td>${product.barcode}</td>
                         <td>${product.name}</td>
                         <td>${product.quantity} ${product.unit || ''}</td>
-                        <td>${product.purchasePrice.toFixed(2)}</td>
-                        <td>${product.price.toFixed(2)}</td>
+                        <td>${product.purchasePrice ? product.purchasePrice.toFixed(2) : '0.00'}</td>
+                        <td>${product.price ? product.price.toFixed(2) : '0.00'}</td>
                         <td>${product.expiryDate || 'لا يوجد'}</td>
                         <td>${alertBadges.join(' ')}</td>
                         <td class="actions-cell">
@@ -841,8 +847,6 @@
                         closeModal('connectPhoneModal');
                         phoneSessionListener();
                         alert('تم ربط الهاتف بنجاح! الآن يمكنك الضغط على "مسح بالهاتف" لتفعيل المسح.');
-                        // إزالة جلسة الربط فقط، الجلسة الرئيسية ستظل
-                        doc.ref.delete();
                     }
                 });
             } else {
@@ -857,7 +861,8 @@
                         performSearch(sessionData.scannedValue);
                         scanWithPhoneBtn.classList.remove('btn-waiting');
                         phoneSessionListener();
-                        doc.ref.delete();
+                        // Reset the status on Firebase for the next scan
+                        phoneRef.set({ status: 'readyForNextScan', lastSeen: new Date() });
                     }
                 });
             }
