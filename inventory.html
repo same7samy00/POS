@@ -222,7 +222,7 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
+            background-color: rgba(0, 0, 0, 0.6);
             justify-content: center;
             align-items: center;
         }
@@ -237,8 +237,11 @@
             padding: 2rem;
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 600px;
+            width: 95%;
+            height: 95vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .modal-header {
@@ -291,6 +294,8 @@
 
         #qrCodeModal .modal-content {
             text-align: center;
+            max-width: 400px;
+            height: auto;
         }
         
         #qrCodeModal img {
@@ -501,7 +506,6 @@
             let products = [];
             
             if (searchTerm) {
-                // البحث بالباركود أو جزء من الاسم
                 const barcodeQuery = await query.where('barcode', '==', searchTerm).get();
                 if (!barcodeQuery.empty) {
                     products.push(...barcodeQuery.docs);
@@ -525,7 +529,7 @@
             }
             
             const today = new Date();
-            const lowStockThreshold = 10; // يمكن تغييرها لاحقاً من صفحة الإعدادات
+            const lowStockThreshold = 10;
             
             products.forEach(doc => {
                 const product = doc.data();
@@ -565,7 +569,6 @@
         };
 
         const printBarcode = (barcode, productName) => {
-            // استخدام مكتبة JsBarcode لإنشاء الباركود كصورة SVG
             const printWindow = window.open('', '', 'height=400,width=600');
             printWindow.document.write('<html><head><title>طباعة باركود</title>');
             printWindow.document.write('<style>body{text-align:center;font-family:"Tajawal",sans-serif;} svg{max-width:200px;}</style>');
@@ -594,7 +597,8 @@
             productForm.reset();
             productIdInput.value = '';
             if (scanSessionListener) {
-                scanSessionListener(); // إيقاف الاستماع في حال إغلاق المودال
+                scanSessionListener();
+                scanSessionListener = null;
             }
         };
 
@@ -659,20 +663,18 @@
             openModal('qrCodeModal');
             scanStatus.textContent = 'في انتظار المسح...';
             
-            // إنشاء جلسة مسح جديدة
             const sessionId = uuid.v4();
             const sessionRef = db.collection('scanSessions').doc(sessionId);
             await sessionRef.set({ status: 'waiting' });
-
-            const scanUrl = `${window.location.origin}/mobile-scanner.html?sessionId=${sessionId}`;
             
-            // إنشاء رمز QR
+            const basePath = window.location.pathname.startsWith('/POS/') ? '/POS/' : '/';
+            const scanUrl = `${window.location.origin}${basePath}mobile-scanner.html?sessionId=${sessionId}`;
+            
             QRCode.toDataURL(scanUrl, function (err, url) {
                 qrCodeImage.src = url;
             });
             mobileScannerLink.href = scanUrl;
 
-            // الاستماع إلى التغييرات في جلسة المسح
             scanSessionListener = sessionRef.onSnapshot(doc => {
                 const sessionData = doc.data();
                 if (sessionData && sessionData.barcode) {
@@ -680,7 +682,6 @@
                     searchInput.value = sessionData.barcode;
                     fetchProducts(sessionData.barcode);
                     setTimeout(() => closeModal('qrCodeModal'), 1500);
-                    // يجب مسح الجلسة بعد استخدامها
                     doc.ref.delete();
                 }
             });
