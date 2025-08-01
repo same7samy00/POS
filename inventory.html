@@ -526,28 +526,28 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuid.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.18.6/umd/index.min.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-    <script>
+        // Your web app's Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyC5ls-rPdJ65x5BoMGwAOpdcPtD585C2ys",
-            authDomain: "pharmacy-inventory-bf04a.firebaseapp.com",
-            projectId: "pharmacy-inventory-bf04a",
-            storageBucket: "pharmacy-inventory-bf04a.firebasestorage.app",
-            messagingSenderId: "937788650384",
-            appId: "1:937788650384:web:6451225d00e648f3a0b915",
-            measurementId: "G-ZGC9EQ55SL"
+            apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
+            authDomain: "supplies-system.firebaseapp.com",
+            projectId: "supplies-system",
+            storageBucket: "supplies-system.firebasestorage.app",
+            messagingSenderId: "205884975863",
+            appId: "1:205884975863:web:de65d32c2459f9979ac1f2",
+            measurementId: "G-2KSYJRKSCX"
         };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const scannerSessionDocRef = db.collection('scannerSessions').doc('fixed');
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const scannerSessionDocRef = doc(db, 'scannerSessions', 'fixed');
 
         const productsTableBody = document.getElementById('productsTableBody');
         const searchInput = document.getElementById('searchInput');
@@ -577,9 +577,9 @@
         
         let codeReader = null;
 
-        auth.onAuthStateChanged(user => {
+        onAuthStateChanged(auth, (user) => {
             if (!user) {
-                window.location.href = 'https://same7samy00.github.io/POS/index.html';
+                window.location.href = 'index.html';
             } else {
                 fetchProducts();
             }
@@ -591,21 +591,21 @@
             productsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">جاري تحميل المنتجات...</td></tr>';
             
             try {
-                let query = db.collection('products');
+                let productsCollection = collection(db, 'products');
                 let products = [];
                 
                 if (searchTerm) {
-                    const barcodeQuery = await query.where('barcode', '==', searchTerm).get();
+                    const barcodeQuery = await getDocs(productsCollection.where('barcode', '==', searchTerm));
                     if (!barcodeQuery.empty) {
                         products.push(...barcodeQuery.docs);
                     } else {
-                        const nameQuery = await query.get();
+                        const nameQuery = await getDocs(productsCollection);
                         products.push(...nameQuery.docs.filter(doc => 
                             doc.data().name.toLowerCase().includes(searchTerm.toLowerCase())
                         ));
                     }
                 } else {
-                    const snapshot = await query.get();
+                    const snapshot = await getDocs(productsCollection);
                     products = snapshot.docs;
                 }
 
@@ -661,11 +661,9 @@
 
         // ========== دوال الباركود المعدلة ==========
         const generateBarcode = () => {
-            // إنشاء باركود EAN13 صالح
             const randomPart = Math.floor(10000000000 + Math.random() * 90000000000).toString().substr(0, 11);
             const barcode = '7' + randomPart;
             
-            // احسب رقم التحقق
             let checksum = 0;
             for (let i = 0; i < 12; i++) {
                 checksum += parseInt(barcode[i]) * (i % 2 === 0 ? 1 : 3);
@@ -689,12 +687,10 @@
         };
 
         const printBarcode = (barcode, productName) => {
-            // إنشاء عنصر SVG جديد في الذاكرة
             const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             svg.setAttribute("id", "dynamicBarcode");
             
             try {
-                // إنشاء الباركود مباشرة على العنصر SVG
                 JsBarcode(svg, barcode, {
                     format: isValidEAN13(barcode) ? "EAN13" : "CODE128",
                     displayValue: true,
@@ -704,11 +700,9 @@
                     margin: 10
                 });
                 
-                // تحويل SVG إلى سلسلة نصية
                 const serializer = new XMLSerializer();
                 const svgContent = serializer.serializeToString(svg);
                 
-                // إنشاء نافذة الطباعة
                 const printWindow = window.open('', '_blank');
                 printWindow.document.write(`
                     <!DOCTYPE html>
@@ -734,7 +728,6 @@
                 `);
                 printWindow.document.close();
                 
-                // تأخير الطباعة لضمان تحميل المحتوى
                 setTimeout(() => {
                     printWindow.print();
                     printWindow.close();
@@ -763,7 +756,7 @@
         };
 
         const openEditModal = async (productId) => {
-            const productDoc = await db.collection('products').doc(productId).get();
+            const productDoc = await getDoc(doc(db, 'products', productId));
             const product = productDoc.data();
             
             modalTitle.textContent = `تعديل منتج: ${product.name}`;
@@ -781,7 +774,7 @@
 
         const deleteProduct = async (productId) => {
             if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
-                await db.collection('products').doc(productId).delete();
+                await deleteDoc(doc(db, 'products', productId));
                 fetchProducts();
             }
         };
@@ -806,9 +799,9 @@
             };
             
             if (productId) {
-                await db.collection('products').doc(productId).update(product);
+                await updateDoc(doc(db, 'products', productId), product);
             } else {
-                await db.collection('products').add(product);
+                await setDoc(doc(db, 'products', 'new-product-' + Date.now()), product);
             }
 
             closeModal('productModal');
@@ -871,19 +864,19 @@
         });
         
         // وظيفة المسح بالهاتف
-        scannerSessionDocRef.onSnapshot(doc => {
+        onSnapshot(scannerSessionDocRef, (doc) => {
             const data = doc.data();
             if (data && data.status === 'scanned') {
                 searchInput.value = data.scannedValue;
                 performSearch(data.scannedValue);
-                scannerSessionDocRef.set({ status: 'readyForNextScan' });
+                setDoc(scannerSessionDocRef, { status: 'readyForNextScan' });
             }
         });
 
         scanWithPhoneBtn.addEventListener('click', async () => {
             scanWithPhoneBtn.classList.add('btn-waiting');
             try {
-                await scannerSessionDocRef.set({ status: 'scanRequested', purpose: 'search', lastSeen: new Date() });
+                await setDoc(scannerSessionDocRef, { status: 'scanRequested', purpose: 'search', lastSeen: new Date() });
             } catch (error) {
                 console.error("Failed to send scan request:", error);
                 alert("فشل إرسال طلب المسح. تأكد من أن الهاتف متصل بالإنترنت.");
@@ -897,12 +890,14 @@
         logoutBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             try {
-                await auth.signOut();
-                window.location.href = 'https://same7samy00.github.io/POS/index.html';
+                await signOut(auth);
+                window.location.href = 'index.html';
             } catch (error) {
                 console.error('Logout Error:', error);
             }
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.18.6/umd/index.min.js"></script>
 </body>
 </html>
