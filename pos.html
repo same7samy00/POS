@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl">
+<html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,6 +21,7 @@
             --border-color: #ddd;
             --input-bg: #f9f9f9;
         }
+
         * {
             margin: 0;
             padding: 0;
@@ -28,12 +29,14 @@
             font-family: 'Tajawal', sans-serif;
             line-height: 1.6;
         }
+
         body {
             background-color: var(--bg-color);
             display: flex;
             min-height: 100vh;
             color: var(--dark);
         }
+
         .sidebar {
             width: 250px;
             background: #fff;
@@ -43,16 +46,19 @@
             flex-direction: column;
             align-items: center;
         }
+
         .sidebar .logo {
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary);
             margin-bottom: 2rem;
         }
+
         .sidebar .nav-list {
             list-style: none;
             width: 100%;
         }
+
         .sidebar .nav-list a {
             display: flex;
             align-items: center;
@@ -63,15 +69,18 @@
             margin-bottom: 0.5rem;
             transition: background 0.3s, color 0.3s;
         }
+
         .sidebar .nav-list a.active,
         .sidebar .nav-list a:hover {
             background: var(--primary);
             color: white;
         }
+
         .sidebar .nav-list a .fas {
             margin-left: 10px;
             font-size: 1.1rem;
         }
+
         .main-content {
             flex-grow: 1;
             display: flex;
@@ -79,17 +88,20 @@
             padding: 2rem;
             overflow-y: auto;
         }
+
         .pos-container {
             display: flex;
             gap: 20px;
             flex-grow: 1;
         }
+
         .pos-left-panel {
             flex: 2;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
+
         .pos-right-panel {
             flex: 1;
             background-color: var(--card-bg);
@@ -100,11 +112,13 @@
             flex-direction: column;
             position: relative;
         }
+
         .search-bar {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
         }
+
         .search-bar input {
             flex-grow: 1;
             padding: 12px 15px;
@@ -114,6 +128,7 @@
             border: 2px solid #ddd !important;
             transition: border 0.3s;
         }
+
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -121,9 +136,10 @@
             overflow-y: auto;
             flex-grow: 1;
         }
+
         .product-card {
             background: #f8f9fa;
-            border: 1px solid rgba(0,0,0,0.1);
+            border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 12px;
             padding: 15px;
             text-align: center;
@@ -135,11 +151,13 @@
             align-items: center;
             aspect-ratio: 1 / 1;
         }
+
         .product-card:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             transform: translateY(-3px);
             background: #e9ecef;
         }
+
         .product-card h4 {
             margin-top: 10px;
             font-size: 0.9rem;
@@ -149,17 +167,20 @@
             text-overflow: ellipsis;
             width: 100%;
         }
+
         .product-card span {
             font-size: 0.8rem;
             color: var(--primary-dark);
             font-weight: bold;
         }
+
         .receipt-header {
             text-align: center;
             border-bottom: 1px dashed var(--border-color);
             padding-bottom: 15px;
             margin-bottom: 15px;
         }
+
         .receipt-items {
             list-style: none;
             flex-grow: 1;
@@ -168,6 +189,7 @@
             margin-bottom: 15px;
             padding: 0 10px;
         }
+
         .receipt-item {
             display: grid;
             grid-template-columns: 3fr 1fr 1fr;
@@ -177,24 +199,29 @@
             border-bottom: 1px solid #eee;
             transition: background 0.3s;
         }
+
         .receipt-item:hover {
             background-color: rgba(76, 175, 80, 0.05);
         }
+
         .receipt-item .item-info {
             display: flex;
             flex-direction: column;
             text-align: right;
         }
+
         .receipt-item .item-name {
             font-weight: bold;
             font-size: 0.9rem;
             color: var(--dark);
         }
+
         .receipt-item .item-details {
             font-size: 0.8rem;
             color: #777;
             margin-top: 5px;
         }
+
         .receipt-item .item-price {
             text-align: left;
             font-weight: bold;
@@ -202,12 +229,14 @@
             color: var(--primary-dark);
             white-space: nowrap;
         }
+
         .item-quantity-control {
             display: flex;
             align-items: center;
             gap: 5px;
             direction: ltr;
         }
+
         .item-quantity-control button {
             background: none;
             border: 1px solid var(--border-color);
@@ -219,21 +248,25 @@
             transition: all 0.2s;
             color: var(--primary);
         }
+
         .item-quantity-control button:hover {
             background: var(--primary);
             color: white;
         }
+
         .item-quantity-control span {
             font-weight: bold;
             font-size: 0.9rem;
             width: 30px;
             text-align: center;
         }
+
         .receipt-summary {
             border-top: 1px dashed var(--border-color);
             padding-top: 15px;
             margin-top: auto;
         }
+
         .summary-line {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -242,9 +275,11 @@
             padding: 10px 0;
             border-bottom: 1px solid #eee;
         }
+
         .summary-line:last-of-type {
             border-bottom: none;
         }
+
         .summary-line input {
             padding: 8px;
             border: 2px solid #ddd !important;
@@ -254,15 +289,18 @@
             background-color: var(--input-bg);
             transition: all 0.3s;
         }
+
         .summary-line input:focus {
             border-color: var(--primary) !important;
             box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
         }
+
         .summary-line .input-container {
             display: flex;
             align-items: center;
             gap: 5px;
         }
+
         .summary-total {
             font-weight: 700;
             color: var(--primary);
@@ -270,15 +308,18 @@
             padding-top: 15px;
             border-top: 2px dashed #ddd;
         }
+
         .change-due-negative {
             color: var(--error);
         }
+
         .pos-actions {
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-top: 15px;
         }
+
         .btn {
             padding: 15px;
             border-radius: 8px;
@@ -287,31 +328,36 @@
             font-size: 1rem;
             font-weight: 700;
             transition: all 0.3s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
+
         .btn:active {
             transform: translateY(0);
         }
+
         .btn-primary {
             background: var(--primary);
             color: white;
         }
+
         .btn-primary:hover {
             background: var(--primary-dark);
         }
+
         .btn-secondary {
             background: #ccc;
             color: var(--dark);
         }
+
         .btn-secondary:hover {
             background: #bbb;
         }
 
-        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -325,9 +371,11 @@
             justify-content: center;
             align-items: center;
         }
+
         .modal.active {
             display: flex;
         }
+
         .modal-content {
             background-color: var(--card-bg);
             margin: auto;
@@ -338,6 +386,7 @@
             max-width: 500px;
             position: relative;
         }
+
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -346,9 +395,11 @@
             padding-bottom: 1rem;
             margin-bottom: 1.5rem;
         }
+
         .modal-header h2 {
             margin: 0;
         }
+
         .close-btn {
             position: absolute;
             top: 10px;
@@ -358,17 +409,22 @@
             font-weight: bold;
             cursor: pointer;
         }
+
         .form-group {
             margin-bottom: 1.5rem;
             text-align: right;
         }
+
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
             color: var(--dark);
             font-weight: 500;
         }
-        .form-group input, .form-group select, .form-group datalist {
+
+        .form-group input,
+        .form-group select,
+        .form-group datalist {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #ddd !important;
@@ -377,6 +433,7 @@
             transition: all 0.3s;
             background-color: var(--input-bg);
         }
+
         .modal-footer {
             display: flex;
             justify-content: flex-end;
@@ -384,7 +441,6 @@
             margin-top: 1.5rem;
         }
 
-        /* In-app Notification Styles */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -397,6 +453,7 @@
             width: 90%;
             max-width: 400px;
         }
+
         .toast {
             background-color: var(--primary);
             color: white;
@@ -410,47 +467,57 @@
             transform: translateY(-20px);
             transition: all 0.5s ease;
         }
+
         .toast.show {
             opacity: 1;
             transform: translateY(0);
         }
+
         .toast.error {
             background-color: var(--error);
         }
+
         .toast .fas {
             font-size: 1.5rem;
         }
-        
-        /* Responsive Styles */
+
         @media (max-width: 768px) {
             .pos-container {
                 flex-direction: column-reverse;
             }
+
             .pos-right-panel {
                 margin-bottom: 20px;
             }
+
             .product-grid {
                 grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             }
+
             .search-bar {
                 flex-direction: column;
             }
+
             .search-bar input,
             .search-bar button {
                 width: 100%;
             }
+
             .summary-line.input-group {
                 grid-template-columns: 1fr 150px;
             }
         }
-        /* Print Styles */
+
         @media print {
             body * {
                 visibility: hidden;
             }
-            #receiptToPrint, #receiptToPrint * {
+
+            #receiptToPrint,
+            #receiptToPrint * {
                 visibility: visible;
             }
+
             #receiptToPrint {
                 position: absolute;
                 left: 0;
@@ -461,33 +528,42 @@
                 font-size: 12px;
                 color: #000;
             }
-            #receiptToPrint h3, #receiptToPrint h4 {
+
+            #receiptToPrint h3,
+            #receiptToPrint h4 {
                 text-align: center;
                 margin: 0;
             }
-            #receiptToPrint .receipt-header, #receiptToPrint .receipt-footer {
+
+            #receiptToPrint .receipt-header,
+            #receiptToPrint .receipt-footer {
                 border-top: 1px dashed #000;
                 padding-top: 5mm;
                 margin-top: 5mm;
             }
+
             #receiptToPrint .receipt-item {
                 display: flex;
                 justify-content: space-between;
                 padding: 2mm 0;
             }
+
             #receiptToPrint .receipt-item .item-details {
                 font-size: 10px;
             }
+
             #receiptToPrint .summary-line {
                 display: flex;
                 justify-content: space-between;
             }
+
             #receiptToPrint .summary-total {
                 font-size: 16px;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="sidebar">
         <div class="logo">
@@ -507,7 +583,7 @@
         <div class="pos-container">
             <div class="pos-left-panel">
                 <div class="search-bar">
-                    <input type="text" id="searchInput" placeholder="البحث بالاسم أو الباركود..." oninput="performSearch(this.value)">
+                    <input type="text" id="searchInput" placeholder="البحث بالاسم أو الباركود...">
                     <button class="btn btn-secondary" id="scanWithPhoneBtn"><i class="fas fa-mobile-alt"></i> مسح بالهاتف</button>
                 </div>
                 <div class="product-grid" id="productGrid">
@@ -540,7 +616,7 @@
                         </div>
                     </div>
                     <div class="summary-line">
-                        <span>الإجمالي بعد الخصم والضريبة:</span>
+                        <span>الإجمالي الكلي:</span>
                         <span id="totalBeforePaid" class="summary-total">0.00 EGP</span>
                     </div>
                     <div class="summary-line input-group">
@@ -562,7 +638,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="toast-container" id="toastContainer"></div>
 
     <div id="paymentModal" class="modal">
@@ -597,6 +673,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script>
+        // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
             authDomain: "supplies-system.firebaseapp.com",
@@ -611,63 +688,66 @@
         const db = firebase.firestore();
         const scannerSessionDocRef = db.collection('scannerSessions').doc('fixed');
 
-        auth.onAuthStateChanged(user => {
-            if (!user) {
-                window.location.href = 'login.html';
-            } else {
-                fetchProducts();
-                fetchCustomers();
-            }
-        });
-
+        // DOM Elements
         const productGrid = document.getElementById('productGrid');
         const searchInput = document.getElementById('searchInput');
         const receiptItemsList = document.getElementById('receiptItems');
         const subtotalSpan = document.getElementById('subtotal');
         const discountInput = document.getElementById('discountInput');
         const taxInput = document.getElementById('taxInput');
-        const totalSpan = document.getElementById('total');
         const totalBeforePaidSpan = document.getElementById('totalBeforePaid');
         const amountReceivedInput = document.getElementById('amountReceived');
         const changeDueSpan = document.getElementById('changeDue');
         const checkoutBtn = document.getElementById('checkoutBtn');
         const clearBtn = document.getElementById('clearBtn');
-        
         const scanWithPhoneBtn = document.getElementById('scanWithPhoneBtn');
-
         const paymentModal = document.getElementById('paymentModal');
         const paymentForm = document.getElementById('paymentForm');
         const paymentMethodSelect = document.getElementById('paymentMethod');
-        const customerList = document.getElementById('customerList');
+        const customerListDatalist = document.getElementById('customerList');
         const customerSearchInput = document.getElementById('customerSearch');
         const customerDetailsDiv = document.getElementById('customerDetails');
         const toastContainer = document.getElementById('toastContainer');
-        
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Global State
         let allProducts = [];
         let allCustomers = [];
         let currentReceiptItems = {};
 
+        // --- Core Functions ---
+
+        /**
+         * Fetches all products from Firestore and renders them to the grid.
+         */
         const fetchProducts = async () => {
-            const snapshot = await db.collection('products').get();
-            allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderProductsGrid(allProducts);
+            try {
+                const snapshot = await db.collection('products').get();
+                allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderProductsGrid(allProducts);
+            } catch (error) {
+                console.error("Error fetching products:", error);
+                showToast('فشل في تحميل المنتجات.', 'error');
+            }
         };
 
+        /**
+         * Fetches all customers from Firestore and populates the datalist.
+         */
         const fetchCustomers = async () => {
-            const snapshot = await db.collection('customers').get();
-            allCustomers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderCustomersDatalist();
+            try {
+                const snapshot = await db.collection('customers').get();
+                allCustomers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderCustomersDatalist();
+            } catch (error) {
+                console.error("Error fetching customers:", error);
+            }
         };
 
-        const renderCustomersDatalist = () => {
-            customerList.innerHTML = '';
-            allCustomers.forEach(customer => {
-                const option = document.createElement('option');
-                option.value = customer.name;
-                customerList.appendChild(option);
-            });
-        };
-
+        /**
+         * Renders the product grid with a given list of products.
+         * @param {Array<Object>} products - The list of products to display.
+         */
         const renderProductsGrid = (products) => {
             productGrid.innerHTML = '';
             if (products.length === 0) {
@@ -686,6 +766,10 @@
             });
         };
 
+        /**
+         * Adds a product to the current receipt or increments its quantity.
+         * @param {Object} product - The product to add.
+         */
         const addProductToReceipt = (product) => {
             if (product.id in currentReceiptItems) {
                 currentReceiptItems[product.id].quantity += 1;
@@ -694,26 +778,19 @@
             }
             updateReceipt();
         };
-        
-        const updateReceiptItemQuantity = (productId, change) => {
-            if (currentReceiptItems[productId]) {
-                currentReceiptItems[productId].quantity += change;
-                if (currentReceiptItems[productId].quantity <= 0) {
-                    removeProductFromReceipt(productId);
-                } else {
-                    updateReceipt();
-                }
-            }
-        };
 
+        /**
+         * Updates the receipt display based on the `currentReceiptItems` state.
+         */
         const updateReceipt = () => {
             receiptItemsList.innerHTML = '';
             let subtotal = 0;
+
             for (const id in currentReceiptItems) {
                 const item = currentReceiptItems[id];
                 const itemTotal = item.quantity * item.price;
                 subtotal += itemTotal;
-                
+
                 const receiptItem = document.createElement('li');
                 receiptItem.className = 'receipt-item';
                 receiptItem.dataset.id = id;
@@ -723,9 +800,9 @@
                         <span class="item-details">سعر الوحدة: ${item.price.toFixed(2)} EGP</span>
                     </div>
                     <div class="item-quantity-control">
-                        <button onclick="updateReceiptItemQuantity('${id}', 1)"><i class="fas fa-plus"></i></button>
+                        <button type="button" onclick="updateReceiptItemQuantity('${id}', 1)"><i class="fas fa-plus"></i></button>
                         <span>${item.quantity}</span>
-                        <button onclick="updateReceiptItemQuantity('${id}', -1)"><i class="fas fa-minus"></i></button>
+                        <button type="button" onclick="updateReceiptItemQuantity('${id}', -1)"><i class="fas fa-minus"></i></button>
                     </div>
                     <div class="item-price">
                         <span>${itemTotal.toFixed(2)} EGP</span>
@@ -735,33 +812,47 @@
             }
             calculateTotals(subtotal);
         };
-        
-        const removeProductFromReceipt = (productId) => {
-            delete currentReceiptItems[productId];
-            updateReceipt();
+
+        /**
+         * Updates the quantity of a product in the receipt.
+         * @param {string} productId - The ID of the product.
+         * @param {number} change - The amount to change the quantity by (+1 or -1).
+         */
+        const updateReceiptItemQuantity = (productId, change) => {
+            if (currentReceiptItems[productId]) {
+                currentReceiptItems[productId].quantity += change;
+                if (currentReceiptItems[productId].quantity <= 0) {
+                    delete currentReceiptItems[productId];
+                }
+                updateReceipt();
+            }
         };
-        
+
+        /**
+         * Calculates and updates the summary totals (subtotal, total, change).
+         * @param {number} subtotal - The subtotal before discounts and taxes.
+         */
         const calculateTotals = (subtotal) => {
             const discountAmount = parseFloat(discountInput.value) || 0;
             const taxAmount = parseFloat(taxInput.value) || 0;
-        
             const total = subtotal - discountAmount + taxAmount;
-            
-            subtotalSpan.textContent = `${subtotal.toFixed(2)} EGP`;
-            totalBeforePaidSpan.textContent = `${total.toFixed(2)} EGP`;
-            totalSpan.textContent = `${total.toFixed(2)} EGP`;
-            
             const amountReceived = parseFloat(amountReceivedInput.value) || 0;
             const change = amountReceived - total;
-            
+
+            subtotalSpan.textContent = `${subtotal.toFixed(2)} EGP`;
+            totalBeforePaidSpan.textContent = `${total.toFixed(2)} EGP`;
             changeDueSpan.textContent = `${change.toFixed(2)} EGP`;
+
             if (change < 0) {
                 changeDueSpan.classList.add('change-due-negative');
             } else {
                 changeDueSpan.classList.remove('change-due-negative');
             }
         };
-        
+
+        /**
+         * Clears the current receipt and resets the form inputs.
+         */
         const clearReceipt = () => {
             currentReceiptItems = {};
             updateReceipt();
@@ -770,28 +861,33 @@
             taxInput.value = '0';
             customerSearchInput.value = '';
             customerDetailsDiv.textContent = '';
+            showToast('تم مسح الفاتورة.');
         };
 
+        /**
+         * Processes the payment, saves the sale to Firestore, and prints the receipt.
+         */
         const processPayment = async () => {
-            const totalAmount = parseFloat(totalBeforePaidSpan.textContent);
+            const totalAmount = parseFloat(totalBeforePaidSpan.textContent) || 0;
             const paymentMethod = paymentMethodSelect.value;
-            let customerName = customerSearchInput.value;
-            
+            const customerName = customerSearchInput.value;
+
             if (Object.keys(currentReceiptItems).length === 0) {
                 showToast('الرجاء إضافة منتجات إلى الفاتورة أولاً.', 'error');
                 return;
             }
 
             let customerId = null;
-            const existingCustomer = allCustomers.find(c => c.name === customerName);
-            
-            if (existingCustomer) {
-                customerId = existingCustomer.id;
-            } else if (customerName) {
-                const newCustomer = await db.collection('customers').add({ name: customerName, createdAt: new Date() });
-                customerId = newCustomer.id;
-                allCustomers.push({ id: newCustomer.id, name: customerName });
-                renderCustomersDatalist();
+            if (customerName) {
+                const existingCustomer = allCustomers.find(c => c.name === customerName);
+                if (existingCustomer) {
+                    customerId = existingCustomer.id;
+                } else {
+                    const newCustomerRef = await db.collection('customers').add({ name: customerName, createdAt: new Date() });
+                    customerId = newCustomerRef.id;
+                    allCustomers.push({ id: newCustomerRef.id, name: customerName });
+                    renderCustomersDatalist();
+                }
             }
 
             const sale = {
@@ -809,7 +905,7 @@
                 customerId: customerId,
                 timestamp: new Date()
             };
-            
+
             await db.collection('sales').add(sale);
             showToast('تم إتمام عملية البيع بنجاح!');
             printReceipt(sale);
@@ -817,6 +913,10 @@
             closeModal('paymentModal');
         };
 
+        /**
+         * Generates and prints a simple receipt.
+         * @param {Object} sale - The sale object.
+         */
         const printReceipt = (sale) => {
             const receiptWindow = window.open('', '_blank');
             const receiptContent = `
@@ -892,13 +992,30 @@
             receiptWindow.document.close();
         };
 
+        /**
+         * Renders the datalist for customers.
+         */
+        const renderCustomersDatalist = () => {
+            customerListDatalist.innerHTML = '';
+            allCustomers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer.name;
+                customerListDatalist.appendChild(option);
+            });
+        };
+
+        /**
+         * Displays a toast notification.
+         * @param {string} message - The message to display.
+         * @param {string} [type='success'] - The type of toast ('success' or 'error').
+         */
         const showToast = (message, type = 'success') => {
             const toast = document.createElement('div');
             const iconClass = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
             toast.className = `toast ${type}`;
             toast.innerHTML = `<i class="${iconClass}"></i> <span>${message}</span>`;
             toastContainer.appendChild(toast);
-            
+
             setTimeout(() => {
                 toast.classList.add('show');
             }, 100);
@@ -911,63 +1028,41 @@
             }, 3000);
         };
 
+        /**
+         * Toggles the visibility of a modal.
+         * @param {string} id - The ID of the modal element.
+         */
+        const openModal = (id) => { document.getElementById(id).classList.add('active'); };
+        const closeModal = (id) => { document.getElementById(id).classList.remove('active'); };
+
+        // --- Event Listeners and Initial Load ---
+
+        // Check user authentication on page load
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                fetchProducts();
+                fetchCustomers();
+            }
+        });
+
+        // Search functionality
         searchInput.addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
-            const filteredProducts = allProducts.filter(p => 
+            const filteredProducts = allProducts.filter(p =>
                 p.name.toLowerCase().includes(searchTerm) || (p.barcode && p.barcode.includes(searchTerm))
             );
             renderProductsGrid(filteredProducts);
         });
-        
+
+        // Scan with phone button
         scanWithPhoneBtn.addEventListener('click', async () => {
-             await scannerSessionDocRef.set({ status: 'scanRequested', purpose: 'pos', lastSeen: new Date() });
-             showToast('يرجى استخدام الهاتف لمسح الباركود', 'warning');
-        });
-        
-        checkoutBtn.addEventListener('click', () => {
-            if (Object.keys(currentReceiptItems).length === 0) {
-                showToast('الرجاء إضافة منتجات إلى الفاتورة أولاً.', 'error');
-                return;
-            }
-            openModal('paymentModal');
+            await scannerSessionDocRef.set({ status: 'scanRequested', purpose: 'pos', lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
+            showToast('يرجى استخدام الهاتف لمسح الباركود', 'warning');
         });
 
-        clearBtn.addEventListener('click', () => {
-            clearReceipt();
-            showToast('تم مسح الفاتورة.');
-        });
-
-        discountInput.addEventListener('input', () => {
-            const currentSubtotal = Object.values(currentReceiptItems).reduce((acc, item) => acc + (item.quantity * item.price), 0);
-            calculateTotals(currentSubtotal);
-        });
-
-        taxInput.addEventListener('input', () => {
-            const currentSubtotal = Object.values(currentReceiptItems).reduce((acc, item) => acc + (item.quantity * item.price), 0);
-            calculateTotals(currentSubtotal);
-        });
-        
-        amountReceivedInput.addEventListener('input', () => {
-            const totalAmount = parseFloat(totalBeforePaidSpan.textContent);
-            const amountReceived = parseFloat(amountReceivedInput.value) || 0;
-            const change = amountReceived - totalAmount;
-            
-            changeDueSpan.textContent = `${change.toFixed(2)} EGP`;
-            if (change < 0) {
-                changeDueSpan.classList.add('change-due-negative');
-            } else {
-                changeDueSpan.classList.remove('change-due-negative');
-            }
-        });
-        
-        paymentForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            processPayment();
-        });
-        
-        const openModal = (id) => { document.getElementById(id).classList.add('active'); };
-        const closeModal = (id) => { document.getElementById(id).classList.remove('active'); };
-
+        // Real-time listener for the scanner session
         scannerSessionDocRef.onSnapshot(doc => {
             const data = doc.data();
             if (data && data.status === 'scanned' && data.purpose === 'pos') {
@@ -979,10 +1074,46 @@
                 } else {
                     showToast(`لم يتم العثور على منتج بالباركود: ${scannedBarcode}`, 'error');
                 }
-                scannerSessionDocRef.set({ status: 'readyForNextScan' });
+                scannerSessionDocRef.set({ status: 'readyForNextScan', lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
             }
         });
-        
+
+        // Receipt Summary Listeners
+        discountInput.addEventListener('input', () => {
+            const currentSubtotal = Object.values(currentReceiptItems).reduce((acc, item) => acc + (item.quantity * item.price), 0);
+            calculateTotals(currentSubtotal);
+        });
+
+        taxInput.addEventListener('input', () => {
+            const currentSubtotal = Object.values(currentReceiptItems).reduce((acc, item) => acc + (item.quantity * item.price), 0);
+            calculateTotals(currentSubtotal);
+        });
+
+        amountReceivedInput.addEventListener('input', () => {
+            const totalAmount = parseFloat(totalBeforePaidSpan.textContent);
+            const amountReceived = parseFloat(amountReceivedInput.value) || 0;
+            const change = amountReceived - totalAmount;
+            changeDueSpan.textContent = `${change.toFixed(2)} EGP`;
+            if (change < 0) {
+                changeDueSpan.classList.add('change-due-negative');
+            } else {
+                changeDueSpan.classList.remove('change-due-negative');
+            }
+        });
+
+        // Action Buttons
+        checkoutBtn.addEventListener('click', () => {
+            if (Object.keys(currentReceiptItems).length === 0) {
+                showToast('الرجاء إضافة منتجات إلى الفاتورة أولاً.', 'error');
+                return;
+            }
+            openModal('paymentModal');
+        });
+        clearBtn.addEventListener('click', clearReceipt);
+        paymentForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            processPayment();
+        });
         logoutBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             try {
