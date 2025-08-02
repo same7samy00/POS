@@ -7,7 +7,9 @@
     <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* CSS code from previous response is here */
         :root {
             --primary: #4CAF50;
             --primary-dark: #388E3C;
@@ -17,7 +19,6 @@
             --dark: #212121;
             --secondary-dark: #555;
             --bg-color: #eef1f5;
-            --border-color: #ddd;
         }
 
         * {
@@ -73,9 +74,9 @@
             color: white;
         }
 
-        .sidebar .nav-list a i {
+        .sidebar .nav-list a .fas {
             margin-left: 10px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
 
         .main-content {
@@ -95,16 +96,6 @@
             font-size: 1.8rem;
             color: var(--primary-dark);
         }
-        
-        #offline-status {
-            background-color: var(--warning);
-            color: white;
-            padding: 10px;
-            text-align: center;
-            border-radius: 5px;
-            margin-bottom: 1rem;
-            display: none;
-        }
 
         .actions {
             display: flex;
@@ -119,10 +110,6 @@
             font-size: 1rem;
             font-weight: 500;
             transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
         }
 
         .btn-primary {
@@ -137,18 +124,19 @@
         .btn-secondary {
             background: #ccc;
             color: var(--dark);
+        }                .btn-secondary:hover {
+            background: #bbb;
         }
 
         .search-bar {
             display: flex;
             margin-bottom: 1.5rem;
             gap: 10px;
-        }
-
-        .search-bar input {
+            position: relative;
+        }                .search-bar input {
             flex-grow: 1;
             padding: 10px 15px;
-            border: 1px solid var(--border-color);
+            border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 1rem;
         }
@@ -156,7 +144,7 @@
         .product-table-container {
             background: #fff;
             padding: 1.5rem;
-            border-radius: 5px; /* --- تم التعديل --- */
+            border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             overflow-x: auto;
         }
@@ -169,39 +157,41 @@
 
         .product-table th, .product-table td {
             padding: 12px 15px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid #ddd;
         }
 
         .product-table th {
-            background-color: var(--light);
-            color: var(--dark);
+            background-color: var(--primary);
+            color: white;
             font-weight: 700;
         }
 
         .product-table tr:hover {
             background-color: var(--light);
+        }                .product-table .actions-cell {
+            display: flex;
+            gap: 5px;
+            justify-content: flex-end;
         }
 
         .action-btn {
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 1.2rem;
-            color: var(--secondary-dark);
+            font-size: 1.1rem;
+            color: var(--primary-dark);
             transition: color 0.3s;
         }
 
         .action-btn.edit:hover {
             color: var(--warning);
-        }
-
-        .action-btn.delete:hover {
+        }                .action-btn.delete:hover {
             color: var(--error);
         }
 
         .badge {
             display: inline-block;
-            padding: 4px 10px;
+            padding: 4px 8px;
             border-radius: 12px;
             font-size: 0.8rem;
             font-weight: 700;
@@ -209,11 +199,13 @@
             text-align: center;
         }
 
-        .badge.low-stock { background-color: var(--error); }
-        .badge.expiring { background-color: var(--warning); }
+        .badge.low-stock {
+            background-color: var(--error);
+        }
 
-        /* --- تعديلات النوافذ العائمة --- */
-        .modal {
+        .badge.expiring {
+            background-color: var(--warning);
+        }                /* Modal Styles */        .modal {
             display: none;
             position: fixed;
             z-index: 1000;
@@ -221,75 +213,169 @@
             top: 0;
             width: 100%;
             height: 100%;
+            overflow: auto;
             background-color: rgba(0, 0, 0, 0.6);
             justify-content: center;
             align-items: center;
         }
-        .modal.active { display: flex; }
+        .modal.active {
+            display: flex;
+        }
         .modal-content {
             background-color: #fff;
             margin: auto;
             padding: 2rem;
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            width: 90%;
+            width: 95%;
+            height: auto;
             max-width: 600px;
-            max-height: 90vh;
+            position: relative;
             display: flex;
             flex-direction: column;
+        }                #productModal .modal-content {
+            width: 95vw;
+            height: 95vh;
+            max-width: none;
+            border-radius: 10px;
         }
         .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
             padding-bottom: 1rem;
             margin-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
         }
-        .modal-header h2 { margin: 0; }
-        .modal-body {
-            overflow-y: auto;
-            padding-right: 15px;
-            margin-right: -15px;
+        .modal-header h2 {
+            margin: 0;
         }
-        .modal-footer {
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #aaa;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: right;
+        }                .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }                .modal-footer {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
             margin-top: 1.5rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-color);
         }
-        .form-group { margin-bottom: 1.5rem; text-align: right; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-        .form-group input, .form-group select { width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 1rem; }
+        #scannerModal .modal-content {
+            text-align: center;
+            max-width: 500px;
+            height: auto;
+        }                #scannerModal video {
+            width: 100%;
+            height: auto;
+            border: 2px solid var(--primary);
+            border-radius: 5px;
+        }                #connectPhoneModal .modal-content {
+            text-align: center;
+            max-width: 500px;
+            height: auto;
+        }                #connectPhoneModal img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 1rem;
+        }
+        @keyframes pulse-success {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+            50% { box-shadow: 0 0 10px 5px rgba(76, 175, 80, 0.8); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+        }        .btn-success-pulse {
+            animation: pulse-success 1s ease-in-out;
+        }
+        @keyframes pulse-waiting {
+            0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4); }
+            50% { box-shadow: 0 0 10px 5px rgba(255, 152, 0, 0.8); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4); }
+        }        .btn-waiting {
+            animation: pulse-waiting 1s infinite;
+        }
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }            .sidebar {
+                width: 100%;
+                height: auto;
+                padding: 1rem 0;
+            }            .sidebar .nav-list {
+                display: flex;
+                justify-content: space-around;
+                flex-wrap: wrap;
+            }            .sidebar .nav-list a {
+                padding: 0.5rem 0.8rem;
+                justify-content: center;
+            }            .sidebar .nav-list a span {
+                display: none;
+            }            .main-content {
+                padding: 1rem;
+            }            header {
+                flex-direction: column;
+                text-align: center;
+            }            .actions {
+                margin-top: 1rem;
+                justify-content: center;
+            }            .search-bar {
+                flex-direction: column;
+            }            .search-bar .btn {
+                width: 100%;
+            }            #productModal .modal-content {
+                width: 100vw;
+                height: 100vh;
+                border-radius: 0;
+            }        }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <div class="logo">نظام الإدارة</div>
+        <div class="logo">
+            نظام إدارة المحل
+        </div>
         <ul class="nav-list">
-            <li><a href="inventory.html" class="active"><i class="ri-box-3-line"></i><span>إدارة المخزون</span></a></li>
-            <li><a href="pos.html"><i class="ri-shopping-cart-2-line"></i><span>نقطة البيع</span></a></li>
-            <li><a href="customers.html"><i class="ri-user-3-line"></i><span>إدارة العملاء</span></a></li>
-            <li><a href="reports.html"><i class="ri-pie-chart-line"></i><span>التقارير</span></a></li>
-            <li><a href="settings.html"><i class="ri-settings-3-line"></i><span>الإعدادات</span></a></li>
-            <li><a href="#" id="logoutBtn"><i class="ri-logout-box-r-line"></i><span>تسجيل الخروج</span></a></li>
+            <li><a href="inventory.html" class="active"><i class="fas fa-boxes"></i><span>إدارة المخزون</span></a></li>
+            <li><a href="pos.html"><i class="fas fa-cash-register"></i><span>نقطة البيع</span></a></li>
+            <li><a href="customers.html"><i class="fas fa-users"></i><span>إدارة العملاء</span></a></li>
+            <li><a href="reports.html"><i class="fas fa-chart-pie"></i><span>التقارير</span></a></li>
+            <li><a href="settings.html"><i class="fas fa-cogs"></i><span>الإعدادات</span></a></li>
+            <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>تسجيل الخروج</span></a></li>
         </ul>
     </div>
-
     <div class="main-content">
         <header>
             <h1>إدارة المخزون</h1>
             <div class="actions">
-                <button class="btn btn-primary" id="addProductBtn"><i class="ri-add-line"></i> إضافة منتج</button>
+                <button class="btn btn-primary" id="addProductBtn">
+                    <i class="fas fa-plus"></i> إضافة منتج
+                </button>
             </div>
         </header>
 
-        <div id="offline-status">
-            <i class="ri-cloud-off-line"></i> أنت تعمل في وضع عدم الاتصال. البيانات المعروضة قد تكون قديمة.
-        </div>
-
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="البحث بالاسم أو الباركود...">
-            <button class="btn btn-secondary" id="scanWithPhoneBtn"><i class="ri-smartphone-line"></i> مسح بالهاتف</button>
+            <input type="text" id="searchInput" placeholder="البحث بالاسم أو الباركود..." oninput="performSearch(this.value)">
+            <button class="btn btn-secondary" id="scanBtn"><i class="fas fa-barcode"></i> مسح باركود (الجهاز الحالي)</button>
+            <button class="btn btn-secondary" id="scanWithPhoneBtn"><i class="fas fa-mobile-alt"></i> مسح بالهاتف</button>
         </div>
 
         <div class="product-table-container">
@@ -299,50 +385,109 @@
                         <th>الباركود</th>
                         <th>الاسم</th>
                         <th>الكمية</th>
-                        <th>سعر الشراء</th>
-                        <th>سعر البيع</th>
+                        <th>سعر الشراء (EGP)</th>
+                        <th>سعر البيع (EGP)</th>
                         <th>الصلاحية</th>
                         <th>تنبيه</th>
                         <th>الإجراءات</th>
                     </tr>
                 </thead>
                 <tbody id="productsTableBody">
-                    </tbody>
+                </tbody>
             </table>
         </div>
     </div>
-
     <div id="productModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle">إضافة منتج جديد</h2>
+                <span class="close-btn" onclick="closeModal('productModal')">&times;</span>
+            </div>
+            <form id="productForm">
+                <input type="hidden" id="productId">
+                <div class="form-group">
+                    <label for="productName"><i class="fas fa-tag"></i> اسم المنتج</label>
+                    <input type="text" id="productName" required>
                 </div>
-            <div class="modal-body">
-                <form id="productForm">
-                    <input type="hidden" id="productId">
-                    <div class="form-group"><label for="productName">اسم المنتج</label><input type="text" id="productName" required></div>
-                    <div class="form-group"><label for="productBarcode">الباركود</label><input type="text" id="productBarcode" placeholder="اتركه فارغًا لإنشاء تلقائي"></div>
-                    <div class="form-group"><label for="productQuantity">الكمية</label><input type="number" id="productQuantity" required min="0"></div>
-                    <div class="form-group"><label for="productPurchasePrice">سعر الشراء</label><input type="number" id="productPurchasePrice" required min="0" step="0.01"></div>
-                    <div class="form-group"><label for="productPrice">سعر البيع</label><input type="number" id="productPrice" required min="0" step="0.01"></div>
-                    <div class="form-group"><label for="productExpiry">تاريخ الانتهاء</label><input type="date" id="productExpiry"></div>
-                    <div class="form-group"><label for="productUnit">وحدة البيع</label><select id="productUnit"><option value="قطعة">قطعة</option><option value="علبة">علبة</option><option value="كرتونة">كرتونة</option></select></div>
-                </form>
+                <div class="form-group">
+                    <label for="productBarcode"><i class="fas fa-barcode"></i> الباركود</label>
+                    <input type="text" id="productBarcode" placeholder="اتركه فارغًا لإنشاء تلقائي">
+                    <button type="button" class="btn btn-secondary" style="margin-top: 5px;" onclick="generateBarcode()">إنشاء باركود تلقائي</button>
+                </div>
+                <div class="form-group">
+                    <label for="productQuantity"><i class="fas fa-sort-numeric-up"></i> الكمية</label>
+                    <input type="number" id="productQuantity" required min="0">
+                </div>
+                <div class="form-group">
+                    <label for="productPurchasePrice"><i class="fas fa-money-bill-alt"></i> سعر الشراء (EGP)</label>
+                    <input type="number" id="productPurchasePrice" required min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="productPrice"><i class="fas fa-money-bill-alt"></i> سعر البيع (EGP)</label>
+                    <input type="number" id="productPrice" required min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="productExpiry"><i class="fas fa-calendar-alt"></i> تاريخ الانتهاء</label>
+                    <input type="date" id="productExpiry">
+                </div>
+                <div class="form-group">
+                    <label for="productUnit"><i class="fas fa-box"></i> وحدات البيع</label>
+                    <select id="productUnit">
+                        <option value="قطعة">قطعة</option>
+                        <option value="علبة">علبة</option>
+                        <option value="كرتونة">كرتونة</option>
+                        <option value="كيلو">كيلو</option>
+                        <option value="لتر">لتر</option>
+                        <option value="جالون">جالون</option>
+                        <option value="وحدة">وحدة (أخرى)</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('productModal')">إلغاء</button>
+                    <button type="submit" class="btn btn-primary" id="saveProductBtn">حفظ المنتج</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="scannerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ماسح الباركود</h2>
+                <span class="close-btn" onclick="closeModal('scannerModal')">&times;</span>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('productModal')">إغلاق</button>
-                <button type="submit" form="productForm" class="btn btn-primary">حفظ المنتج</button>
+            <p id="scannerStatus">
+                <i class="fas fa-spinner fa-spin"></i> جاري تهيئة الكاميرا...
+            </p>
+            <video id="scannerVideo" style="width: 100%; height: auto;"></video>
+            <p id="scannerError" style="color: var(--error); margin-top: 1rem;"></p>
+        </div>
+    </div>
+    
+    <div id="connectPhoneModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ربط الهاتف بالكمبيوتر</h2>
+                <span class="close-btn" onclick="closeModal('connectPhoneModal')">&times;</span>
             </div>
+            <p>امسح الكود التالي بهاتفك لربطه بالكمبيوتر:</p>
+            <img id="qrCodeImage" src="" alt="QR Code">
+            <p style="margin-top: 1rem; font-size: 0.9rem;">
+                <i class="fas fa-info-circle"></i> هذا الربط يتم لمرة واحدة فقط. بعد المسح، يمكنك الضغط على زر "مسح بالهاتف" مباشرة من الكمبيوتر ليقوم بفتح الكاميرا في صفحة الهاتف تلقائياً.
+            </p>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuid.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.18.6/umd/index.min.js"></script>
 
     <script>
-        // --- توحيد إعدادات Firebase ---
+        // Use the Firebase config you provided earlier
         const firebaseConfig = {
             apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
             authDomain: "supplies-system.firebaseapp.com",
@@ -355,241 +500,330 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const scannerSessionDocRef = db.collection('scannerSessions').doc('fixed');
 
-        // --- عناصر الواجهة ---
+        // New logic to handle authentication status
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in, proceed to fetch data
+                fetchProducts();
+            } else {
+                // User is not signed in, redirect to login page
+                window.location.href = 'login.html';
+            }
+        });
+        
+        // --- All other functions remain the same ---
         const productsTableBody = document.getElementById('productsTableBody');
         const searchInput = document.getElementById('searchInput');
         const addProductBtn = document.getElementById('addProductBtn');
+        const productModal = document.getElementById('productModal');
         const productForm = document.getElementById('productForm');
-        const offlineStatusDiv = document.getElementById('offline-status');
-        let allProducts = []; // مصفوفة لتخزين كل المنتجات للبحث المحلي
-
-        // --- نظام الأمان وكلمة المرور ---
-        (function securePage() {
-            const isUnlocked = sessionStorage.getItem('inventory_unlocked');
-            if (isUnlocked === 'true') {
-                return; // الصفحة مفتوحة بالفعل
-            }
-            const password = prompt('الرجاء إدخال كلمة المرور للوصول إلى المخزون:');
-            // كلمة المرور المؤقتة هي 1234
-            if (password === '1234') {
-                sessionStorage.setItem('inventory_unlocked', 'true');
-            } else {
-                alert('كلمة مرور غير صحيحة!');
-                window.location.href = 'login.html'; // إعادة توجيه للمستخدم
-            }
-        })();
-
-        // --- التحقق من تسجيل الدخول ---
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                loadProducts(); // المستخدم مسجل دخوله، قم بتحميل المنتجات
-            } else {
-                window.location.href = 'login.html'; // المستخدم غير مسجل، اذهب لصفحة الدخول
-            }
-        });
-
-        // --- وظائف إدارة البيانات (مع دعم الأوفلاين) ---
-        const saveDataLocally = (key, data) => {
-            try {
-                localStorage.setItem(key, JSON.stringify(data));
-            } catch (e) {
-                console.error("Failed to save data locally", e);
-            }
-        };
-
-        const loadDataLocally = (key) => {
-            try {
-                const data = localStorage.getItem(key);
-                return data ? JSON.parse(data) : null;
-            } catch (e) {
-                console.error("Failed to load data locally", e);
-                return null;
-            }
-        };
-
-        const loadProducts = async () => {
-            // 1. حاول عرض البيانات المحلية فوراً لواجهة سريعة
-            const localProducts = loadDataLocally('products');
-            if (localProducts) {
-                allProducts = localProducts;
-                renderProductsTable(allProducts);
-            } else {
-                 productsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">جاري تحميل المنتجات...</td></tr>';
-            }
-
-            // 2. حاول جلب أحدث البيانات من Firebase
-            try {
-                const snapshot = await db.collection('products').get();
-                const freshProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                
-                allProducts = freshProducts;
-                renderProductsTable(allProducts); // عرض البيانات الجديدة
-                saveDataLocally('products', allProducts); // حفظها محلياً
-                offlineStatusDiv.style.display = 'none'; // إخفاء إشعار الأوفلاين
-                
-            } catch (error) {
-                console.error("Error fetching from Firebase:", error);
-                if (localProducts) {
-                    // إذا فشل الاتصال ولديك بيانات محلية، اعرض إشعار الأوفلاين
-                    offlineStatusDiv.style.display = 'block';
-                } else {
-                    // لا يوجد اتصال ولا بيانات محلية
-                    productsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--error);">فشل جلب البيانات. الرجاء التأكد من اتصالك بالإنترنت.</td></tr>';
-                }
-            }
-        };
+        const productIdInput = document.getElementById('productId');
+        const productNameInput = document.getElementById('productName');
+        const productBarcodeInput = document.getElementById('productBarcode');
+        const productQuantityInput = document.getElementById('productQuantity');
+        const productPriceInput = document.getElementById('productPrice');
+        const productPurchasePriceInput = document.getElementById('productPurchasePrice');
+        const productExpiryInput = document.getElementById('productExpiry');
+        const productUnitInput = document.getElementById('productUnit');
+        const modalTitle = document.getElementById('modalTitle');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const scanBtn = document.getElementById('scanBtn');
+        const scannerModal = document.getElementById('scannerModal');
+        const scannerVideo = document.getElementById('scannerVideo');
+        const scannerStatus = document.getElementById('scannerStatus');
+        const scannerError = document.getElementById('scannerError');
+        const scanWithPhoneBtn = document.getElementById('scanWithPhoneBtn');
+        const connectPhoneModal = document.getElementById('connectPhoneModal');
+        const qrCodeImage = document.getElementById('qrCodeImage');
+        let codeReader = null;
         
+        const fetchProducts = async (searchTerm = '') => {
+            console.log("Fetching products with search term:", searchTerm);
+            productsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">جاري تحميل المنتجات...</td></tr>';
+            
+            try {
+                let query = db.collection('products');
+                let products = [];
+                
+                if (searchTerm) {
+                    const barcodeQuery = await query.where('barcode', '==', searchTerm).get();
+                    if (!barcodeQuery.empty) {
+                        products.push(...barcodeQuery.docs);
+                    } else {
+                        const nameQuery = await query.get();
+                        products.push(...nameQuery.docs.filter(doc => 
+                            doc.data().name.toLowerCase().includes(searchTerm.toLowerCase())
+                        ));
+                    }
+                } else {
+                    const snapshot = await query.get();
+                    products = snapshot.docs;
+                }
+
+                renderProductsTable(products);
+            } catch (error) {
+                console.error("Error fetching products:", error);
+                productsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--error);">فشل جلب المنتجات. تأكد من قواعد أمان Firebase.</td></tr>';
+            }
+        };
+
         const renderProductsTable = (products) => {
             productsTableBody.innerHTML = '';
             if (products.length === 0) {
-                productsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">لا توجد منتجات.</td></tr>';
+                productsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">لا توجد منتجات مطابقة.</td></tr>';
                 return;
             }
             
+            const today = new Date();
             const lowStockThreshold = 10;
-            products.forEach(product => {
+            
+            products.forEach(doc => {
+                const product = doc.data();
+                const expiryDate = product.expiryDate ? new Date(product.expiryDate) : null;
                 const isLowStock = product.quantity <= lowStockThreshold;
-                const alertBadge = isLowStock ? `<span class="badge low-stock">نقص</span>` : '';
+                const isExpiring = expiryDate && (expiryDate - today) / (1000 * 60 * 60 * 24) <= 30;
+                
+                const alertBadges = [];
+                if (isLowStock) {
+                    alertBadges.push(`<span class="badge low-stock">نقص</span>`);
+                }
+                if (isExpiring) {
+                    alertBadges.push(`<span class="badge expiring">صلاحية</span>`);
+                }
                 
                 productsTableBody.innerHTML += `
                     <tr>
-                        <td>${product.barcode || ''}</td>
+                        <td>${product.barcode}</td>
                         <td>${product.name}</td>
                         <td>${product.quantity} ${product.unit || ''}</td>
-                        <td>${product.purchasePrice?.toFixed(2) || '0.00'}</td>
-                        <td>${product.price?.toFixed(2) || '0.00'}</td>
+                        <td>${product.purchasePrice ? product.purchasePrice.toFixed(2) : '0.00'}</td>
+                        <td>${product.price ? product.price.toFixed(2) : '0.00'}</td>
                         <td>${product.expiryDate || 'لا يوجد'}</td>
-                        <td>${alertBadge}</td>
-                        <td>
-                            <button class="action-btn edit" onclick="openEditModal('${product.id}')"><i class="ri-edit-line"></i></button>
-                            <button class="action-btn delete" onclick="deleteProduct('${product.id}')"><i class="ri-delete-bin-line"></i></button>
-                            <button class="action-btn" onclick="printBarcode('${product.barcode}', '${product.name}')"><i class="ri-printer-line"></i></button>
+                        <td>${alertBadges.join(' ')}</td>
+                        <td class="actions-cell">
+                            <button class="action-btn edit" onclick="openEditModal('${doc.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn delete" onclick="deleteProduct('${doc.id}')"><i class="fas fa-trash"></i></button>
+                            <button class="action-btn" onclick="printBarcode('${product.barcode}', '${product.name}')"><i class="fas fa-print"></i></button>
                         </td>
                     </tr>
                 `;
             });
         };
 
-        // --- البحث المحلي ---
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            if (!searchTerm) {
-                renderProductsTable(allProducts);
-                return;
+        const generateBarcode = () => {
+            const randomPart = Math.floor(10000000000 + Math.random() * 90000000000).toString().substr(0, 11);
+            const barcode = '7' + randomPart;
+            let checksum = 0;
+            for (let i = 0; i < 12; i++) {
+                checksum += parseInt(barcode[i]) * (i % 2 === 0 ? 1 : 3);
             }
-            const filteredProducts = allProducts.filter(p => 
-                p.name.toLowerCase().includes(searchTerm) || 
-                (p.barcode && p.barcode.includes(searchTerm))
-            );
-            renderProductsTable(filteredProducts);
-        });
+            checksum = (10 - (checksum % 10)) % 10;
+            productBarcodeInput.value = barcode + checksum;
+        };
 
-        // --- وظائف النوافذ والأزرار ---
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        const isValidEAN13 = (barcode) => {
+            if (!barcode || barcode.length !== 13 || !/^[0-9]+$/.test(barcode)) {
+                return false;
+            }
+            const firstDigit = barcode.charAt(0);
+            if (!['0', '1', '6', '7', '8', '9'].includes(firstDigit)) {
+                return false;
+            }
+            return true;
+        };
 
-        addProductBtn.addEventListener('click', () => {
+        const printBarcode = (barcode, productName) => {
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("id", "dynamicBarcode");
+            try {
+                JsBarcode(svg, barcode, {
+                    format: isValidEAN13(barcode) ? "EAN13" : "CODE128",
+                    displayValue: true,
+                    fontSize: 18,
+                    width: 2,
+                    height: 50,
+                    margin: 10
+                });
+                const serializer = new XMLSerializer();
+                const svgContent = serializer.serializeToString(svg);
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>طباعة باركود</title>
+                        <style>
+                            @media print {
+                                @page { size: 80mm 50mm; margin: 0; }
+                                body { margin: 0; padding: 5mm; }
+                                h2, svg { max-width: 100%; margin: 0 auto; }
+                            }
+                            body { text-align: center; font-family: "Tajawal", sans-serif; }
+                            svg { max-width: 100%; margin: 10px auto; display: block; }
+                            h2 { font-size: 14px; margin-bottom: 5px; }
+                        </style>
+                    </head>
+                    <body>
+                        <h2>${productName}</h2>
+                        ${svgContent}
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                }, 500);
+            } catch (error) {
+                console.error("Error generating barcode:", error);
+                alert("حدث خطأ أثناء توليد الباركود. الرجاء التأكد من بيانات الباركود.");
+            }
+        };
+
+        const openModal = (id) => {
+            document.getElementById(id).classList.add('active');
+        };
+
+        const closeModal = (id) => {
+            document.getElementById(id).classList.remove('active');
             productForm.reset();
-            document.getElementById('productId').value = '';
-            document.getElementById('modalTitle').textContent = 'إضافة منتج جديد';
-            openModal('productModal');
-        });
+            productIdInput.value = '';
+            if (codeReader) {
+                codeReader.reset();
+                codeReader = null;
+            }
+        };
 
-        const openEditModal = (productId) => {
-            const product = allProducts.find(p => p.id === productId);
-            if (!product) return;
-            document.getElementById('modalTitle').textContent = `تعديل منتج: ${product.name}`;
-            document.getElementById('productId').value = product.id;
-            document.getElementById('productName').value = product.name;
-            document.getElementById('productBarcode').value = product.barcode;
-            document.getElementById('productQuantity').value = product.quantity;
-            document.getElementById('productPrice').value = product.price;
-            document.getElementById('productPurchasePrice').value = product.purchasePrice;
-            document.getElementById('productExpiry').value = product.expiryDate;
-            document.getElementById('productUnit').value = product.unit;
+        const openEditModal = async (productId) => {
+            const productDoc = await db.collection('products').doc(productId).get();
+            const product = productDoc.data();
+            modalTitle.textContent = `تعديل منتج: ${product.name}`;
+            productIdInput.value = productId;
+            productNameInput.value = product.name;
+            productBarcodeInput.value = product.barcode;
+            productQuantityInput.value = product.quantity;
+            productPriceInput.value = product.price;
+            productPurchasePriceInput.value = product.purchasePrice;
+            productExpiryInput.value = product.expiryDate;
+            productUnitInput.value = product.unit;
             openModal('productModal');
         };
-        
-        // --- عمليات الحفظ والحذف (تحديث Firebase) ---
-        productForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const productId = document.getElementById('productId').value;
-            const productData = {
-                name: document.getElementById('productName').value,
-                barcode: document.getElementById('productBarcode').value,
-                quantity: parseInt(document.getElementById('productQuantity').value),
-                purchasePrice: parseFloat(document.getElementById('productPurchasePrice').value),
-                price: parseFloat(document.getElementById('productPrice').value),
-                expiryDate: document.getElementById('productExpiry').value || null,
-                unit: document.getElementById('productUnit').value
-            };
-            
-            try {
-                if (productId) {
-                    await db.collection('products').doc(productId).update(productData);
-                } else {
-                    await db.collection('products').add(productData);
-                }
-                closeModal('productModal');
-                loadProducts(); // إعادة تحميل البيانات بعد التغيير
-            } catch (error) {
-                alert("فشل حفظ المنتج. تأكد من اتصالك بالإنترنت.");
-                console.error("Error saving product: ", error);
-            }
-        });
 
         const deleteProduct = async (productId) => {
             if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
-                 try {
-                    await db.collection('products').doc(productId).delete();
-                    loadProducts(); // إعادة تحميل البيانات
-                } catch (error) {
-                    alert("فشل حذف المنتج. تأكد من اتصالك بالإنترنت.");
-                    console.error("Error deleting product: ", error);
-                }
+                await db.collection('products').doc(productId).delete();
+                fetchProducts();
             }
         };
 
-        // --- وظيفة طباعة الباركود المحسّنة ---
-        const printBarcode = (barcode, productName) => {
-            if (!barcode) { alert("لا يوجد باركود لطباعته."); return; }
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <html><head><title>طباعة باركود</title>
-                <style>
-                    @media print {
-                        @page { size: 50mm 25mm; margin: 0; }
-                        body { margin: 0; padding: 2mm; font-family: monospace; text-align: center; }
-                        .product-name { font-size: 8pt; margin: 0; padding: 0; }
-                        svg { width: 95%; height: auto; display: block; margin: 1mm auto 0 auto; }
-                    }
-                </style>
-                </head><body>
-                    <div class="product-name">${productName}</div>
-                    <svg id="barcode-svg"></svg>
-                    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
-                    <script>
-                        try {
-                            JsBarcode("#barcode-svg", "${barcode}", {
-                                format: "CODE128", displayValue: true, height: 40, fontSize: 12, margin: 2
-                            });
-                            window.print();
-                        } catch(e) { console.error(e); } finally { window.close(); }
-                    <\/script>
-                </body></html>
-            `);
-            printWindow.document.close();
-        };
-        
-        // تسجيل الخروج
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-             auth.signOut().then(() => {
-                sessionStorage.clear(); // مسح الجلسة عند الخروج
-                window.location.href = 'login.html';
-             });
+        addProductBtn.addEventListener('click', () => {
+            modalTitle.textContent = 'إضافة منتج جديد';
+            openModal('productModal');
         });
 
+        productForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const productId = productIdInput.value;
+            const product = {
+                name: productNameInput.value,
+                barcode: productBarcodeInput.value || 'BAR' + Date.now(),
+                quantity: parseInt(productQuantityInput.value),
+                purchasePrice: parseFloat(productPurchasePriceInput.value),
+                price: parseFloat(productPriceInput.value),
+                expiryDate: productExpiryInput.value || null,
+                unit: productUnitInput.value
+            };
+            if (productId) {
+                await db.collection('products').doc(productId).update(product);
+            } else {
+                await db.collection('products').add(product);
+            }
+            closeModal('productModal');
+            fetchProducts();
+        });
+
+        const performSearch = (searchTerm) => {
+            fetchProducts(searchTerm);
+        };
+
+        searchInput.addEventListener('input', (e) => {
+            performSearch(e.target.value);
+        });
+
+        scanBtn.addEventListener('click', async () => {
+            openModal('scannerModal');
+            scannerStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تهيئة الكاميرا...';
+            scannerError.textContent = '';
+            if (!codeReader) {
+                codeReader = new ZXing.BrowserMultiFormatReader();
+            }
+            try {
+                const videoInputDevices = await codeReader.getVideoInputDevices();
+                if (videoInputDevices.length === 0) {
+                    scannerError.textContent = 'لم يتم العثور على كاميرا في هذا الجهاز.';
+                    scannerStatus.textContent = '';
+                    return;
+                }
+                let selectedDeviceId = null;
+                const rearCamera = videoInputDevices.find(device => device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('environment'));
+                if (rearCamera) {
+                    selectedDeviceId = rearCamera.deviceId;
+                } else {
+                    selectedDeviceId = videoInputDevices[0].deviceId;
+                }
+                scannerStatus.innerHTML = '<i class="fas fa-camera"></i> جاهز للمسح...';
+                codeReader.decodeFromVideoDevice(selectedDeviceId, scannerVideo, (result, err) => {
+                    if (result) {
+                        searchInput.value = result.text;
+                        performSearch(result.text);
+                        closeModal('scannerModal');
+                    }
+                    if (err && !(err instanceof ZXing.NotFoundException)) {
+                        console.error(err);
+                        scannerError.textContent = 'حدث خطأ أثناء المسح. حاول مرة أخرى.';
+                    }
+                });
+            } catch (err) {
+                console.error(err);
+                scannerError.textContent = 'فشل الوصول إلى الكاميرا. تأكد من إعطاء الصلاحيات.';
+                scannerStatus.textContent = '';
+            }
+        });
+        
+        scannerSessionDocRef.onSnapshot(doc => {
+            const data = doc.data();
+            if (data && data.status === 'scanned') {
+                searchInput.value = data.scannedValue;
+                performSearch(data.scannedValue);
+                scannerSessionDocRef.set({ status: 'readyForNextScan' });
+            }
+        });
+
+        scanWithPhoneBtn.addEventListener('click', async () => {
+            scanWithPhoneBtn.classList.add('btn-waiting');
+            try {
+                await scannerSessionDocRef.set({ status: 'scanRequested', purpose: 'search', lastSeen: new Date() });
+            } catch (error) {
+                console.error("Failed to send scan request:", error);
+                alert("فشل إرسال طلب المسح. تأكد من أن الهاتف متصل بالإنترنت.");
+            } finally {
+                setTimeout(() => {
+                    scanWithPhoneBtn.classList.remove('btn-waiting');
+                }, 1500);
+            }
+        });
+
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await auth.signOut();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout Error:', error);
+            }
+        });
     </script>
 </body>
 </html>
