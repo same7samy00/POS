@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة العملاء - نظام إدارة المحل</title>
+    <title>التقارير - نظام إدارة المحل</title>
     <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #4CAF50; --primary-dark: #388E3C; --secondary: #03A9F4; --error: #f44336;
@@ -21,49 +22,34 @@
         .sidebar .nav-list a.active, .sidebar .nav-list a:hover { background: var(--primary); color: white; }
         .sidebar .nav-list a i { margin-left: 10px; font-size: 1.2rem; }
         
-        .main-content { flex-grow: 1; padding: 1.5rem; display: flex; flex-direction: column; }
+        .main-content { flex-grow: 1; padding: 1.5rem; display: flex; flex-direction: column; overflow-y: auto; }
         .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .main-header h1 { font-size: 1.8rem; color: var(--primary-dark); }
         
-        .input-group { position: relative; display: flex; align-items: center; }
-        .input-group i.input-icon { position: absolute; right: 15px; color: #aaa; font-size: 1.2rem; z-index: 1; }
-        .input-group input { flex-grow: 1; padding: 14px 45px 14px 15px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; transition: all 0.3s; }
+        .filters { display: flex; flex-wrap: wrap; gap: 1rem; background-color: #fff; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; align-items: center; }
+        .filters .date-range { display: flex; gap: 0.5rem; align-items: center; }
+        .filters input[type="date"] { padding: 8px; border-radius: 5px; border: 1px solid var(--border-color); }
         
-        #customers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; overflow-y: auto; padding: 5px; flex-grow: 1; }
-        .customer-card { background-color: #fff; border-radius: 15px; padding: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border-bottom: 5px solid var(--secondary); display: flex; flex-direction: column; justify-content: space-between; aspect-ratio: 1 / 1; }
-        .customer-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-        .customer-card h3 { font-size: 1.1rem; margin-bottom: 0.25rem; color: var(--dark); }
-        .customer-card p { color: var(--secondary-dark); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
-        .balance { text-align: left; font-size: 1.5rem; font-weight: 700; }
-        .balance.debit { color: var(--error); }
-        .balance.credit { color: var(--primary); }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+        .kpi-card { background-color: #fff; border-radius: 8px; padding: 1.5rem; display: flex; align-items: center; gap: 1rem; }
+        .kpi-card .icon { font-size: 2.5rem; color: var(--primary); }
+        .kpi-card .info h4 { font-size: 1rem; color: var(--secondary-dark); margin-bottom: 0.25rem; }
+        .kpi-card .info p { font-size: 1.5rem; font-weight: 700; }
         
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
-        .modal.active { display: flex; }
-        /* === Z-index fix for nested modals === */
-        .modal-nested { z-index: 2001; }
-        .modal-content { background-color: var(--bg-color); padding: 1rem; border-radius: 10px; width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; }
-        .modal-footer { margin-top: auto; padding-top: 1rem; display: flex; justify-content: flex-end; }
+        .reports-container { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .report-card { background-color: #fff; border-radius: 8px; padding: 1.5rem; }
+        .report-card.full-width { grid-column: 1 / -1; }
+        .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .report-header h3 { font-size: 1.2rem; }
         
-        #customerDetailsModal .modal-header { background: #fff; padding: 1.5rem; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center; }
-        #customerDetailsModal .modal-body { flex-grow: 1; overflow-y: auto; padding: 1.5rem; }
-        .details-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
-        .summary-box { background: #fff; padding: 1.5rem; border-radius: 8px; text-align: center; }
-        .summary-box h4 { margin-bottom: 0.5rem; color: var(--secondary-dark); font-size: 1rem; }
-        .summary-box p { font-size: 1.8rem; font-weight: 700; }
-        .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 1.5rem; }
-        .tab-link { padding: 1rem 1.5rem; cursor: pointer; font-size: 1.1rem; border-bottom: 3px solid transparent; }
-        .tab-link.active { color: var(--primary); border-bottom-color: var(--primary); }
-        .tab-content { display: none; } .tab-content.active { display: block; }
-        .data-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; }
-        .data-table th, .data-table td { padding: 12px 15px; text-align: right; border-bottom: 1px solid var(--border-color); }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 10px; text-align: right; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;}
         .data-table th { background-color: var(--light); }
-        .data-table tr:hover { background-color: var(--light); }
-        .data-table tr.clickable { cursor: pointer; }
 
-        .btn { padding: 10px 15px; border-radius: 8px; border: none; cursor: pointer; font-size: 1rem; font-weight: 500; transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn { padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-secondary { background-color: #6c757d; color: white; }
+        
+        @media (max-width: 992px) { .reports-container { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -72,70 +58,41 @@
         <ul class="nav-list">
             <li><a href="inventory.html"><i class="ri-box-3-line"></i><span>إدارة المخزون</span></a></li>
             <li><a href="pos.html"><i class="ri-shopping-cart-2-line"></i><span>نقطة البيع</span></a></li>
-            <li><a href="customers.html" class="active"><i class="ri-user-3-line"></i><span>إدارة العملاء</span></a></li>
-            <li><a href="reports.html"><i class="ri-pie-chart-line"></i><span>التقارير</span></a></li>
+            <li><a href="customers.html"><i class="ri-user-3-line"></i><span>إدارة العملاء</span></a></li>
+            <li><a href="reports.html" class="active"><i class="ri-pie-chart-line"></i><span>التقارير</span></a></li>
             <li><a href="settings.html"><i class="ri-settings-3-line"></i><span>الإعدادات</span></a></li>
             <li><a href="#" id="logoutBtn"><i class="ri-logout-box-r-line"></i><span>تسجيل الخروج</span></a></li>
         </ul>
     </div>
 
     <div class="main-content">
-        <div class="main-header"><h1>إدارة العملاء</h1><button class="btn btn-primary" id="add-customer-btn"><i class="ri-user-add-line"></i> إضافة عميل</button></div>
-        <div class="input-group" style="max-width: 500px; margin-bottom: 1.5rem;"><i class="ri-search-line input-icon"></i><input type="text" id="customer-search" placeholder="ابحث بالاسم أو رقم الهاتف..."></div>
-        <div id="customers-grid"></div>
-    </div>
-
-    <div id="customerFormModal" class="modal modal-nested">
-        <div class="modal-content" style="background: #fff; height: auto; max-width: 600px;">
-             <h2 id="form-modal-title" style="padding: 1rem;"></h2>
-             <form id="customerForm" style="padding: 1rem;">
-                <input type="hidden" id="customerId"><div class="input-group" style="margin-bottom: 1rem;"><i class="ri-user-line input-icon"></i><input type="text" id="customerName" placeholder="اسم العميل" required></div>
-                <div class="input-group" style="margin-bottom: 1rem;"><i class="ri-phone-line input-icon"></i><input type="tel" id="customerPhone" placeholder="رقم الهاتف"></div>
-                <div class="input-group" style="margin-bottom: 1rem;"><i class="ri-map-pin-line input-icon"></i><input type="text" id="customerAddress" placeholder="العنوان"></div>
-                <div class="input-group" style="margin-bottom: 1rem;"><i class="ri-file-text-line input-icon"></i><input type="text" id="customerNotes" placeholder="ملاحظات"></div>
-                <div class="modal-footer"><button class="btn btn-secondary close-modal-btn">إغلاق</button><button type="submit" class="btn btn-primary" style="margin-right: 10px;">حفظ</button></div>
-             </form>
+        <div class="main-header"><h1>التقارير</h1></div>
+        
+        <div class="filters">
+            <div class="date-range"><label for="startDate">من:</label><input type="date" id="startDate"><label for="endDate">إلى:</label><input type="date" id="endDate"></div>
+            <button class="btn btn-secondary" id="filter-today">اليوم</button>
+            <button class="btn btn-secondary" id="filter-week">هذا الأسبوع</button>
+            <button class="btn btn-secondary" id="filter-month">هذا الشهر</button>
+            <button class="btn btn-primary" id="apply-filter"><i class="ri-filter-3-line"></i> تطبيق</button>
         </div>
-    </div>
-    
-    <div id="paymentModal" class="modal modal-nested">
-        <div class="modal-content" style="max-width: 500px; background: #fff; height: auto;">
-             <h2 style="padding: 1rem;">تسديد دفعة</h2>
-             <form id="paymentForm" style="padding: 1rem;">
-                <div class="input-group" style="margin-bottom: 1rem;"><i class="ri-money-dollar-circle-line input-icon"></i><input type="number" step="0.01" id="paymentAmount" placeholder="المبلغ" required></div>
-                <div class="input-group" style="margin-bottom: 1rem;"><i class="ri-calendar-line input-icon"></i><input type="date" id="paymentDate" required></div>
-                <div class="modal-footer"><button class="btn btn-secondary close-modal-btn">إغلاق</button><button type="submit" class="btn btn-primary" style="margin-right: 10px;">تسديد</button></div>
-             </form>
-        </div>
-    </div>
 
-    <div id="invoiceDetailsModal" class="modal modal-nested">
-        <div class="modal-content" style="max-width: 800px; background: #fff; height: auto;">
-             <h2 id="invoice-details-title" style="padding: 1rem;">تفاصيل الفاتورة</h2>
-             <div style="padding: 1rem; flex-grow: 1; overflow-y: auto;">
-                <table class="data-table"><thead><tr><th>المنتج</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr></thead><tbody id="invoice-items-body"></tbody></table>
-             </div>
-             <div class="modal-footer"><button class="btn btn-secondary close-modal-btn">إغلاق</button></div>
+        <div class="kpi-grid">
+            <div class="kpi-card"><div class="icon" style="color: var(--primary);"><i class="ri-bar-chart-2-line"></i></div><div class="info"><h4>إجمالي المبيعات</h4><p id="kpi-total-sales">0.00</p></div></div>
+            <div class="kpi-card"><div class="icon" style="color: var(--secondary);"><i class="ri-wallet-3-line"></i></div><div class="info"><h4>إجمالي الأرباح</h4><p id="kpi-total-profit">0.00</p></div></div>
+            <div class="kpi-card"><div class="icon" style="color: #ff9800;"><i class="ri-file-list-3-line"></i></div><div class="info"><h4>عدد الفواتير</h4><p id="kpi-total-invoices">0</p></div></div>
+            <div class="kpi-card"><div class="icon" style="color: var(--error);"><i class="ri-money-dollar-box-line"></i></div><div class="info"><h4>إجمالي المديونيات</h4><p id="kpi-total-debt">0.00</p></div></div>
         </div>
-    </div>
-
-    <div id="customerDetailsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div><h2 id="details-customer-name"></h2><p id="details-customer-phone"></p></div>
-                <div class="actions"><button class="btn btn-primary" id="make-payment-btn"><i class="ri-hand-coin-line"></i> تسديد دفعة</button><button class="btn" id="edit-customer-btn" style="background: var(--secondary); color: #fff; margin-right: 10px;"><i class="ri-edit-2-line"></i> تعديل</button></div>
+        
+        <div class="reports-container">
+            <div class="report-card"><div class="report-header"><h3>أداء المبيعات</h3><button class="btn btn-secondary print-btn"><i class="ri-printer-line"></i> طباعة</button></div><canvas id="salesChart"></canvas></div>
+            <div class="report-card"><div class="report-header"><h3>المنتجات الأكثر مبيعاً</h3><button class="btn btn-secondary print-btn"><i class="ri-printer-line"></i> طباعة</button></div><table class="data-table"><thead><tr><th>المنتج</th><th>الكمية</th><th>العائد</th></tr></thead><tbody id="top-products-table"></tbody></table></div>
+            <div class="report-card"><div class="report-header"><h3>العملاء الأكثر شراءً</h3><button class="btn btn-secondary print-btn"><i class="ri-printer-line"></i> طباعة</button></div><table class="data-table"><thead><tr><th>العميل</th><th>المشتريات</th></tr></thead><tbody id="top-customers-table"></tbody></table></div>
+            <div class="report-card"><div class="report-header"><h3>تنبيهات المخزون</h3></div><table class="data-table"><thead><tr><th>المنتج</th><th>الكمية المتبقية</th></tr></thead><tbody id="low-stock-table"></tbody></table></div>
+            
+            <div class="report-card full-width">
+                <div class="report-header"><h3>الفواتير</h3><button class="btn btn-secondary print-btn"><i class="ri-printer-line"></i> طباعة</button></div>
+                <table class="data-table"><thead><tr><th>التاريخ</th><th>العميل</th><th>الإجمالي</th><th>الأرباح</th><th>طريقة الدفع</th></tr></thead><tbody id="invoices-table"></tbody></table>
             </div>
-            <div class="modal-body">
-                <div class="details-summary">
-                    <div class="summary-box"><h4>إجمالي المشتريات الآجلة</h4><p id="details-total-sales">0.00</p></div>
-                    <div class="summary-box"><h4>إجمالي المدفوعات</h4><p id="details-total-payments">0.00</p></div>
-                    <div class="summary-box"><h4>الرصيد الحالي</h4><p id="details-balance" class="balance">0.00</p></div>
-                </div>
-                <div class="tabs"><span class="tab-link active" data-tab="invoices">الفواتير</span><span class="tab-link" data-tab="payments">المدفوعات</span></div>
-                <div id="tab-invoices" class="tab-content active"><table class="data-table"><thead><tr><th>تاريخ الفاتورة</th><th>الإجمالي</th><th>طريقة الدفع</th></tr></thead><tbody id="invoices-table-body"></tbody></table></div>
-                <div id="tab-payments" class="tab-content"><table class="data-table"><thead><tr><th>تاريخ الدفعة</th><th>المبلغ</th></tr></thead><tbody id="payments-table-body"></tbody></table></div>
-            </div>
-            <div class="modal-footer"><button class="btn btn-secondary close-modal-btn">إغلاق</button></div>
         </div>
     </div>
 
@@ -146,128 +103,163 @@
         const firebaseConfig = { apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE", authDomain: "supplies-system.firebaseapp.com", projectId: "supplies-system", storageBucket: "supplies-system.firebasestorage.app", messagingSenderId: "205884975863", appId: "1:205884975863:web:de65d32c2459f9979ac1f2" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
-        let allCustomers = [], allSales = [], allPayments = [], currentlyViewedCustomerId = null;
-        const customersGrid = document.getElementById('customers-grid'), customerSearchInput = document.getElementById('customer-search');
-        
-        auth.onAuthStateChanged(user => { if (!user) window.location.href = 'login.html'; else init(); });
+        let salesChart;
 
-        async function init() {
-            customersGrid.innerHTML = '<p>جاري تحميل البيانات...</p>';
-            await fetchAllData(); calculateBalances(); renderCustomers();
-        }
-        async function fetchAllData() {
-            const [customersSnap, salesSnap, paymentsSnap] = await Promise.all([db.collection('customers').get(), db.collection('sales').where('paymentMethod', '==', 'آجل').get(), db.collection('payments').get()]);
-            allCustomers = customersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            allSales = salesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            allPayments = paymentsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        }
-        function calculateBalances() {
-            allCustomers.forEach(customer => {
-                const customerSales = allSales.filter(sale => sale.customerId === customer.id);
-                const customerPayments = allPayments.filter(payment => payment.customerId === customer.id);
-                const totalPurchases = customerSales.reduce((sum, sale) => sum + sale.total, 0);
-                const totalPaid = customerPayments.reduce((sum, payment) => sum + payment.amount, 0);
-                customer.balance = totalPurchases - totalPaid;
-            });
-        }
-        function renderCustomers(filteredCustomers = allCustomers) {
-            customersGrid.innerHTML = '';
-            if (filteredCustomers.length === 0) { customersGrid.innerHTML = '<p>لا يوجد عملاء لعرضهم.</p>'; return; }
-            filteredCustomers.forEach(customer => {
-                const card = document.createElement('div'); card.className = 'customer-card';
-                card.innerHTML = `<div><h3>${customer.name}</h3><p><i class="ri-phone-line"></i> ${customer.phone || 'غير مسجل'}</p></div><p class="balance ${customer.balance > 0 ? 'debit' : 'credit'}">${customer.balance.toFixed(2)} EGP</p>`;
-                card.onclick = () => showCustomerDetails(customer.id); customersGrid.appendChild(card);
-            });
-        }
-        function showCustomerDetails(customerId) {
-            currentlyViewedCustomerId = customerId;
-            const customer = allCustomers.find(c => c.id === customerId);
-            const customerSales = allSales.filter(sale => sale.customerId === customerId);
-            const customerPayments = allPayments.filter(payment => payment.customerId === customerId);
-            const totalPurchases = customerSales.reduce((sum, sale) => sum + sale.total, 0);
-            const totalPaid = customerPayments.reduce((sum, payment) => sum + payment.amount, 0);
-            
-            document.getElementById('details-customer-name').textContent = customer.name;
-            document.getElementById('details-customer-phone').textContent = customer.phone;
-            document.getElementById('details-total-sales').textContent = totalPurchases.toFixed(2);
-            document.getElementById('details-total-payments').textContent = totalPaid.toFixed(2);
-            document.getElementById('details-balance').textContent = customer.balance.toFixed(2);
-            document.getElementById('details-balance').className = `balance ${customer.balance > 0 ? 'debit' : 'credit'}`;
-            
-            const invoicesBody = document.getElementById('invoices-table-body'); invoicesBody.innerHTML = '';
-            customerSales.forEach(sale => {
-                const date = sale.createdAt?.toDate ? sale.createdAt.toDate().toLocaleDateString('ar-EG') : 'غير محدد';
-                const row = document.createElement('tr'); row.className = 'clickable';
-                row.innerHTML = `<td>${date}</td><td>${sale.total.toFixed(2)}</td><td>${sale.paymentMethod}</td>`;
-                row.onclick = () => showInvoiceDetails(sale.id); // Make row clickable
-                invoicesBody.appendChild(row);
-            });
-            const paymentsBody = document.getElementById('payments-table-body'); paymentsBody.innerHTML = '';
-            customerPayments.forEach(payment => {
-                const date = payment.paymentDate?.toDate ? payment.paymentDate.toDate().toLocaleDateString('ar-EG') : 'غير محدد';
-                paymentsBody.innerHTML += `<tr><td>${date}</td><td>${payment.amount.toFixed(2)}</td></tr>`;
-            });
-            openModal('customerDetailsModal');
-        }
-        function showInvoiceDetails(saleId) {
-            const sale = allSales.find(s => s.id === saleId);
-            const title = document.getElementById('invoice-details-title');
-            const itemsBody = document.getElementById('invoice-items-body');
-            const saleDate = sale.createdAt?.toDate ? sale.createdAt.toDate().toLocaleDateString('ar-EG') : '';
-            title.textContent = `تفاصيل الفاتورة - ${saleDate}`;
-            itemsBody.innerHTML = '';
-            sale.items.forEach(item => {
-                itemsBody.innerHTML += `<tr><td>${item.name}</td><td>${item.qty}</td><td>${item.price.toFixed(2)}</td><td>${(item.qty * item.price).toFixed(2)}</td></tr>`;
-            });
-            openModal('invoiceDetailsModal');
-        }
-        customerSearchInput.addEventListener('input', e => {
-            const term = e.target.value.toLowerCase();
-            const filtered = allCustomers.filter(c => c.name.toLowerCase().includes(term) || (c.phone && c.phone.includes(term)));
-            renderCustomers(filtered);
-        });
-        function openModal(modalId) { document.getElementById(modalId).classList.add('active'); }
-        document.addEventListener('click', e => { if (e.target.classList.contains('close-modal-btn')) e.target.closest('.modal').classList.remove('active'); });
+        auth.onAuthStateChanged(user => { if (!user) window.location.href = 'login.html'; else init(); });
         
-        document.getElementById('add-customer-btn').addEventListener('click', () => {
-            document.getElementById('customerForm').reset(); document.getElementById('customerId').value = '';
-            document.getElementById('form-modal-title').textContent = 'إضافة عميل جديد'; openModal('customerFormModal');
-        });
-        document.getElementById('edit-customer-btn').addEventListener('click', () => {
-            const customer = allCustomers.find(c => c.id === currentlyViewedCustomerId);
-            document.getElementById('customerId').value = customer.id;
-            document.getElementById('customerName').value = customer.name; document.getElementById('customerPhone').value = customer.phone;
-            document.getElementById('customerAddress').value = customer.address; document.getElementById('customerNotes').value = customer.notes;
-            document.getElementById('form-modal-title').textContent = 'تعديل بيانات العميل'; openModal('customerFormModal');
-        });
-        document.getElementById('make-payment-btn').addEventListener('click', () => {
-            document.getElementById('paymentForm').reset(); document.getElementById('paymentDate').valueAsDate = new Date(); openModal('paymentModal');
-        });
-        document.getElementById('customerForm').addEventListener('submit', async e => {
-            e.preventDefault();
-            const customerId = document.getElementById('customerId').value;
-            const data = { name: document.getElementById('customerName').value, phone: document.getElementById('customerPhone').value, address: document.getElementById('customerAddress').value, notes: document.getElementById('customerNotes').value };
-            try { if (customerId) await db.collection('customers').doc(customerId).update(data); else await db.collection('customers').add(data);
-                document.querySelector('#customerFormModal').classList.remove('active'); init();
-            } catch (error) { console.error("Error saving customer:", error); }
-        });
-        document.getElementById('paymentForm').addEventListener('submit', async e => {
-            e.preventDefault();
-            const data = { customerId: currentlyViewedCustomerId, amount: parseFloat(document.getElementById('paymentAmount').value), paymentDate: new Date(document.getElementById('paymentDate').value) };
-            if (data.amount <= 0) return alert('المبلغ يجب أن يكون أكبر من صفر');
-            try { await db.collection('payments').add(data);
-                document.querySelector('#paymentModal').classList.remove('active'); document.querySelector('#customerDetailsModal').classList.remove('active');
-                init();
-            } catch (error) { console.error("Error saving payment:", error); }
-        });
-        document.querySelectorAll('.tab-link').forEach(tab => {
-            tab.addEventListener('click', () => {
-                tab.parentElement.querySelector('.active').classList.remove('active');
-                tab.closest('.modal-body').querySelector('.tab-content.active').classList.remove('active');
-                tab.classList.add('active');
-                document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+        function init() {
+            const today = new Date(); const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            document.getElementById('startDate').valueAsDate = firstDay; document.getElementById('endDate').valueAsDate = today;
+            generateReports(); setupEventListeners();
+        }
+        function setupEventListeners() {
+            document.getElementById('apply-filter').onclick = generateReports;
+            document.getElementById('filter-today').onclick = () => setDateRange('today');
+            document.getElementById('filter-week').onclick = () => setDateRange('week');
+            document.getElementById('filter-month').onclick = () => setDateRange('month');
+            document.querySelectorAll('.print-btn').forEach(btn => btn.onclick = printReport);
+        }
+        function setDateRange(period) {
+            const today = new Date(); let startDate = new Date();
+            if (period === 'today') startDate = today;
+            else if (period === 'week') startDate = new Date(today.setDate(today.getDate() - today.getDay()));
+            else if (period === 'month') startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            document.getElementById('startDate').valueAsDate = startDate; document.getElementById('endDate').valueAsDate = new Date();
+            generateReports();
+        }
+
+        async function generateReports() {
+            const startDate = new Date(document.getElementById('startDate').value); startDate.setHours(0, 0, 0, 0);
+            const endDate = new Date(document.getElementById('endDate').value); endDate.setHours(23, 59, 59, 999);
+            
+            const [salesSnap, productsSnap, customersSnap, paymentsSnap] = await Promise.all([
+                db.collection('sales').where('createdAt', '>=', startDate).where('createdAt', '<=', endDate).get(),
+                db.collection('products').get(), db.collection('customers').get(), db.collection('payments').get()
+            ]);
+            
+            const sales = salesSnap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+            const products = productsSnap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+            const customers = customersSnap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+            const allPayments = paymentsSnap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+
+            updateKpis(sales, products, customers, allPayments);
+            renderSalesChart(sales);
+            renderTopProducts(sales);
+            renderTopCustomers(sales, customers);
+            renderStockAlerts(products);
+            renderInvoicesTable(sales, customers, products); // New function call
+        }
+
+        function updateKpis(sales, products, customers, allPayments) {
+            const totalSales = sales.reduce((sum, sale) => sum + sale.total, 0);
+            
+            // --- FIX FOR NaN PROFIT ---
+            let totalProfit = 0;
+            sales.forEach(sale => {
+                if(sale.items && Array.isArray(sale.items)){
+                    sale.items.forEach(item => {
+                        const product = products.find(p => p.id === item.id);
+                        const salePrice = parseFloat(item.price) || 0;
+                        const purchasePrice = product ? (parseFloat(product.purchasePrice) || 0) : 0;
+                        const quantity = parseInt(item.qty) || 0;
+                        if(product) totalProfit += (salePrice - purchasePrice) * quantity;
+                    });
+                }
             });
-        });
+            // --- END OF FIX ---
+            
+            let totalDebt = 0;
+            customers.forEach(customer => {
+                const customerCreditSales = db.collection('sales').where('customerId', '==', customer.id).where('paymentMethod', '==', 'آجل');
+                const customerPayments = allPayments.filter(payment => payment.customerId === customer.id);
+                const totalPurchases = sales.filter(s => s.customerId === customer.id && s.paymentMethod === 'آجل').reduce((sum, s) => sum + s.total, 0);
+                const totalPaid = customerPayments.reduce((sum, p) => sum + p.amount, 0);
+                totalDebt += (totalPurchases - totalPaid);
+            });
+            
+            document.getElementById('kpi-total-sales').textContent = `${totalSales.toFixed(2)} EGP`;
+            document.getElementById('kpi-total-profit').textContent = `${totalProfit.toFixed(2)} EGP`;
+            document.getElementById('kpi-total-invoices').textContent = sales.length;
+            document.getElementById('kpi-total-debt').textContent = `${totalDebt > 0 ? totalDebt.toFixed(2) : '0.00'} EGP`;
+        }
+        
+        function renderSalesChart(sales) {
+            const salesByDay = sales.reduce((acc, sale) => {
+                const date = sale.createdAt.toDate().toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
+                acc[date] = (acc[date] || 0) + sale.total;
+                return acc;
+            }, {});
+            const labels = Object.keys(salesByDay); const data = Object.values(salesByDay);
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            if(salesChart) salesChart.destroy();
+            salesChart = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'إجمالي المبيعات', data, backgroundColor: 'rgba(76, 175, 80, 0.5)', borderColor: 'rgba(76, 175, 80, 1)', borderWidth: 1 }] }, options: { responsive: true, scales: { y: { beginAtZero: true } } } });
+        }
+        
+        function renderTopProducts(sales) {
+            const productSales = {};
+            sales.forEach(sale => { sale.items.forEach(item => { if (!productSales[item.id]) productSales[item.id] = { name: item.name, qty: 0, revenue: 0 }; productSales[item.id].qty += item.qty; productSales[item.id].revenue += item.qty * item.price; }); });
+            const sortedProducts = Object.values(productSales).sort((a,b) => b.revenue - a.revenue).slice(0, 5);
+            const tableBody = document.getElementById('top-products-table'); tableBody.innerHTML = '';
+            sortedProducts.forEach(p => tableBody.innerHTML += `<tr><td>${p.name}</td><td>${p.qty}</td><td>${p.revenue.toFixed(2)}</td></tr>`);
+        }
+        
+        function renderTopCustomers(sales, customers) {
+            const customerSales = {};
+            sales.forEach(sale => {
+                const customerId = sale.customerId || 'guest';
+                if (!customerSales[customerId]) { const customer = customers.find(c => c.id === customerId); customerSales[customerId] = { name: customer ? customer.name : 'عميل نقدي', total: 0 }; }
+                customerSales[customerId].total += sale.total;
+            });
+            const sortedCustomers = Object.values(customerSales).sort((a,b) => b.total - a.total).slice(0, 5);
+            const tableBody = document.getElementById('top-customers-table'); tableBody.innerHTML = '';
+            sortedCustomers.forEach(c => tableBody.innerHTML += `<tr><td>${c.name}</td><td>${c.total.toFixed(2)}</td></tr>`);
+        }
+        
+        function renderStockAlerts(products) {
+            const lowStock = products.filter(p => p.quantity <= 10).slice(0, 5);
+            const lowStockBody = document.getElementById('low-stock-table'); lowStockBody.innerHTML = '';
+            if(lowStock.length > 0) lowStock.forEach(p => lowStockBody.innerHTML += `<tr><td>${p.name}</td><td>${p.quantity}</td></tr>`);
+            else lowStockBody.innerHTML = '<tr><td colspan="2">لا توجد منتجات.</td></tr>';
+        }
+        
+        function renderInvoicesTable(sales, customers, products){
+            const tableBody = document.getElementById('invoices-table');
+            tableBody.innerHTML = '';
+            if(sales.length === 0){ tableBody.innerHTML = '<tr><td colspan="5">لا توجد فواتير في هذه الفترة.</td></tr>'; return;}
+            sales.forEach(sale => {
+                const customer = customers.find(c => c.id === sale.customerId);
+                let invoiceProfit = 0;
+                sale.items.forEach(item => {
+                    const product = products.find(p => p.id === item.id);
+                    const salePrice = parseFloat(item.price) || 0;
+                    const purchasePrice = product ? (parseFloat(product.purchasePrice) || 0) : 0;
+                    invoiceProfit += (salePrice - purchasePrice) * (parseInt(item.qty) || 0);
+                });
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${sale.createdAt.toDate().toLocaleDateString('ar-EG')}</td>
+                        <td>${customer ? customer.name : 'عميل نقدي'}</td>
+                        <td>${sale.total.toFixed(2)}</td>
+                        <td>${invoiceProfit.toFixed(2)}</td>
+                        <td>${sale.paymentMethod}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function printReport(event) {
+            const reportCard = event.target.closest('.report-card'); const title = reportCard.querySelector('h3, h4').textContent;
+            const content = reportCard.querySelector('canvas, .data-table, div[style*="display: flex"]').cloneNode(true);
+            if(content.tagName === 'CANVAS'){
+                const image = content.toDataURL('image/png'); const printWindow = window.open('', '_blank');
+                printWindow.document.write(`<html><head><title>طباعة تقرير: ${title}</title><style>body{font-family:"Tajawal",sans-serif;direction:rtl;}</style></head><body><h2>${title}</h2><img src="${image}" style="max-width:100%;"></body></html>`);
+                printWindow.document.close(); printWindow.print();
+            } else {
+                 const printWindow = window.open('', '_blank');
+                 printWindow.document.write(`<html><head><title>طباعة تقرير: ${title}</title><style>body{font-family:"Tajawal",sans-serif;direction:rtl;} table{width:100%; border-collapse:collapse;} th,td{padding:8px; border:1px solid #ddd; text-align: right;}</style></head><body><h2>${title}</h2>${content.outerHTML}</body></html>`);
+                 printWindow.document.close(); printWindow.print();
+            }
+        }
     </script>
 </body>
 </html>
