@@ -24,11 +24,11 @@
         .pos-left { flex-grow: 1; display: flex; flex-direction: column; }
         .pos-right { width: 380px; background: #fff; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); padding: 1.5rem; display: flex; flex-direction: column; }
         .input-group { position: relative; display: flex; align-items: center; margin-bottom: 1.5rem; }
-        .input-group i.input-icon { position: absolute; right: 15px; color: #aaa; font-size: 1.2rem; }
+        .input-group i.input-icon { position: absolute; right: 15px; color: #aaa; font-size: 1.2rem; z-index: 1; }
         .input-group input { flex-grow: 1; padding: 14px 45px 14px 15px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; transition: all 0.3s; }
         .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2); outline: none; }
         .input-group .btn { margin-right: 10px; }
-        .search-results-container { position: absolute; top: 105%; left: 0; right: 0; background: #fff; border: 1px solid var(--border-color); border-radius: 8px; z-index: 1000; max-height: 250px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .search-results-container { display: none; position: absolute; top: 105%; left: 0; right: 0; background: #fff; border: 1px solid var(--border-color); border-radius: 8px; z-index: 1000; max-height: 250px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .search-results-container .result-item { padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; }
         .search-results-container .result-item:hover { background-color: var(--light); }
         .search-results-container .result-item .price { color: var(--primary-dark); font-weight: 600; }
@@ -46,7 +46,7 @@
         .summary-details .total-row { font-weight: 700; font-size: 1.5rem; color: var(--primary-dark); margin-top: 1rem; border-top: 2px solid var(--bg-color); padding-top: 1rem; }
         .summary-details .change-row { font-weight: 700; font-size: 1.2rem; color: var(--secondary); }
         .payment-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 1.5rem 0; }
-        .payment-methods .btn { width: 100%; font-size: 1.1rem; padding: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .payment-methods .btn { width: 100%; font-size: 1.1rem; padding: 15px; }
         #complete-sale-btn { width: 100%; padding: 18px; font-size: 1.3rem; font-weight: 700; }
         .btn { padding: 10px 15px; border-radius: 8px; border: none; cursor: pointer; font-size: 1rem; font-weight: 500; transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: white; }
@@ -60,10 +60,8 @@
         .modal-content { background-color: #fff; padding: 2rem; border-radius: 15px; width: 100%; height: auto; max-width: 95vw; max-height: 95vh; display: flex; flex-direction: column; position: relative; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 1.5rem; }
         .modal-header h2 { margin: 0; display: flex; align-items: center; gap: 10px; }
-        .close-btn { position: absolute; top: 15px; left: 15px; color: #aaa; font-size: 2.5rem; font-weight: bold; cursor: pointer; z-index: 10; }
+        .close-btn { position: absolute; top: 15px; right: 15px; color: #aaa; font-size: 2rem; font-weight: bold; cursor: pointer; z-index: 10; line-height: 1; }
         .modal-body { flex-grow: 1; overflow-y: auto; }
-        .form-group { margin-bottom: 1.5rem; position: relative; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
         #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 3000; }
         .toast { padding: 12px 20px; color: white; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transform: translateY(20px); transition: opacity 0.3s ease, transform 0.3s ease; }
         .toast.show { opacity: 1; transform: translateY(0); }
@@ -83,7 +81,6 @@
             <li><a href="#" id="logoutBtn"><i class="ri-logout-box-r-line"></i><span>تسجيل الخروج</span></a></li>
         </ul>
     </div>
-
     <div class="main-content">
         <div class="pos-left">
             <div class="input-group">
@@ -137,9 +134,9 @@
             <div class="modal-header"><h2><i class="ri-user-add-line"></i> إضافة عميل جديد</h2></div>
             <div class="modal-body">
                 <form id="customerForm">
-                    <div class="form-group"><label for="customerName">اسم العميل</label><div class="input-group"><i class="ri-user-line input-icon"></i><input type="text" id="customerName" required></div></div>
-                    <div class="form-group"><label for="customerPhone">رقم الهاتف</label><div class="input-group"><i class="ri-phone-line input-icon"></i><input type="tel" id="customerPhone"></div></div>
-                    <div class="form-group"><label for="customerAddress">العنوان</label><div class="input-group"><i class="ri-map-pin-line input-icon"></i><input type="text" id="customerAddress"></div></div>
+                    <div class="input-group"><i class="ri-user-line input-icon"></i><input type="text" id="customerName" placeholder="اسم العميل" required></div>
+                    <div class="input-group"><i class="ri-phone-line input-icon"></i><input type="tel" id="customerPhone" placeholder="رقم الهاتف"></div>
+                    <div class="input-group"><i class="ri-map-pin-line input-icon"></i><input type="text" id="customerAddress" placeholder="العنوان"></div>
                     <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.1rem;">حفظ العميل</button>
                 </form>
             </div>
@@ -159,116 +156,96 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE", authDomain: "supplies-system.firebaseapp.com",
-            projectId: "supplies-system", storageBucket: "supplies-system.firebasestorage.app",
-            messagingSenderId: "205884975863", appId: "1:205884975863:web:de65d32c2459f9979ac1f2",
-            measurementId: "G-2KSYJRKSCX"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE", authDomain: "supplies-system.firebaseapp.com", projectId: "supplies-system", storageBucket: "supplies-system.firebasestorage.app", messagingSenderId: "205884975863", appId: "1:205884975863:web:de65d32c2459f9979ac1f2" };
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const scannerSessionDocRef = db.collection('scannerSessions').doc('fixed');
-        let invoice = { items: [], customerId: null, customerName: 'عميل نقدي', discount: 0, paymentMethod: 'نقدي' };
-        let customersCache = [];
+        const auth = firebase.auth(), db = firebase.firestore(), scannerSessionDocRef = db.collection('scannerSessions').doc('fixed');
+        let invoice = { items: [], customerId: null, customerName: 'عميل نقدي', discount: 0, paymentMethod: 'نقدي' }, customersCache = [];
         const productSearchInput = document.getElementById('product-search'), productSearchResults = document.getElementById('product-search-results'), invoiceItemsTable = document.getElementById('invoice-items'), subtotalEl = document.getElementById('subtotal'), discountInput = document.getElementById('discount-input'), totalEl = document.getElementById('total'), amountPaidInput = document.getElementById('amount-paid'), changeDueEl = document.getElementById('change-due'), completeSaleBtn = document.getElementById('complete-sale-btn'), addCustomerBtn = document.getElementById('add-customer-btn'), customerSearchInput = document.getElementById('customer-search'), customerSearchResults = document.getElementById('customer-search-results'), paymentMethodBtns = document.querySelectorAll('.payment-methods .btn'), scanWithPhoneBtn = document.getElementById('scan-with-phone-btn'), logoutBtn = document.getElementById('logoutBtn');
-        auth.onAuthStateChanged(user => { if (!user) { window.location.href = 'login.html'; } else { loadCustomers(); listenToScanner(); } });
+        auth.onAuthStateChanged(user => { if (!user) window.location.href = 'login.html'; else { loadCustomers(); listenToScanner(); } });
+
         async function handleProductSearch(term) {
             if (!term) { productSearchResults.style.display = 'none'; return; }
-            productSearchResults.innerHTML = ''; let snapshot = await db.collection('products').where('barcode', '==', term).get();
-            if (snapshot.empty) { snapshot = await db.collection('products').orderBy('name').startAt(term).endAt(term + '\uf8ff').limit(5).get(); }
-            if (snapshot.empty) { productSearchResults.style.display = 'none'; return; }
-            snapshot.forEach(doc => {
-                const product = { id: doc.id, ...doc.data() }; const item = document.createElement('div'); item.className = 'result-item';
+            const barcodePromise = db.collection('products').where('barcode', '>=', term).where('barcode', '<=', term + '\uf8ff').get();
+            const namePromise = db.collection('products').orderBy('name').startAt(term).endAt(term + '\uf8ff').limit(5).get();
+            const [barcodeResults, nameResults] = await Promise.all([barcodePromise, namePromise]);
+            const productsMap = new Map();
+            barcodeResults.forEach(doc => productsMap.set(doc.id, { id: doc.id, ...doc.data() }));
+            nameResults.forEach(doc => productsMap.set(doc.id, { id: doc.id, ...doc.data() }));
+            productSearchResults.innerHTML = '';
+            if (productsMap.size === 0) { productSearchResults.style.display = 'none'; return; }
+            productsMap.forEach(product => {
+                const item = document.createElement('div');
+                item.className = 'result-item';
                 item.innerHTML = `<span>${product.name}</span><span class="price">${product.price.toFixed(2)} EGP</span>`;
-                item.onclick = () => addProductToInvoice(product); productSearchResults.appendChild(item);
+                item.onclick = () => addProductToInvoice(product);
+                productSearchResults.appendChild(item);
             });
             productSearchResults.style.display = 'block';
         }
+
         function handleCustomerSearch(term) {
             if (!term) { customerSearchResults.style.display = 'none'; return; }
             customerSearchResults.innerHTML = ''; const filteredCustomers = customersCache.filter(c => c.name.includes(term) || (c.phone && c.phone.includes(term)));
             filteredCustomers.forEach(customer => {
-                const item = document.createElement('div'); item.className = 'result-item';
-                item.textContent = `${customer.name} (${customer.phone || 'لا يوجد هاتف'})`;
-                item.onclick = () => selectCustomer(customer); customerSearchResults.appendChild(item);
+                const item = document.createElement('div'); item.className = 'result-item'; item.textContent = `${customer.name} (${customer.phone || 'لا يوجد هاتف'})`; item.onclick = () => selectCustomer(customer); customerSearchResults.appendChild(item);
             });
             customerSearchResults.style.display = 'block';
         }
         function addProductToInvoice(product) {
-            const existingItem = invoice.items.find(item => item.id === product.id);
-            if (existingItem) { existingItem.qty++; } else { invoice.items.push({ ...product, qty: 1 }); }
+            const existingItem = invoice.items.find(item => item.id === product.id); if (existingItem) existingItem.qty++; else invoice.items.push({ ...product, qty: 1 });
             productSearchInput.value = ''; productSearchResults.style.display = 'none'; productSearchInput.focus();
             renderInvoice(); showToast(`تم إضافة: ${product.name}`);
         }
         function renderInvoice() {
             invoiceItemsTable.innerHTML = ''; completeSaleBtn.disabled = invoice.items.length === 0;
-            invoice.items.forEach((item, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td>${item.name}</td><td>${item.price.toFixed(2)}</td><td><div class="qty-control"><button onclick="updateQty(${index}, -1)"><i class="ri-subtract-line"></i></button><input type="number" value="${item.qty}" onchange="setQty(${index}, this.value)"><button onclick="updateQty(${index}, 1)"><i class="ri-add-line"></i></button></div></td><td>${(item.price * item.qty).toFixed(2)}</td><td><button class="btn delete-item-btn" onclick="removeItem(${index})"><i class="ri-delete-bin-6-line"></i></button></td>`;
-                invoiceItemsTable.appendChild(row);
-            });
+            invoice.items.forEach((item, index) => { const row = document.createElement('tr'); row.innerHTML = `<td>${item.name}</td><td>${item.price.toFixed(2)}</td><td><div class="qty-control"><button onclick="updateQty(${index}, -1)"><i class="ri-subtract-line"></i></button><input type="number" value="${item.qty}" onchange="setQty(${index}, this.value)"><button onclick="updateQty(${index}, 1)"><i class="ri-add-line"></i></button></div></td><td>${(item.price * item.qty).toFixed(2)}</td><td><button class="btn delete-item-btn" onclick="removeItem(${index})"><i class="ri-delete-bin-6-line"></i></button></td>`; invoiceItemsTable.appendChild(row); });
             updateTotals();
         }
-        function updateQty(index, change) { invoice.items[index].qty += change; if (invoice.items[index].qty <= 0) { invoice.items.splice(index, 1); } renderInvoice(); }
-        function setQty(index, value) { const qty = parseInt(value); if (qty > 0) { invoice.items[index].qty = qty; } else { invoice.items.splice(index, 1); } renderInvoice(); }
+        function updateQty(index, change) { invoice.items[index].qty += change; if (invoice.items[index].qty <= 0) invoice.items.splice(index, 1); renderInvoice(); }
+        function setQty(index, value) { const qty = parseInt(value); if (qty > 0) invoice.items[index].qty = qty; else invoice.items.splice(index, 1); renderInvoice(); }
         function removeItem(index) { invoice.items.splice(index, 1); renderInvoice(); }
         function updateTotals() {
             const subtotal = invoice.items.reduce((acc, item) => acc + (item.price * item.qty), 0);
-            const discount = parseFloat(discountInput.value) || 0; const total = subtotal - discount;
-            const amountPaid = parseFloat(amountPaidInput.value) || 0; const changeDue = amountPaid - total;
+            const discount = parseFloat(discountInput.value) || 0, total = subtotal - discount, amountPaid = parseFloat(amountPaidInput.value) || 0, changeDue = amountPaid - total;
             subtotalEl.textContent = `${subtotal.toFixed(2)} EGP`; totalEl.textContent = `${total.toFixed(2)} EGP`;
-            changeDueEl.textContent = `${changeDue > 0 ? changeDue.toFixed(2) : '0.00'} EGP`;
-            changeDueEl.style.color = changeDue >= 0 ? 'var(--secondary)' : 'var(--error)';
+            changeDueEl.textContent = `${changeDue > 0 ? changeDue.toFixed(2) : '0.00'} EGP`; changeDueEl.style.color = changeDue >= 0 ? 'var(--secondary)' : 'var(--error)';
         }
         async function loadCustomers() { const snapshot = await db.collection('customers').get(); customersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); }
         function selectCustomer(customer) { invoice.customerId = customer.id; invoice.customerName = customer.name; customerSearchInput.value = customer.name; customerSearchResults.style.display = 'none'; showToast(`تم اختيار العميل: ${customer.name}`); }
         async function completeSale() {
-            if (invoice.items.length === 0) return showToast('الفاتورة فارغة!', 'error');
-            if(!invoice.customerId && customerSearchInput.value) { invoice.customerName = customerSearchInput.value; }
+            if (invoice.items.length === 0) return showToast('الفاتورة فارغة!', 'error'); if (!invoice.customerId && customerSearchInput.value) invoice.customerName = customerSearchInput.value;
             const sale = { ...invoice, subtotal: invoice.items.reduce((acc, item) => acc + (item.price * item.qty), 0), total: invoice.items.reduce((acc, item) => acc + (item.price * item.qty), 0) - (parseFloat(discountInput.value) || 0), amountPaid: parseFloat(amountPaidInput.value) || 0, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
             const batch = db.batch(); const saleRef = db.collection('sales').doc(); batch.set(saleRef, sale);
             sale.items.forEach(item => { const productRef = db.collection('products').doc(item.id); batch.update(productRef, { quantity: firebase.firestore.FieldValue.increment(-item.qty) }); });
             try { await batch.commit(); showToast('تم البيع بنجاح!'); prepareInvoiceForPrint(sale); resetPOS(); } catch (error) { console.error("Error completing sale: ", error); showToast('فشل إتمام البيع.', 'error'); }
         }
         function prepareInvoiceForPrint(sale) {
-            const printArea = document.getElementById('invoice-print-area'); const now = new Date();
-            // TODO: Fetch these details from settings page in the future
-            const storeName = "اسم المحل"; const storeContact = "معلومات التواصل"; const storeLogoUrl = "";
+            const printArea = document.getElementById('invoice-print-area'); const now = new Date(), storeName = "اسم المحل", storeContact = "معلومات التواصل", storeLogoUrl = "";
             let itemsHtml = sale.items.map(item => `<tr><td>${item.name}</td><td>${item.qty}</td><td>${item.price.toFixed(2)}</td><td>${(item.qty * item.price).toFixed(2)}</td></tr>`).join('');
             printArea.innerHTML = `<style>#invoice-print-area{text-align:center;font-family:'Tajawal',sans-serif;padding:10px}#invoice-print-area img{max-width:100px;margin-bottom:10px}#invoice-print-area h3{margin:10px 0 5px}#invoice-print-area p{margin:2px 0;font-size:12px}#invoice-print-area table{width:100%;margin-top:15px;border-collapse:collapse;font-size:11px}#invoice-print-area th,#invoice-print-area td{padding:5px;border:1px solid #ccc}</style>${storeLogoUrl ? `<img src="${storeLogoUrl}" alt="Logo">` : ''}<h3>${storeName}</h3><p>${storeContact}</p><hr><p>العميل: ${sale.customerName}</p><p>التاريخ: ${now.toLocaleString('ar-EG')}</p><table><thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>${itemsHtml}</tbody></table><hr><p>الإجمالي الفرعي: ${sale.subtotal.toFixed(2)} EGP</p><p>الخصم: ${sale.discount.toFixed(2)} EGP</p><h3>الإجمالي: ${sale.total.toFixed(2)} EGP</h3><p>المدفوع: ${sale.amountPaid.toFixed(2)} EGP</p><p>الباقي: ${(sale.amountPaid - sale.total).toFixed(2)} EGP</p>`;
             openModal('invoiceModal');
         }
-        function printInvoice(){
-            // TODO: Fetch paper size from settings
+        function printInvoice() {
             const printContent = document.getElementById('invoice-print-area').innerHTML;
             const printWindow = window.open('', '', 'height=600,width=380');
             printWindow.document.write(`<html><head><title>طباعة فاتورة</title><style>body{font-family:"Tajawal",sans-serif;direction:rtl;margin:0;padding:0;}</style></head><body>${printContent}</body></html>`);
-            printWindow.document.close(); printWindow.focus();
-            setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
-            closeModal('invoiceModal');
+            printWindow.document.close(); printWindow.focus(); setTimeout(() => { printWindow.print(); printWindow.close(); }, 250); closeModal('invoiceModal');
         }
-        function resetPOS() {
-            invoice = { items: [], customerId: null, customerName: 'عميل نقدي', discount: 0, paymentMethod: 'نقدي' };
-            customerSearchInput.value = ''; discountInput.value = ''; amountPaidInput.value = ''; renderInvoice();
-        }
+        function resetPOS() { invoice = { items: [], customerId: null, customerName: 'عميل نقدي', discount: 0, paymentMethod: 'نقدي' }; customerSearchInput.value = ''; discountInput.value = ''; amountPaidInput.value = ''; renderInvoice(); }
         function listenToScanner() {
             scannerSessionDocRef.onSnapshot(async (snapshot) => {
                 const data = snapshot.data();
                 if (data && data.status === 'scanned' && data.purpose === 'pos') {
                     showToast('تم استلام الباركود من الهاتف...');
+                    await scannerSessionDocRef.update({ status: 'processing' });
                     const productSnapshot = await db.collection('products').where('barcode', '==', data.scannedValue).limit(1).get();
-                    if (!productSnapshot.empty) {
-                        const product = {id: productSnapshot.docs[0].id, ...productSnapshot.docs[0].data()};
-                        addProductToInvoice(product);
-                    } else { showToast('المنتج غير موجود!', 'error'); }
+                    if (!productSnapshot.empty) { const product = { id: productSnapshot.docs[0].id, ...productSnapshot.docs[0].data() }; addProductToInvoice(product); } 
+                    else { showToast('المنتج غير موجود!', 'error'); }
                     await scannerSessionDocRef.set({ status: 'readyForNextScan', purpose: 'pos' });
                 }
             });
         }
-        scanWithPhoneBtn.addEventListener('click', async () => {
-            try { await scannerSessionDocRef.set({ status: 'scanRequested', purpose: 'pos', lastSeen: new Date() }); showToast('افتح كاميرا الهاتف للمسح'); } catch (error) { showToast('فشل طلب المسح', 'error'); }
-        });
+        scanWithPhoneBtn.addEventListener('click', async () => { try { await scannerSessionDocRef.set({ status: 'scanRequested', purpose: 'pos', lastSeen: new Date() }); showToast('افتح كاميرا الهاتف للمسح'); } catch (error) { showToast('فشل طلب المسح', 'error'); } });
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container'); const toast = document.createElement('div');
             toast.className = `toast ${type}`; toast.textContent = message; container.appendChild(toast);
@@ -279,26 +256,14 @@
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         productSearchInput.addEventListener('keyup', (e) => handleProductSearch(e.target.value.trim()));
         customerSearchInput.addEventListener('keyup', (e) => handleCustomerSearch(e.target.value.trim()));
-        document.addEventListener('click', (e) => {
-            if (!productSearchInput.parentElement.contains(e.target)) productSearchResults.style.display = 'none';
-            if (!customerSearchInput.parentElement.contains(e.target)) customerSearchResults.style.display = 'none';
-        });
-        discountInput.addEventListener('input', updateTotals);
-        amountPaidInput.addEventListener('input', updateTotals);
-        addCustomerBtn.addEventListener('click', () => openModal('customerModal'));
-        completeSaleBtn.addEventListener('click', completeSale);
+        document.addEventListener('click', (e) => { if (!productSearchInput.parentElement.contains(e.target)) productSearchResults.style.display = 'none'; if (!customerSearchInput.parentElement.contains(e.target)) customerSearchResults.style.display = 'none'; });
+        discountInput.addEventListener('input', updateTotals); amountPaidInput.addEventListener('input', updateTotals); addCustomerBtn.addEventListener('click', () => openModal('customerModal')); completeSaleBtn.addEventListener('click', completeSale);
         document.getElementById('customerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const newCustomer = { name: document.getElementById('customerName').value, phone: document.getElementById('customerPhone').value, address: document.getElementById('customerAddress').value, };
-            try { const docRef = await db.collection('customers').add(newCustomer); showToast('تم إضافة العميل بنجاح'); closeModal('customerModal'); document.getElementById('customerForm').reset(); await loadCustomers(); selectCustomer({id: docRef.id, ...newCustomer}); } catch (error) { showToast('خطأ في إضافة العميل', 'error'); }
+            try { const docRef = await db.collection('customers').add(newCustomer); showToast('تم إضافة العميل بنجاح'); closeModal('customerModal'); document.getElementById('customerForm').reset(); await loadCustomers(); selectCustomer({ id: docRef.id, ...newCustomer }); } catch (error) { showToast('خطأ في إضافة العميل', 'error'); }
         });
-        paymentMethodBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                invoice.paymentMethod = btn.dataset.method;
-                paymentMethodBtns.forEach(b => b.classList.add('inactive'));
-                btn.classList.remove('inactive');
-            });
-        });
+        paymentMethodBtns.forEach(btn => { btn.addEventListener('click', () => { invoice.paymentMethod = btn.dataset.method; paymentMethodBtns.forEach(b => b.classList.add('inactive')); btn.classList.remove('inactive'); }); });
         logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); try { await auth.signOut(); window.location.href = 'login.html'; } catch (error) { showToast('خطأ في تسجيل الخروج', 'error'); } });
     </script>
 </body>
