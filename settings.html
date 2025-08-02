@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإعدادات - نظام إدارة المحل</title>
+    <link rel="icon" href="data:,">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4CAF50; --primary-dark: #388E3C; --secondary: #03A9F4; --error: #f44336;
+            --light: #f5f5f5; --dark: #212121; --secondary-dark: #555; --bg-color: #eef1f5; --border-color: #ddd;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
+        body { background-color: var(--bg-color); display: flex; min-height: 100vh; color: var(--dark); }
+        .sidebar { width: 250px; background: #fff; padding: 1rem; box-shadow: 2px 0 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; }
+        .sidebar .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 2rem; }
+        .sidebar .nav-list { list-style: none; width: 100%; }
+        .sidebar .nav-list a { display: flex; align-items: center; padding: 0.8rem 1rem; color: var(--secondary-dark); text-decoration: none; border-radius: 5px; margin-bottom: 0.5rem; transition: background 0.3s, color 0.3s; }
+        .sidebar .nav-list a.active, .sidebar .nav-list a:hover { background: var(--primary); color: white; }
+        .sidebar .nav-list a i { margin-left: 10px; font-size: 1.2rem; }
+        .main-content { flex-grow: 1; padding: 2rem; overflow-y: auto; }
+        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .main-header h1 { font-size: 1.8rem; color: var(--primary-dark); }
+        .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; }
+        .settings-card { background-color: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
+        .settings-card .card-header { padding: 1.25rem; background-color: var(--light); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; }
+        .settings-card .card-header i { font-size: 1.5rem; color: var(--primary); }
+        .settings-card .card-header h3 { margin: 0; font-size: 1.2rem; }
+        .settings-card .card-body { padding: 1.5rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 1rem; }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        .btn { padding: 10px 15px; border-radius: 5px; border: none; cursor: pointer; font-size: 1rem; font-weight: 500; transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .switch-container { display: flex; justify-content: space-between; align-items: center; }
+        .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(26px); }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo" id="system-name-sidebar">نظام الإدارة</div>
+        <ul class="nav-list">
+            <li><a href="inventory.html"><i class="ri-box-3-line"></i><span>إدارة المخزون</span></a></li>
+            <li><a href="pos.html"><i class="ri-shopping-cart-2-line"></i><span>نقطة البيع</span></a></li>
+            <li><a href="customers.html"><i class="ri-user-3-line"></i><span>إدارة العملاء</span></a></li>
+            <li><a href="reports.html"><i class="ri-pie-chart-line"></i><span>التقارير</span></a></li>
+            <li><a href="settings.html" class="active"><i class="ri-settings-3-line"></i><span>الإعدادات</span></a></li>
+            <li><a href="#" id="logoutBtn"><i class="ri-logout-box-r-line"></i><span>تسجيل الخروج</span></a></li>
+        </ul>
+    </div>
+    <div class="main-content">
+        <header class="main-header"><h1>الإعدادات</h1></header>
+        <div class="settings-grid">
+            <div class="settings-card">
+                <div class="card-header"><i class="ri-store-2-line"></i><h3>بيانات المحل</h3></div>
+                <div class="card-body">
+                    <div class="form-group"><label for="system-name">اسم النظام/المحل</label><input type="text" id="system-name" placeholder="اسم محلك التجاري"></div>
+                    <div class="form-group"><label for="shop-address">العنوان</label><input type="text" id="shop-address" placeholder="عنوان المحل"></div>
+                    <div class="form-group"><label for="shop-contact">رقم التواصل</label><input type="text" id="shop-contact" placeholder="الهاتف، واتساب، إلخ"></div>
+                    <div class="form-group"><label for="shop-logo">شعار المحل (رابط الصورة)</label><input type="text" id="shop-logo" placeholder="https://example.com/logo.png"></div>
+                    <button class="btn btn-primary" id="save-shop-info">حفظ البيانات</button>
+                </div>
+            </div>
+            <div class="settings-card">
+                <div class="card-header"><i class="ri-lock-password-line"></i><h3>إدارة كلمات المرور</h3></div>
+                <div class="card-body">
+                    <div class="form-group"><label for="admin-password">كلمة مرور المدير الحالية</label><input type="password" id="admin-password"></div>
+                    <div class="form-group"><label for="admin-new-password">كلمة المرور الجديدة</label><input type="password" id="admin-new-password"></div>
+                    <button class="btn btn-primary" id="change-admin-password">تغيير كلمة المرور</button>
+                    <hr style="margin: 1.5rem 0;">
+                    <h4>كلمات مرور الصفحات</h4>
+                    <div class="form-group"><label for="password-inventory">صفحة المخزون</label><input type="text" id="password-inventory" placeholder="كلمة مرور للمخزون"></div>
+                    <div class="form-group"><label for="password-pos">صفحة نقطة البيع</label><input type="text" id="password-pos" placeholder="كلمة مرور لنقطة البيع"></div>
+                    <button class="btn btn-primary" id="save-page-passwords">حفظ كلمات المرور للصفحات</button>
+                </div>
+            </div>
+            <div class="settings-card">
+                <div class="card-header"><i class="ri-file-text-line"></i><h3>تخصيص الفاتورة</h3></div>
+                <div class="card-body">
+                    <div class="form-group"><label for="invoice-header">ترويسة الفاتورة (Header)</label><textarea id="invoice-header" placeholder="مثال: شكراً لتعاملكم معنا"></textarea></div>
+                    <div class="form-group"><label for="invoice-footer">تذييل الفاتورة (Footer)</label><textarea id="invoice-footer" placeholder="مثال: البضاعة المباعة لا ترد ولا تستبدل"></textarea></div>
+                    <div class="form-group">
+                        <label>الحقول الإضافية في الفاتورة</label>
+                        <div class="switch-container"><p>إظهار الرقم الضريبي</p><label class="switch"><input type="checkbox" id="show-tax-number"><span class="slider"></span></label></div>
+                    </div>
+                    <button class="btn btn-primary" id="save-invoice-settings">حفظ إعدادات الفاتورة</button>
+                </div>
+            </div>
+            <div class="settings-card">
+                <div class="card-header"><i class="ri-printer-line"></i><h3>إعدادات الطباعة</h3></div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="printer-type">نوع الطابعة الافتراضي</label>
+                        <select id="printer-type">
+                            <option value="thermal">حرارية (80mm)</option>
+                            <option value="a4">A4</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="printer-font-size">حجم الخط (بالبيكسل)</label>
+                        <input type="number" id="printer-font-size" value="12">
+                    </div>
+                    <button class="btn btn-primary" id="save-print-settings">حفظ إعدادات الطباعة</button>
+                </div>
+            </div>
+             <div class="settings-card">
+                <div class="card-header"><i class="ri-palette-line"></i><h3>تخصيص الواجهة</h3></div>
+                <div class="card-body">
+                     <div class="form-group">
+                        <label>وضع الألوان</label>
+                        <div class="switch-container">
+                           <p>تفعيل الوضع الداكن</p>
+                           <label class="switch"><input type="checkbox" id="dark-mode-toggle"><span class="slider"></span></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-card">
+                <div class="card-header"><i class="ri-database-2-line"></i><h3>النسخ الاحتياطي والبيانات</h3></div>
+                <div class="card-body">
+                    <p>يمكنك إنشاء نسخة من بياناتك (منتجات، عملاء، مبيعات) أو استعادة بيانات من ملف.</p><br>
+                    <button class="btn btn-primary" id="backup-data"><i class="ri-download-2-line"></i> إنشاء نسخة احتياطية</button>
+                    <button class="btn" id="restore-data" style="background-color: var(--secondary); color:white;"><i class="ri-upload-2-line"></i> استعادة نسخة</button>
+                    <input type="file" id="restore-file-input" style="display:none;" accept=".json">
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+    // Logic to save settings would go here.
+    // This is a placeholder for functionality.
+
+    // Example: saving system name
+    const saveShopInfoBtn = document.getElementById('save-shop-info');
+    const systemNameInput = document.getElementById('system-name');
+    const systemNameSidebar = document.getElementById('system-name-sidebar');
+
+    // Load saved name on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedName = localStorage.getItem('systemName');
+        if (savedName) {
+            systemNameInput.value = savedName;
+            systemNameSidebar.textContent = savedName;
+            document.title = document.title.replace('نظام إدارة المحل', savedName);
+        }
+    });
+
+    saveShopInfoBtn.addEventListener('click', () => {
+        const newName = systemNameInput.value;
+        if (newName) {
+            localStorage.setItem('systemName', newName);
+            systemNameSidebar.textContent = newName;
+            alert('تم حفظ اسم النظام بنجاح!');
+        }
+    });
+
+    // Placeholder for other settings buttons
+    document.getElementById('change-admin-password').addEventListener('click', () => alert('سيتم تفعيل هذه الميزة قريباً.'));
+    document.getElementById('save-page-passwords').addEventListener('click', () => alert('سيتم تفعيل هذه الميزة قريباً.'));
+    document.getElementById('save-invoice-settings').addEventListener('click', () => alert('سيتم تفعيل هذه الميزة قريباً.'));
+    document.getElementById('save-print-settings').addEventListener('click', () => alert('سيتم تفعيل هذه الميزة قريباً.'));
+    document.getElementById('backup-data').addEventListener('click', () => alert('سيتم تفعيل هذه الميزة قريباً.'));
+    document.getElementById('restore-data').addEventListener('click', () => document.getElementById('restore-file-input').click());
+</script>
+</body>
+</html>
