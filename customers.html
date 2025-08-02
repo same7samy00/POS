@@ -14,8 +14,8 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
         body { background-color: var(--bg-color); display: flex; min-height: 100vh; color: var(--dark); }
-        .sidebar { width: 250px; background: #fff; padding: 1rem; box-shadow: 2px 0 10px rgba(0,0,0,0.05); }
-        .sidebar .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 2rem; text-align: center;}
+        .sidebar { width: 250px; background: #fff; padding: 1rem; box-shadow: 2px 0 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; }
+        .sidebar .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 2rem; }
         .sidebar .nav-list { list-style: none; width: 100%; }
         .sidebar .nav-list a { display: flex; align-items: center; padding: 0.8rem 1rem; color: var(--secondary-dark); text-decoration: none; border-radius: 5px; margin-bottom: 0.5rem; transition: background 0.3s, color 0.3s; }
         .sidebar .nav-list a.active, .sidebar .nav-list a:hover { background: var(--primary); color: white; }
@@ -23,16 +23,17 @@
         
         .main-content { flex-grow: 1; padding: 1.5rem; display: flex; flex-direction: column; }
         .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .main-header h1 { font-size: 1.8rem; color: var(--primary-dark); }
         
         .input-group { position: relative; display: flex; align-items: center; }
         .input-group i.input-icon { position: absolute; right: 15px; color: #aaa; font-size: 1.2rem; z-index: 1; }
-        .input-group input { flex-grow: 1; padding: 14px 45px 14px 15px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; }
+        .input-group input { flex-grow: 1; padding: 14px 45px 14px 15px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; transition: all 0.3s; }
         
         #customers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; overflow-y: auto; padding: 5px; flex-grow: 1; }
         .customer-card { background-color: #fff; border-radius: 15px; padding: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border-bottom: 5px solid var(--secondary); display: flex; flex-direction: column; justify-content: space-between; aspect-ratio: 1 / 1; }
         .customer-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-        .customer-card h3 { font-size: 1.1rem; }
-        .customer-card p { color: var(--secondary-dark); font-size: 0.9rem; }
+        .customer-card h3 { font-size: 1.1rem; margin-bottom: 0.25rem; color: var(--dark); }
+        .customer-card p { color: var(--secondary-dark); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
         .balance { text-align: left; font-size: 1.5rem; font-weight: 700; }
         .balance.debit { color: var(--error); }
         .balance.credit { color: var(--primary); }
@@ -45,30 +46,54 @@
         
         #customerDetailsModal .modal-header { background: #fff; padding: 1.5rem; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center; }
         #customerDetailsModal .modal-body { flex-grow: 1; overflow-y: auto; padding: 1.5rem; }
+        .details-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+        .summary-box { background: #fff; padding: 1.5rem; border-radius: 8px; text-align: center; }
+        .summary-box h4 { margin-bottom: 0.5rem; color: var(--secondary-dark); font-size: 1rem; }
+        .summary-box p { font-size: 1.8rem; font-weight: 700; }
+        .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 1.5rem; }
+        .tab-link { padding: 1rem 1.5rem; cursor: pointer; font-size: 1.1rem; border-bottom: 3px solid transparent; }
+        .tab-link.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-content { display: none; } .tab-content.active { display: block; }
         .data-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; }
         .data-table th, .data-table td { padding: 12px 15px; text-align: right; border-bottom: 1px solid var(--border-color); }
+        .data-table th { background-color: var(--light); }
+        .data-table tr:hover { background-color: var(--light); }
         .data-table tr.clickable { cursor: pointer; }
-        .data-table tr.clickable:hover { background-color: var(--light); }
 
         .btn { padding: 10px 15px; border-radius: 8px; border: none; cursor: pointer; font-size: 1rem; font-weight: 500; transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-secondary { background-color: #6c757d; color: white; }
-        .btn-danger { background-color: var(--error); color: white; }
+        .btn-danger { background-color: var(--error); color: white; } /* Style for delete button */
         
-        /* Styles for delete confirmation modal */
-        #deleteConfirmationModal .delete-option { background: #fff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 2px solid transparent; }
-        #deleteConfirmationModal .delete-option:has(input:checked) { border-color: var(--primary); }
-        #deleteConfirmationModal .delete-option label { display: block; }
-        #deleteConfirmationModal .delete-option p { font-size: 0.9rem; color: var(--secondary-dark); margin-top: 0.25rem; }
+        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 3000; }
+        .toast { padding: 12px 20px; color: white; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transform: translateY(20px); transition: opacity 0.3s ease, transform 0.3s ease; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background-color: var(--primary-dark); }
+        .toast.error { background-color: var(--error); }
     </style>
 </head>
 <body>
-    <div class="sidebar"></div>
+    <div class="sidebar">
+        <div class="logo">نظام الإدارة</div>
+        <ul class="nav-list">
+            <li><a href="inventory.html"><i class="ri-box-3-line"></i><span>إدارة المخزون</span></a></li>
+            <li><a href="pos.html"><i class="ri-shopping-cart-2-line"></i><span>نقطة البيع</span></a></li>
+            <li><a href="customers.html" class="active"><i class="ri-user-3-line"></i><span>إدارة العملاء</span></a></li>
+            <li><a href="reports.html"><i class="ri-pie-chart-line"></i><span>التقارير</span></a></li>
+            <li><a href="settings.html"><i class="ri-settings-3-line"></i><span>الإعدادات</span></a></li>
+            <li><a href="#" id="logoutBtn"><i class="ri-logout-box-r-line"></i><span>تسجيل الخروج</span></a></li>
+        </ul>
+    </div>
+
     <div class="main-content">
         <div class="main-header"><h1>إدارة العملاء</h1><button class="btn btn-primary" id="add-customer-btn"><i class="ri-user-add-line"></i> إضافة عميل</button></div>
         <div class="input-group" style="max-width: 500px; margin-bottom: 1.5rem;"><i class="ri-search-line input-icon"></i><input type="text" id="customer-search" placeholder="ابحث بالاسم أو رقم الهاتف..."></div>
         <div id="customers-grid"></div>
     </div>
+
+    <div id="customerFormModal" class="modal modal-nested"></div>
+    <div id="paymentModal" class="modal modal-nested"></div>
+    <div id="invoiceDetailsModal" class="modal modal-nested"></div>
 
     <div id="customerDetailsModal" class="modal">
         <div class="modal-content">
@@ -80,36 +105,13 @@
                     <button class="btn btn-danger" id="delete-customer-btn" style="margin-right: 10px;"><i class="ri-delete-bin-line"></i> حذف</button>
                 </div>
             </div>
-            </div>
-    </div>
-    
-    <div id="deleteConfirmationModal" class="modal modal-nested">
-        <div class="modal-content" style="max-width: 600px; background: #fff; height: auto;">
-            <h2 style="padding: 1rem;">تأكيد الحذف</h2>
-            <div style="padding: 1rem;">
-                <p style="margin-bottom: 1rem;">أنت على وشك حذف العميل: <strong id="customer-name-to-delete"></strong>. الرجاء تحديد نوع الحذف:</p>
-                <div class="delete-option">
-                    <label>
-                        <input type="radio" name="deleteType" value="dataOnly" checked>
-                        <strong>حذف البيانات الشخصية فقط</strong>
-                        <p>سيتم حذف اسم العميل وبياناته، ولكن ستبقى سجلات الفواتير والمدفوعات محفوظة لأغراض المحاسبة.</p>
-                    </label>
-                </div>
-                <div class="delete-option">
-                    <label>
-                        <input type="radio" name="deleteType" value="deleteAll">
-                        <strong><i class="ri-alert-fill"></i> حذف العميل وجميع سجلاته نهائياً</strong>
-                        <p>سيتم حذف العميل وجميع الفواتير والمدفوعات المرتبطة به. هذا الإجراء لا يمكن التراجع عنه.</p>
-                    </label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary close-modal-btn">إلغاء</button>
-                <button type="button" class="btn btn-danger" id="confirm-delete-btn" style="margin-right: 10px;">تأكيد الحذف</button>
-            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary close-modal-btn">إغلاق</button></div>
         </div>
     </div>
     
+    <div id="toast-container"></div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -118,77 +120,83 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(), db = firebase.firestore();
         let allCustomers = [], allSales = [], allPayments = [], currentlyViewedCustomerId = null;
-        // ... (DOM element variables)
-
-        auth.onAuthStateChanged(user => { if (!user) window.location.href = 'login.html'; else init(); });
+        const customersGrid = document.getElementById('customers-grid'), customerSearchInput = document.getElementById('customer-search');
         
-        async function init() { /* ... same as before ... */ }
-        async function fetchAllData() { /* ... same as before ... */ }
-        function calculateBalances() { /* ... same as before ... */ }
-        function renderCustomers() { /* ... same as before ... */ }
-        function showCustomerDetails(customerId) { /* ... same as before ... */ }
+        auth.onAuthStateChanged(user => { if (!user) window.location.href = 'login.html'; else init(); });
 
-        // --- UPDATED DELETE FLOW ---
+        async function init() {
+            customersGrid.innerHTML = '<p>جاري تحميل البيانات...</p>';
+            await fetchAllData(); calculateBalances(); renderCustomers();
+        }
+        async function fetchAllData() {
+            const [customersSnap, salesSnap, paymentsSnap] = await Promise.all([db.collection('customers').get(), db.collection('sales').where('paymentMethod', '==', 'آجل').get(), db.collection('payments').get()]);
+            allCustomers = customersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            allSales = salesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            allPayments = paymentsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        }
+        function calculateBalances() {
+            allCustomers.forEach(customer => {
+                const customerSales = allSales.filter(sale => sale.customerId === customer.id);
+                const customerPayments = allPayments.filter(payment => payment.customerId === customer.id);
+                const totalPurchases = customerSales.reduce((sum, sale) => sum + sale.total, 0);
+                const totalPaid = customerPayments.reduce((sum, payment) => sum + payment.amount, 0);
+                customer.balance = totalPurchases - totalPaid;
+            });
+        }
+        function renderCustomers(filteredCustomers = allCustomers) {
+            customersGrid.innerHTML = '';
+            if (filteredCustomers.length === 0) { customersGrid.innerHTML = '<p>لا يوجد عملاء لعرضهم.</p>'; return; }
+            filteredCustomers.forEach(customer => {
+                const card = document.createElement('div'); card.className = 'customer-card';
+                card.innerHTML = `<div><h3>${customer.name}</h3><p><i class="ri-phone-line"></i> ${customer.phone || 'غير مسجل'}</p></div><p class="balance ${customer.balance > 0 ? 'debit' : 'credit'}">${customer.balance.toFixed(2)} EGP</p>`;
+                card.onclick = () => showCustomerDetails(customer.id); customersGrid.appendChild(card);
+            });
+        }
+        function showCustomerDetails(customerId) {
+            currentlyViewedCustomerId = customerId;
+            const customer = allCustomers.find(c => c.id === customerId);
+            //... code to populate details modal
+            openModal('customerDetailsModal');
+        }
+        
+        // ... Other functions like showInvoiceDetails, openModal, etc. remain the same
 
-        // 1. When the user clicks the initial "Delete" button
-        document.getElementById('delete-customer-btn').addEventListener('click', () => {
+        // --- NEW DELETE FUNCTIONALITY ---
+        document.getElementById('delete-customer-btn').addEventListener('click', async () => {
             if (!currentlyViewedCustomerId) return;
-            const customer = allCustomers.find(c => c.id === currentlyViewedCustomerId);
-            // Populate and open the confirmation modal instead of the simple confirm()
-            document.getElementById('customer-name-to-delete').textContent = customer.name;
-            openModal('deleteConfirmationModal');
-        });
-
-        // 2. When the user confirms the deletion from the new modal
-        document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
-            const deleteType = document.querySelector('input[name="deleteType"]:checked').value;
-
-            if (deleteType === 'dataOnly') {
-                // Safest option: delete only the customer document
+            
+            const confirmation = confirm('هل أنت متأكد من حذف هذا العميل؟ سيتم حذف بياناته نهائياً ولكن ستبقى سجلات الفواتير محفوظة.');
+            
+            if (confirmation) {
                 try {
                     await db.collection('customers').doc(currentlyViewedCustomerId).delete();
-                    showToast('تم حذف بيانات العميل بنجاح.');
+                    showToast('تم حذف العميل بنجاح.', 'success');
+                    closeModal('customerDetailsModal');
+                    init(); // Refresh the customer list
                 } catch (error) {
-                    console.error("Error deleting customer data:", error);
+                    console.error("Error deleting customer: ", error);
                     showToast('حدث خطأ أثناء الحذف.', 'error');
                 }
-            } else if (deleteType === 'deleteAll') {
-                // Dangerous option: delete customer and all related records
-                const batch = db.batch();
-                
-                // Query for all sales and payments of this customer
-                const salesQuery = db.collection('sales').where('customerId', '==', currentlyViewedCustomerId);
-                const paymentsQuery = db.collection('payments').where('customerId', '==', currentlyViewedCustomerId);
-
-                try {
-                    const [salesSnapshot, paymentsSnapshot] = await Promise.all([salesQuery.get(), paymentsQuery.get()]);
-                    
-                    salesSnapshot.forEach(doc => batch.delete(doc.ref));
-                    paymentsSnapshot.forEach(doc => batch.delete(doc.ref));
-                    
-                    const customerRef = db.collection('customers').doc(currentlyViewedCustomerId);
-                    batch.delete(customerRef);
-                    
-                    await batch.commit();
-                    showToast('تم حذف العميل وجميع سجلاته نهائياً.');
-                } catch (error) {
-                    console.error("Error deleting all customer records:", error);
-                    showToast('حدث خطأ أثناء الحذف الكامل.', 'error');
-                }
             }
-            
-            // Close all modals and refresh the list
-            closeModal('deleteConfirmationModal');
-            closeModal('customerDetailsModal');
-            init();
         });
 
-        // --- HELPER FUNCTIONS ---
-        function openModal(modalId) { document.getElementById(modalId).classList.add('active'); }
-        function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
-        document.addEventListener('click', e => { if (e.target.classList.contains('close-modal-btn')) e.target.closest('.modal').classList.remove('active'); });
-        function showToast(message, type = 'success') { /* ... same as before ... */ }
-        // All other functions and event listeners (for editing, paying, searching, etc.) remain the same.
+        // --- Toast Notification Function (if not already present) ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container'); 
+            if (!container) return; // defensive check
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`; 
+            toast.textContent = message; 
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.add('show'); }, 10);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => { toast.remove(); }, 300); }, 3000);
+        }
+        
+        // Ensure other event listeners and functions are included below
+        function closeModal(modalId) {
+             document.getElementById(modalId).classList.remove('active');
+        }
+        // ... the rest of the JavaScript from the previous version
     </script>
 </body>
 </html>
