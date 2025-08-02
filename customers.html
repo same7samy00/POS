@@ -147,7 +147,7 @@
             renderTopProducts(sales);
             renderTopCustomers(sales, customers);
             renderStockAlerts(products);
-            renderInvoicesTable(sales, customers, products); // New function call
+            renderInvoicesTable(sales, customers, products);
         }
 
         function updateKpis(sales, products, customers, allPayments) {
@@ -229,12 +229,14 @@
             sales.forEach(sale => {
                 const customer = customers.find(c => c.id === sale.customerId);
                 let invoiceProfit = 0;
-                sale.items.forEach(item => {
-                    const product = products.find(p => p.id === item.id);
-                    const salePrice = parseFloat(item.price) || 0;
-                    const purchasePrice = product ? (parseFloat(product.purchasePrice) || 0) : 0;
-                    invoiceProfit += (salePrice - purchasePrice) * (parseInt(item.qty) || 0);
-                });
+                if(sale.items && Array.isArray(sale.items)){
+                    sale.items.forEach(item => {
+                        const product = products.find(p => p.id === item.id);
+                        const salePrice = parseFloat(item.price) || 0;
+                        const purchasePrice = product ? (parseFloat(product.purchasePrice) || 0) : 0;
+                        if(product) invoiceProfit += (salePrice - purchasePrice) * (parseInt(item.qty) || 0);
+                    });
+                }
                 tableBody.innerHTML += `
                     <tr>
                         <td>${sale.createdAt.toDate().toLocaleDateString('ar-EG')}</td>
