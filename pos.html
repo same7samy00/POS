@@ -265,19 +265,19 @@
         });
         paymentMethodBtns.forEach(btn => { btn.addEventListener('click', () => { invoice.paymentMethod = btn.dataset.method; paymentMethodBtns.forEach(b => b.classList.add('inactive')); btn.classList.remove('inactive'); }); });
         logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); try { await auth.signOut(); window.location.href = 'login.html'; } catch (error) { showToast('خطأ في تسجيل الخروج', 'error'); } });
-    <script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
-                .then(registration => {
-                    console.log('Service Worker registered with scope:', registration.scope);
-                })
-                .catch(error => {
-                    console.error('Service Worker registration failed:', error);
-                });
-        });
-    }
-</script>
+        
+        // هنا يتم وضع كود تسجيل Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
