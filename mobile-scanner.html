@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ماسح QR - شيخ العرب</title>
+    <title>ماسح الباركود</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         :root {
             --bg-light: #F0F4F8;
@@ -76,9 +75,11 @@
         <i id="statusIcon" class="ri-loader-4-line status-icon"></i>
         <p id="statusMessage">جاري الاتصال بالنظام...</p>
     </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script type="text/javascript" src="https://unpkg.com/html5-qrcode"></script>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBU4lTFTliRRmn4eN9F9pP9SKQJilUsXlE",
@@ -111,17 +112,20 @@
             html5QrCode.stop().then(async () => {
                 readerDiv.style.display = 'none';
                 updateStatusUI('success', `تم المسح بنجاح!`, 'ri-check-line');
-                await scannerSessionDocRef.set({
+                // **الإصلاح الرئيسي هنا: استخدام .update بدلاً من .set**
+                // هذا التغيير يُبقي على حقل "purpose" الذي أرسلته صفحة نقطة البيع
+                await scannerSessionDocRef.update({
                     status: 'scanned',
                     scannedValue: decodedText,
                     scannedAt: new Date()
                 });
             }).catch(err => {
                 console.error("Failed to stop scanner", err);
+                updateStatusUI('error', 'خطأ عند إيقاف الكاميرا', 'ri-error-warning-line');
             });
         }
                 
-        function onScanFailure(error) { /* Ignore */ }
+        function onScanFailure(error) { /* تجاهل أخطاء عدم العثور على باركود */ }
 
         async function startScanner() {
             readerDiv.style.display = 'block';
@@ -129,6 +133,7 @@
                 html5QrCode = new Html5Qrcode("reader");
             }
             try {
+                // محاولة بدء الكاميرا الخلفية
                 await html5QrCode.start(
                     { facingMode: "environment" },
                     { fps: 10, qrbox: { width: 250, height: 250 } },
@@ -141,18 +146,22 @@
             }
         }
         
-        // يبدأ المسح فوراً عند تحميل الصفحة
-        startScanner();
-        updateStatusUI('scanning', 'جاري المسح...', 'ri-qr-scan-2-line animate-pulse');
-
         // يراقب الوثيقة الثابتة لتغيير الحالة
         scannerSessionDocRef.onSnapshot(async (snapshot) => {
             const data = snapshot.data();
-            // Added check for `data` before accessing `data.status`
-            if (data && data.status === 'readyForNextScan' && html5QrCode && !html5QrCode.isScanning) {
-                // يبدأ المسح مرة أخرى إذا تم إعادة تعيين الحالة من الكمبيوتر
+            if (!data) return;
+
+            // إذا طلب النظام المسح، ابدأ الكاميرا
+            if (data.status === 'scanRequested') {
                 startScanner();
-                updateStatusUI('scanning', 'جاري المسح...', 'ri-qr-scan-2-line animate-pulse');
+                updateStatusUI('scanning', 'وجه الكاميرا للباركود...', 'ri-qr-scan-2-line animate-pulse');
+            }
+            
+            // إذا كان النظام جاهزاً للمسح التالي، استعد
+            if (data.status === 'readyForNextScan' && html5QrCode && html5QrCode.isScanning) {
+                await html5QrCode.stop();
+                readerDiv.style.display = 'none';
+                updateStatusUI('ready', 'في انتظار طلب مسح جديد...', 'ri-time-line');
             }
         }, (error) => {
             console.error("Firestore listener error:", error);
