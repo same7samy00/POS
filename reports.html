@@ -42,13 +42,12 @@
         .report-header h3 { font-size: 1.2rem; }
         
         .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th, .data-table td { padding: 10px; text-align: right; border-bottom: 1px solid var(--border-color); }
+        .data-table th, .data-table td { padding: 10px; text-align: right; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;}
         .data-table th { background-color: var(--light); }
 
         .btn { padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-secondary { background-color: #6c757d; color: white; }
-        .btn.active { background-color: var(--primary-dark); }
         
         @media (max-width: 992px) { .reports-container { grid-template-columns: 1fr; } }
     </style>
@@ -70,10 +69,7 @@
         <div class="main-header"><h1>التقارير</h1></div>
         
         <div class="filters">
-            <div class="date-range">
-                <label for="startDate">من:</label><input type="date" id="startDate">
-                <label for="endDate">إلى:</label><input type="date" id="endDate">
-            </div>
+            <div class="date-range"><label for="startDate">من:</label><input type="date" id="startDate"><label for="endDate">إلى:</label><input type="date" id="endDate"></div>
             <button class="btn btn-secondary" id="filter-today">اليوم</button>
             <button class="btn btn-secondary" id="filter-week">هذا الأسبوع</button>
             <button class="btn btn-secondary" id="filter-month">هذا الشهر</button>
@@ -88,10 +84,15 @@
         </div>
         
         <div class="reports-container">
-            <div class="report-card full-width"><div class="report-header"><h3>أداء المبيعات</h3><button class="btn btn-secondary print-btn"><i class="ri-printer-line"></i> طباعة</button></div><canvas id="salesChart"></canvas></div>
-            <div class="report-card"><div class="report-header"><h3>المنتجات الأكثر مبيعاً</h3><button class="btn btn-secondary print-btn"><i class="ri-printer-line"></i> طباعة</button></div><table class="data-table"><thead><tr><th>المنتج</th><th>الكمية المباعة</th><th>إجمالي العائد</th></tr></thead><tbody id="top-products-table"></tbody></table></div>
-            <div class="report-card"><div class="report-header"><h3>العملاء الأكثر شراءً</h3><button class="btn btn-secondary print-btn"><i class="ri-printer-line"></i> طباعة</button></div><table class="data-table"><thead><tr><th>العميل</th><th>إجمالي المشتريات</th></tr></thead><tbody id="top-customers-table"></tbody></table></div>
-            <div class="report-card full-width"><div class="report-header"><h3>تنبيهات المخزون</h3></div><div style="display: flex; gap: 1rem;"><div style="flex:1;"><h4 style="margin-bottom:0.5rem">منتجات أوشكت على النفاد</h4><table class="data-table"><thead><tr><th>المنتج</th><th>الكمية المتبقية</th></tr></thead><tbody id="low-stock-table"></tbody></table></div><div style="flex:1;"><h4 style="margin-bottom:0.5rem">منتجات قريبة من انتهاء الصلاحية</h4><table class="data-table"><thead><tr><th>المنتج</th><th>تاريخ الانتهاء</th></tr></thead><tbody id="expiring-soon-table"></tbody></table></div></div></div>
+            <div class="report-card"><div class="report-header"><h3>أداء المبيعات</h3><button class="btn btn-secondary print-btn"><i class="ri-printer-line"></i> طباعة</button></div><canvas id="salesChart"></canvas></div>
+            <div class="report-card"><div class="report-header"><h3>المنتجات الأكثر مبيعاً</h3><button class="btn btn-secondary print-btn"><i class="ri-printer-line"></i> طباعة</button></div><table class="data-table"><thead><tr><th>المنتج</th><th>الكمية</th><th>العائد</th></tr></thead><tbody id="top-products-table"></tbody></table></div>
+            <div class="report-card"><div class="report-header"><h3>العملاء الأكثر شراءً</h3><button class="btn btn-secondary print-btn"><i class="ri-printer-line"></i> طباعة</button></div><table class="data-table"><thead><tr><th>العميل</th><th>المشتريات</th></tr></thead><tbody id="top-customers-table"></tbody></table></div>
+            <div class="report-card"><div class="report-header"><h3>تنبيهات المخزون</h3></div><table class="data-table"><thead><tr><th>المنتج</th><th>الكمية المتبقية</th></tr></thead><tbody id="low-stock-table"></tbody></table></div>
+            
+            <div class="report-card full-width">
+                <div class="report-header"><h3>الفواتير</h3><button class="btn btn-secondary print-btn"><i class="ri-printer-line"></i> طباعة</button></div>
+                <table class="data-table"><thead><tr><th>التاريخ</th><th>العميل</th><th>الإجمالي</th><th>الأرباح</th><th>طريقة الدفع</th></tr></thead><tbody id="invoices-table"></tbody></table>
+            </div>
         </div>
     </div>
 
@@ -107,15 +108,10 @@
         auth.onAuthStateChanged(user => { if (!user) window.location.href = 'login.html'; else init(); });
         
         function init() {
-            // Set default date to this month
-            const today = new Date();
-            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-            document.getElementById('startDate').valueAsDate = firstDay;
-            document.getElementById('endDate').valueAsDate = today;
-            generateReports();
-            setupEventListeners();
+            const today = new Date(); const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            document.getElementById('startDate').valueAsDate = firstDay; document.getElementById('endDate').valueAsDate = today;
+            generateReports(); setupEventListeners();
         }
-
         function setupEventListeners() {
             document.getElementById('apply-filter').onclick = generateReports;
             document.getElementById('filter-today').onclick = () => setDateRange('today');
@@ -123,33 +119,23 @@
             document.getElementById('filter-month').onclick = () => setDateRange('month');
             document.querySelectorAll('.print-btn').forEach(btn => btn.onclick = printReport);
         }
-
         function setDateRange(period) {
-            const today = new Date();
-            let startDate = new Date();
-            if (period === 'today') {
-                startDate = today;
-            } else if (period === 'week') {
-                startDate = new Date(today.setDate(today.getDate() - today.getDay()));
-            } else if (period === 'month') {
-                startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-            }
-            document.getElementById('startDate').valueAsDate = startDate;
-            document.getElementById('endDate').valueAsDate = new Date();
+            const today = new Date(); let startDate = new Date();
+            if (period === 'today') startDate = today;
+            else if (period === 'week') startDate = new Date(today.setDate(today.getDate() - today.getDay()));
+            else if (period === 'month') startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            document.getElementById('startDate').valueAsDate = startDate; document.getElementById('endDate').valueAsDate = new Date();
             generateReports();
         }
 
         async function generateReports() {
-            const startDate = new Date(document.getElementById('startDate').value);
-            startDate.setHours(0, 0, 0, 0);
-            const endDate = new Date(document.getElementById('endDate').value);
-            endDate.setHours(23, 59, 59, 999);
-
-            const salesPromise = db.collection('sales').where('createdAt', '>=', startDate).where('createdAt', '<=', endDate).get();
-            const productsPromise = db.collection('products').get();
-            const customersPromise = db.collection('customers').get();
-            const paymentsPromise = db.collection('payments').get(); // For debt calculation
-            const [salesSnap, productsSnap, customersSnap, paymentsSnap] = await Promise.all([salesPromise, productsPromise, customersPromise, paymentsPromise]);
+            const startDate = new Date(document.getElementById('startDate').value); startDate.setHours(0, 0, 0, 0);
+            const endDate = new Date(document.getElementById('endDate').value); endDate.setHours(23, 59, 59, 999);
+            
+            const [salesSnap, productsSnap, customersSnap, paymentsSnap] = await Promise.all([
+                db.collection('sales').where('createdAt', '>=', startDate).where('createdAt', '<=', endDate).get(),
+                db.collection('products').get(), db.collection('customers').get(), db.collection('payments').get()
+            ]);
             
             const sales = salesSnap.docs.map(doc => ({id: doc.id, ...doc.data()}));
             const products = productsSnap.docs.map(doc => ({id: doc.id, ...doc.data()}));
@@ -158,106 +144,121 @@
 
             updateKpis(sales, products, customers, allPayments);
             renderSalesChart(sales);
-            renderTopProducts(sales, products);
+            renderTopProducts(sales);
             renderTopCustomers(sales, customers);
             renderStockAlerts(products);
+            renderInvoicesTable(sales, customers, products);
         }
 
         function updateKpis(sales, products, customers, allPayments) {
             const totalSales = sales.reduce((sum, sale) => sum + sale.total, 0);
+            
+            // --- FIX FOR NaN PROFIT ---
             let totalProfit = 0;
             sales.forEach(sale => {
-                sale.items.forEach(item => {
-                    const product = products.find(p => p.id === item.id);
-                    const purchasePrice = product ? product.purchasePrice : 0;
-                    totalProfit += (item.price - purchasePrice) * item.qty;
-                });
+                if(sale.items && Array.isArray(sale.items)){
+                    sale.items.forEach(item => {
+                        const product = products.find(p => p.id === item.id);
+                        const salePrice = parseFloat(item.price) || 0;
+                        const purchasePrice = product ? (parseFloat(product.purchasePrice) || 0) : 0;
+                        const quantity = parseInt(item.qty) || 0;
+                        if(product) totalProfit += (salePrice - purchasePrice) * quantity;
+                    });
+                }
             });
-
-            const creditSales = sales.filter(s => s.paymentMethod === 'آجل');
+            // --- END OF FIX ---
+            
             let totalDebt = 0;
             customers.forEach(customer => {
-                const customerSales = db.collection('sales').where('customerId', '==', customer.id).where('paymentMethod', '==', 'آجل');
-                const customerCreditSales = creditSales.filter(sale => sale.customerId === customer.id);
+                const customerCreditSales = db.collection('sales').where('customerId', '==', customer.id).where('paymentMethod', '==', 'آجل');
                 const customerPayments = allPayments.filter(payment => payment.customerId === customer.id);
-                const totalPurchases = customerCreditSales.reduce((sum, sale) => sum + sale.total, 0);
-                const totalPaid = customerPayments.reduce((sum, payment) => sum + payment.amount, 0);
+                const totalPurchases = sales.filter(s => s.customerId === customer.id && s.paymentMethod === 'آجل').reduce((sum, s) => sum + s.total, 0);
+                const totalPaid = customerPayments.reduce((sum, p) => sum + p.amount, 0);
                 totalDebt += (totalPurchases - totalPaid);
             });
             
             document.getElementById('kpi-total-sales').textContent = `${totalSales.toFixed(2)} EGP`;
             document.getElementById('kpi-total-profit').textContent = `${totalProfit.toFixed(2)} EGP`;
             document.getElementById('kpi-total-invoices').textContent = sales.length;
-            document.getElementById('kpi-total-debt').textContent = `${totalDebt.toFixed(2)} EGP`;
+            document.getElementById('kpi-total-debt').textContent = `${totalDebt > 0 ? totalDebt.toFixed(2) : '0.00'} EGP`;
         }
-
+        
         function renderSalesChart(sales) {
             const salesByDay = sales.reduce((acc, sale) => {
-                const date = sale.createdAt.toDate().toLocaleDateString('ar-EG');
+                const date = sale.createdAt.toDate().toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
                 acc[date] = (acc[date] || 0) + sale.total;
                 return acc;
             }, {});
-            const labels = Object.keys(salesByDay);
-            const data = Object.values(salesByDay);
+            const labels = Object.keys(salesByDay); const data = Object.values(salesByDay);
             const ctx = document.getElementById('salesChart').getContext('2d');
             if(salesChart) salesChart.destroy();
             salesChart = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'إجمالي المبيعات', data, backgroundColor: 'rgba(76, 175, 80, 0.5)', borderColor: 'rgba(76, 175, 80, 1)', borderWidth: 1 }] }, options: { responsive: true, scales: { y: { beginAtZero: true } } } });
         }
-
-        function renderTopProducts(sales, products) {
+        
+        function renderTopProducts(sales) {
             const productSales = {};
-            sales.forEach(sale => {
-                sale.items.forEach(item => {
-                    if (!productSales[item.id]) productSales[item.id] = { name: item.name, qty: 0, revenue: 0 };
-                    productSales[item.id].qty += item.qty;
-                    productSales[item.id].revenue += item.qty * item.price;
-                });
-            });
+            sales.forEach(sale => { sale.items.forEach(item => { if (!productSales[item.id]) productSales[item.id] = { name: item.name, qty: 0, revenue: 0 }; productSales[item.id].qty += item.qty; productSales[item.id].revenue += item.qty * item.price; }); });
             const sortedProducts = Object.values(productSales).sort((a,b) => b.revenue - a.revenue).slice(0, 5);
-            const tableBody = document.getElementById('top-products-table');
-            tableBody.innerHTML = '';
+            const tableBody = document.getElementById('top-products-table'); tableBody.innerHTML = '';
             sortedProducts.forEach(p => tableBody.innerHTML += `<tr><td>${p.name}</td><td>${p.qty}</td><td>${p.revenue.toFixed(2)}</td></tr>`);
         }
-
+        
         function renderTopCustomers(sales, customers) {
             const customerSales = {};
             sales.forEach(sale => {
                 const customerId = sale.customerId || 'guest';
-                if (!customerSales[customerId]) {
-                    const customer = customers.find(c => c.id === customerId);
-                    customerSales[customerId] = { name: customer ? customer.name : 'عميل نقدي', total: 0 };
-                }
+                if (!customerSales[customerId]) { const customer = customers.find(c => c.id === customerId); customerSales[customerId] = { name: customer ? customer.name : 'عميل نقدي', total: 0 }; }
                 customerSales[customerId].total += sale.total;
             });
             const sortedCustomers = Object.values(customerSales).sort((a,b) => b.total - a.total).slice(0, 5);
-            const tableBody = document.getElementById('top-customers-table');
-            tableBody.innerHTML = '';
+            const tableBody = document.getElementById('top-customers-table'); tableBody.innerHTML = '';
             sortedCustomers.forEach(c => tableBody.innerHTML += `<tr><td>${c.name}</td><td>${c.total.toFixed(2)}</td></tr>`);
         }
         
         function renderStockAlerts(products) {
             const lowStock = products.filter(p => p.quantity <= 10).slice(0, 5);
-            const expiringSoon = products.filter(p => p.expiryDate && new Date(p.expiryDate) < new Date(new Date().setDate(new Date().getDate() + 30))).slice(0, 5);
-            const lowStockBody = document.getElementById('low-stock-table');
-            const expiringBody = document.getElementById('expiring-soon-table');
-            lowStockBody.innerHTML = '';
-            expiringBody.innerHTML = '';
-            lowStock.forEach(p => lowStockBody.innerHTML += `<tr><td>${p.name}</td><td>${p.quantity}</td></tr>`);
-            expiringSoon.forEach(p => expiringBody.innerHTML += `<tr><td>${p.name}</td><td>${p.expiryDate}</td></tr>`);
+            const lowStockBody = document.getElementById('low-stock-table'); lowStockBody.innerHTML = '';
+            if(lowStock.length > 0) lowStock.forEach(p => lowStockBody.innerHTML += `<tr><td>${p.name}</td><td>${p.quantity}</td></tr>`);
+            else lowStockBody.innerHTML = '<tr><td colspan="2">لا توجد منتجات.</td></tr>';
+        }
+        
+        function renderInvoicesTable(sales, customers, products){
+            const tableBody = document.getElementById('invoices-table');
+            tableBody.innerHTML = '';
+            if(sales.length === 0){ tableBody.innerHTML = '<tr><td colspan="5">لا توجد فواتير في هذه الفترة.</td></tr>'; return;}
+            sales.forEach(sale => {
+                const customer = customers.find(c => c.id === sale.customerId);
+                let invoiceProfit = 0;
+                if(sale.items && Array.isArray(sale.items)){
+                    sale.items.forEach(item => {
+                        const product = products.find(p => p.id === item.id);
+                        const salePrice = parseFloat(item.price) || 0;
+                        const purchasePrice = product ? (parseFloat(product.purchasePrice) || 0) : 0;
+                        if(product) invoiceProfit += (salePrice - purchasePrice) * (parseInt(item.qty) || 0);
+                    });
+                }
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${sale.createdAt.toDate().toLocaleDateString('ar-EG')}</td>
+                        <td>${customer ? customer.name : 'عميل نقدي'}</td>
+                        <td>${sale.total.toFixed(2)}</td>
+                        <td>${invoiceProfit.toFixed(2)}</td>
+                        <td>${sale.paymentMethod}</td>
+                    </tr>
+                `;
+            });
         }
 
         function printReport(event) {
-            const reportCard = event.target.closest('.report-card');
-            const title = reportCard.querySelector('h3, h4').textContent;
+            const reportCard = event.target.closest('.report-card'); const title = reportCard.querySelector('h3, h4').textContent;
             const content = reportCard.querySelector('canvas, .data-table, div[style*="display: flex"]').cloneNode(true);
             if(content.tagName === 'CANVAS'){
-                const image = content.toDataURL('image/png');
-                const printWindow = window.open('', '_blank');
+                const image = content.toDataURL('image/png'); const printWindow = window.open('', '_blank');
                 printWindow.document.write(`<html><head><title>طباعة تقرير: ${title}</title><style>body{font-family:"Tajawal",sans-serif;direction:rtl;}</style></head><body><h2>${title}</h2><img src="${image}" style="max-width:100%;"></body></html>`);
                 printWindow.document.close(); printWindow.print();
             } else {
                  const printWindow = window.open('', '_blank');
-                 printWindow.document.write(`<html><head><title>طباعة تقرير: ${title}</title><style>body{font-family:"Tajawal",sans-serif;direction:rtl;} table{width:100%; border-collapse:collapse;} th,td{padding:8px; border:1px solid #ddd;}</style></head><body><h2>${title}</h2>${content.outerHTML}</body></html>`);
+                 printWindow.document.write(`<html><head><title>طباعة تقرير: ${title}</title><style>body{font-family:"Tajawal",sans-serif;direction:rtl;} table{width:100%; border-collapse:collapse;} th,td{padding:8px; border:1px solid #ddd; text-align: right;}</style></head><body><h2>${title}</h2>${content.outerHTML}</body></html>`);
                  printWindow.document.close(); printWindow.print();
             }
         }
